@@ -1,0 +1,450 @@
+(
+    seed: 7,
+    fractal: Graph((
+        nodes: [
+            (
+                id: 0,
+                kind: Input,
+                name: "Monde",
+                pos: (0.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 1,
+                kind: Output,
+                name: "Cathedrale du neon",
+                pos: (240.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 2,
+                kind: Plane(
+                    normal: (0.0, 1.0, 0.0),
+                    offset: -0.04,
+                ),
+                name: "Parvis reflechissant",
+                pos: (480.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 3,
+                kind: Translate(
+                    offset: (-0.0, -1.7, 0.8),
+                ),
+                name: "Position de la tour",
+                pos: (720.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 4,
+                kind: Rotate(
+                    angles: (0.0, 18.0, 0.0),
+                ),
+                name: "Orientation",
+                pos: (960.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 5,
+                kind: Scale(
+                    factor: 0.6,
+                ),
+                name: "Dimensions",
+                pos: (1200.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 6,
+                kind: MengerFold(
+                    scale: 3.0,
+                    offset: (1.0, 1.0, 1.0),
+                ),
+                name: "Structure de Menger",
+                pos: (1440.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 7,
+                kind: Iterate(
+                    iterations: 4,
+                    bailout: 1000000.0,
+                    body: [
+                        6,
+                    ],
+                ),
+                name: "Quatre niveaux de detail",
+                pos: (1680.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 8,
+                kind: Box(
+                    half: (1.0, 1.0, 1.0),
+                ),
+                name: "Fractale",
+                pos: (0.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 9,
+                kind: Tile(
+                    period: (4.0, 2.0, 4.0),
+                ),
+                name: "Ville modulaire",
+                pos: (240.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 10,
+                kind: MengerFold(
+                    scale: 3.0,
+                    offset: (1.0, 1.0, 1.0),
+                ),
+                name: "Menger des tours",
+                pos: (480.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 11,
+                kind: Iterate(
+                    iterations: 4,
+                    bailout: 1000000.0,
+                    body: [
+                        10,
+                    ],
+                ),
+                name: "Architecture recursive",
+                pos: (720.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 12,
+                kind: Box(
+                    half: (1.0, 1.0, 1.0),
+                ),
+                name: "Facades ajourees",
+                pos: (960.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 13,
+                kind: Translate(
+                    offset: (4.0, -3.0, 4.0),
+                ),
+                name: "Emplacement dans la ville",
+                pos: (1200.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 14,
+                kind: Box(
+                    half: (1.0, 3.0, 1.0),
+                ),
+                name: "Enveloppe de tour",
+                pos: (1440.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 15,
+                kind: Translate(
+                    offset: (-4.0, -3.0, 8.0),
+                ),
+                name: "Emplacement dans la ville",
+                pos: (1680.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 16,
+                kind: Box(
+                    half: (1.0, 3.0, 1.0),
+                ),
+                name: "Enveloppe de tour",
+                pos: (0.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 17,
+                kind: Union,
+                name: "Silhouette urbaine",
+                pos: (240.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 18,
+                kind: Translate(
+                    offset: (-0.0, -3.0, 8.0),
+                ),
+                name: "Emplacement dans la ville",
+                pos: (480.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 19,
+                kind: Box(
+                    half: (1.0, 3.0, 1.0),
+                ),
+                name: "Enveloppe de tour",
+                pos: (720.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 20,
+                kind: Union,
+                name: "Silhouette urbaine",
+                pos: (960.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 21,
+                kind: Intersection,
+                name: "Ville finie",
+                pos: (1200.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 22,
+                kind: Union,
+                name: "Architecture et parvis",
+                pos: (1440.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 23,
+                kind: Union,
+                name: "Architecture et parvis",
+                pos: (1680.0, 320.0),
+                enabled: true,
+            ),
+        ],
+        links: [
+            (
+                from: (0, 0),
+                to: (2, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (3, 0),
+            ),
+            (
+                from: (3, 0),
+                to: (4, 0),
+            ),
+            (
+                from: (4, 0),
+                to: (5, 0),
+            ),
+            (
+                from: (5, 0),
+                to: (7, 0),
+            ),
+            (
+                from: (7, 0),
+                to: (8, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (9, 0),
+            ),
+            (
+                from: (9, 0),
+                to: (11, 0),
+            ),
+            (
+                from: (11, 0),
+                to: (12, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (13, 0),
+            ),
+            (
+                from: (13, 0),
+                to: (14, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (15, 0),
+            ),
+            (
+                from: (15, 0),
+                to: (16, 0),
+            ),
+            (
+                from: (14, 0),
+                to: (17, 0),
+            ),
+            (
+                from: (16, 0),
+                to: (17, 1),
+            ),
+            (
+                from: (0, 0),
+                to: (18, 0),
+            ),
+            (
+                from: (18, 0),
+                to: (19, 0),
+            ),
+            (
+                from: (17, 0),
+                to: (20, 0),
+            ),
+            (
+                from: (19, 0),
+                to: (20, 1),
+            ),
+            (
+                from: (12, 0),
+                to: (21, 0),
+            ),
+            (
+                from: (20, 0),
+                to: (21, 1),
+            ),
+            (
+                from: (2, 0),
+                to: (22, 0),
+            ),
+            (
+                from: (8, 0),
+                to: (22, 1),
+            ),
+            (
+                from: (22, 0),
+                to: (23, 0),
+            ),
+            (
+                from: (21, 0),
+                to: (23, 1),
+            ),
+            (
+                from: (23, 0),
+                to: (1, 0),
+            ),
+        ],
+        safety: 0.85,
+        bounding_radius_hint: 30.0,
+    )),
+    camera: (
+        mode: Free(
+            position: (5.8, 2.5, 8.8),
+            target: (0.0, 1.8, -1.4),
+            roll: 0.0,
+        ),
+        focal_mm: 32.0,
+        f_number: 0.0,
+        focus_distance: 5.0,
+    ),
+    lights: [
+        Hdri(
+            path: "neon-night.exr",
+            intensity: 1.0,
+            rotation: 0.0,
+        ),
+        Area(
+            position: (-2.0, 1.7, -0.4),
+            normal: (0.70710677, 0.0, 0.70710677),
+            size: (0.08, 3.4),
+            color: Linear((0.006, 0.65, 1.0)),
+            intensity: 28.0,
+        ),
+        Area(
+            position: (2.0, 1.7, -0.4),
+            normal: (-0.70710677, 0.0, 0.70710677),
+            size: (0.08, 3.4),
+            color: Linear((1.0, 0.006, 0.23)),
+            intensity: 28.0,
+        ),
+        Area(
+            position: (-2.2, 0.015, 1.7),
+            normal: (0.0, 1.0, 0.0),
+            size: (0.055, 7.0),
+            color: Linear((0.006, 0.65, 1.0)),
+            intensity: 18.0,
+        ),
+        Area(
+            position: (2.2, 0.015, 1.7),
+            normal: (0.0, 1.0, 0.0),
+            size: (0.055, 7.0),
+            color: Linear((1.0, 0.006, 0.23)),
+            intensity: 18.0,
+        ),
+        Area(
+            position: (0.0, 1.8, -4.6),
+            normal: (0.0, 0.0, 1.0),
+            size: (1.4, 0.15),
+            color: Linear((1.0, 0.19, 0.016)),
+            intensity: 40.0,
+        ),
+        Area(
+            position: (-4.0, 3.0, -2.97),
+            normal: (0.0, 0.0, 1.0),
+            size: (0.25, 4.2),
+            color: Linear((0.006, 0.65, 1.0)),
+            intensity: 18.0,
+        ),
+        Area(
+            position: (0.0, 6.8, 0.5),
+            normal: (0.0, -1.0, 0.0),
+            size: (4.0, 3.0),
+            color: Linear((0.07, 0.35, 1.0)),
+            intensity: 1.2,
+        ),
+    ],
+    material: (
+        albedo: (0.45, 0.5, 0.56),
+        roughness: 0.2,
+        metallic: 0.65,
+        specular: 0.04,
+        coloring: r#None,
+        texture: None,
+        surface: Some((
+            slot: 5,
+            roughness: (0.3, 0.11),
+            metallic: (0.55, 0.8),
+        )),
+    ),
+    atmosphere: (
+        fog_density: 0.012,
+        fog_color: (0.68, 0.8, 0.95),
+        fog_height: 0.0,
+        fog_falloff: 0.22,
+        anisotropy: 0.3,
+        cavity_darkness: 0.0,
+        seascape: None,
+    ),
+    look: (
+        exposure_ev: 0.7,
+        auto_exposure: None,
+        temperature: 6500.0,
+        tint: 0.0,
+        shadows: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        midtones: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        highlights: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        tonemap: Agx(
+            slope: 1.0,
+            power: 1.12,
+            offset: 0.0,
+        ),
+        saturation: 1.12,
+        vibrance: 0.2,
+        vignette: Some((
+            radius: 0.9,
+            softness: 0.8,
+            intensity: 0.18,
+            elliptical: true,
+        )),
+        grain: None,
+        output: Srgb,
+        dither: true,
+    ),
+)

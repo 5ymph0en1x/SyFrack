@@ -1,2 +1,17 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+* text=auto eol=lf
+*.rs text eol=lf
+*.wgsl text eol=lf
+*.toml text eol=lf
+*.lock text eol=lf
+*.ron text eol=lf
+*.syf text eol=lf
+*.md text eol=lf
+*.tsv text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.py text eol=lf
+*.ps1 text eol=lf
+*.png binary
+*.jpg binary
+*.hdr binary
+*.ttf binary

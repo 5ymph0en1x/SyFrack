@@ -1,0 +1,230 @@
+(
+    nodes: [
+        (
+            id: 0,
+            kind: Input,
+            name: "Entrée",
+            pos: (0.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 1,
+            kind: Iterate(
+                iterations: 8,
+                bailout: 1000.0,
+                body: [
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                ],
+            ),
+            name: "Répéter",
+            pos: (240.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 2,
+            kind: BoxFold(
+                limit: 1.0,
+            ),
+            name: "Pli boîte",
+            pos: (240.0, 96.0),
+            enabled: true,
+        ),
+        (
+            id: 3,
+            kind: Trap(
+                slot: 0,
+                measure: Norm,
+                scale: 2.0,
+            ),
+            name: "Piège",
+            pos: (240.0, 192.0),
+            enabled: true,
+        ),
+        (
+            id: 4,
+            kind: SphereFold(
+                min_radius: 0.5,
+                fixed_radius: 1.0,
+            ),
+            name: "Pli sphère",
+            pos: (240.0, 288.0),
+            enabled: true,
+        ),
+        (
+            id: 5,
+            kind: Scale(
+                factor: -1.5,
+            ),
+            name: "Échelle",
+            pos: (240.0, 384.0),
+            enabled: true,
+        ),
+        (
+            id: 6,
+            kind: AddOrigin,
+            name: "Ajouter l\'origine",
+            pos: (240.0, 480.0),
+            enabled: true,
+        ),
+        (
+            id: 7,
+            kind: NormFence(
+                inset: 0.0,
+            ),
+            name: "Clôture norme",
+            pos: (480.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 8,
+            kind: Translate(
+                offset: (0.0, 0.5, 0.0),
+            ),
+            name: "Translation",
+            pos: (240.0, 672.0),
+            enabled: true,
+        ),
+        (
+            id: 9,
+            kind: Scale(
+                factor: 0.4,
+            ),
+            name: "Échelle",
+            pos: (480.0, 672.0),
+            enabled: true,
+        ),
+        (
+            id: 10,
+            kind: Iterate(
+                iterations: 3,
+                bailout: 1000000.0,
+                body: [
+                    11,
+                ],
+            ),
+            name: "Répéter",
+            pos: (720.0, 672.0),
+            enabled: true,
+        ),
+        (
+            id: 11,
+            kind: MengerFold(
+                scale: 3.0,
+                offset: (1.0, 1.0, 1.0),
+            ),
+            name: "Pli Menger",
+            pos: (720.0, 768.0),
+            enabled: true,
+        ),
+        (
+            id: 12,
+            kind: Box(
+                half: (1.0, 1.0, 1.0),
+            ),
+            name: "Boîte",
+            pos: (960.0, 672.0),
+            enabled: true,
+        ),
+        (
+            id: 13,
+            kind: Translate(
+                offset: (-3.6, 0.0, 0.0),
+            ),
+            name: "Translation",
+            pos: (240.0, 960.0),
+            enabled: true,
+        ),
+        (
+            id: 14,
+            kind: Sphere(
+                radius: 1.2,
+            ),
+            name: "Sphère",
+            pos: (480.0, 960.0),
+            enabled: true,
+        ),
+        (
+            id: 15,
+            kind: Subtraction,
+            name: "Soustraction",
+            pos: (1200.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 16,
+            kind: SmoothUnion(
+                k: 0.3,
+            ),
+            name: "Union lisse",
+            pos: (1440.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 17,
+            kind: Output,
+            name: "Sortie",
+            pos: (1680.0, 0.0),
+            enabled: true,
+        ),
+    ],
+    links: [
+        (
+            from: (0, 0),
+            to: (1, 0),
+        ),
+        (
+            from: (1, 0),
+            to: (7, 0),
+        ),
+        (
+            from: (0, 0),
+            to: (8, 0),
+        ),
+        (
+            from: (8, 0),
+            to: (9, 0),
+        ),
+        (
+            from: (9, 0),
+            to: (10, 0),
+        ),
+        (
+            from: (10, 0),
+            to: (12, 0),
+        ),
+        (
+            from: (0, 0),
+            to: (13, 0),
+        ),
+        (
+            from: (13, 0),
+            to: (14, 0),
+        ),
+        (
+            from: (7, 0),
+            to: (15, 0),
+        ),
+        (
+            from: (12, 0),
+            to: (15, 1),
+        ),
+        (
+            from: (15, 0),
+            to: (16, 0),
+        ),
+        (
+            from: (14, 0),
+            to: (16, 1),
+        ),
+        (
+            from: (16, 0),
+            to: (17, 0),
+        ),
+    ],
+    safety: 0.5,
+    bounding_radius_hint: 5.0,
+)

@@ -1,0 +1,12 @@
+[package]
+name = "syfrack-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+syfrack-i18n.workspace = true
+glam.workspace = true
+serde.workspace = true
+ron.workspace = true
+thiserror.workspace = true

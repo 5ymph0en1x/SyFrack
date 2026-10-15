@@ -1,0 +1,19 @@
+[package]
+name = "syfrack-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "syfrack"
+path = "src/main.rs"
+
+[dependencies]
+syfrack-i18n.workspace = true
+syfrack-core.workspace = true
+syfrack-render.workspace = true
+syfrack-color.workspace = true
+clap.workspace = true
+anyhow.workspace = true
+ron.workspace = true
+glam.workspace = true

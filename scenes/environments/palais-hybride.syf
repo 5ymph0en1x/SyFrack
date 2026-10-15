@@ -1,0 +1,14 @@
+# Forme 1 · sources nommées ; paramètres après ;
+réglages pas=0.55 rayon=4
+
+courbures_entre_les_terrasses_12 = plier_sphère(; rayon_min=0.65; rayon_fixe=1)
+espace_0 = départ()
+plis_de_structure_2 = menger(; échelle=2.8; position=(1, 1, 1))
+constante_de_la_famille_5 = constante(; multiplicateur=(0, 0, 0); julia=(0.04, 0, -0.08))
+orientation_entre_generations_6 = tourner(; angles=(0, 12, 8))
+lecture_des_replis_7 = mesurer(; canal=0; échelle=2; mesure=norme)
+architecture_recursive_1 = répéter(espace_0; fois=12; seuil=100; étapes=[plis_de_structure_2, courbures_entre_les_terrasses_12, constante_de_la_famille_5, orientation_entre_generations_6, lecture_des_replis_7])
+surface_8 = boîte(architecture_recursive_1; taille=(1, 1, 1))
+limite_de_composition_9 = sphère(espace_0; rayon=4)
+volume_expose_10 = croiser(surface_8, limite_de_composition_9)
+palais_hybride_11 = montrer(volume_expose_10)

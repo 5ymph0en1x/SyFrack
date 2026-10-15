@@ -1,0 +1,83 @@
+(
+    nodes: [
+        (
+            id: 0,
+            kind: Input,
+            name: "Entrée",
+            pos: (0.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 1,
+            kind: Iterate(
+                iterations: 12,
+                bailout: 4.0,
+                body: [
+                    2,
+                    3,
+                    4,
+                ],
+            ),
+            name: "Répéter",
+            pos: (240.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 2,
+            kind: Trap(
+                slot: 0,
+                measure: Norm,
+                scale: 4.0,
+            ),
+            name: "Piège",
+            pos: (240.0, 96.0),
+            enabled: true,
+        ),
+        (
+            id: 3,
+            kind: Power(
+                power: 8.0,
+            ),
+            name: "Puissance polaire",
+            pos: (240.0, 192.0),
+            enabled: true,
+        ),
+        (
+            id: 4,
+            kind: AddOrigin,
+            name: "Ajouter l\'origine",
+            pos: (240.0, 288.0),
+            enabled: true,
+        ),
+        (
+            id: 5,
+            kind: BulbFence,
+            name: "Clôture bulbe",
+            pos: (480.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 6,
+            kind: Output,
+            name: "Sortie",
+            pos: (720.0, 0.0),
+            enabled: true,
+        ),
+    ],
+    links: [
+        (
+            from: (0, 0),
+            to: (1, 0),
+        ),
+        (
+            from: (1, 0),
+            to: (5, 0),
+        ),
+        (
+            from: (5, 0),
+            to: (6, 0),
+        ),
+    ],
+    safety: 0.7,
+    bounding_radius_hint: 2.5,
+)

@@ -1,0 +1,11 @@
+[package]
+name = "syfrack-color"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+syfrack-core.workspace = true
+exr.workspace = true
+png.workspace = true
+anyhow.workspace = true

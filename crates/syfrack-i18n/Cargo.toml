@@ -1,0 +1,8 @@
+[package]
+name = "syfrack-i18n"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "English and French messages and language preferences for SyFrack"
+
+[dependencies]

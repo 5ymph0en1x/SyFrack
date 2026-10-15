@@ -1,0 +1,30 @@
+[package]
+name = "syfrack-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "syfrack_app_lib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "syfrack-studio"
+path = "src/main.rs"
+
+[dependencies]
+syfrack-i18n.workspace = true
+syfrack-core.workspace = true
+syfrack-render.workspace = true
+syfrack-color.workspace = true
+winit.workspace = true
+egui.workspace = true
+egui-winit.workspace = true
+egui-wgpu.workspace = true
+wgpu.workspace = true
+pollster.workspace = true
+anyhow.workspace = true
+bytemuck.workspace = true
+glam.workspace = true
+ron.workspace = true
+png.workspace = true

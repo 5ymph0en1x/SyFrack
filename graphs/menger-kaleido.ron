@@ -1,0 +1,105 @@
+(
+    nodes: [
+        (
+            id: 0,
+            kind: Input,
+            name: "Entrée",
+            pos: (0.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 1,
+            kind: Kaleido(
+                planes: 5,
+                phase: 0.0,
+            ),
+            name: "Kaléidoscope",
+            pos: (240.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 2,
+            kind: Twist(
+                rate: 0.25,
+            ),
+            name: "Torsion",
+            pos: (480.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 3,
+            kind: Iterate(
+                iterations: 5,
+                bailout: 10000.0,
+                body: [
+                    4,
+                    5,
+                ],
+            ),
+            name: "Répéter",
+            pos: (720.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 4,
+            kind: MengerFold(
+                scale: 3.0,
+                offset: (1.0, 1.0, 1.0),
+            ),
+            name: "Pli Menger",
+            pos: (720.0, 96.0),
+            enabled: true,
+        ),
+        (
+            id: 5,
+            kind: Trap(
+                slot: 0,
+                measure: Norm,
+                scale: 4.0,
+            ),
+            name: "Piège",
+            pos: (720.0, 192.0),
+            enabled: true,
+        ),
+        (
+            id: 6,
+            kind: Box(
+                half: (1.0, 1.0, 1.0),
+            ),
+            name: "Boîte",
+            pos: (960.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 7,
+            kind: Output,
+            name: "Sortie",
+            pos: (1200.0, 0.0),
+            enabled: true,
+        ),
+    ],
+    links: [
+        (
+            from: (0, 0),
+            to: (1, 0),
+        ),
+        (
+            from: (1, 0),
+            to: (2, 0),
+        ),
+        (
+            from: (2, 0),
+            to: (3, 0),
+        ),
+        (
+            from: (3, 0),
+            to: (6, 0),
+        ),
+        (
+            from: (6, 0),
+            to: (7, 0),
+        ),
+    ],
+    safety: 0.7,
+    bounding_radius_hint: 4.0,
+)

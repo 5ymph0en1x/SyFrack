@@ -1,0 +1,113 @@
+name: Windows release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing version tag to build (for example v0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  CARGO_INCREMENTAL: '0'
+  RUSTFLAGS: '-C target-feature=+crt-static'
+  RELEASE_TARGET: x86_64-pc-windows-msvc
+
+jobs:
+  build:
+    name: Build and verify Windows x64
+    runs-on: windows-latest
+    timeout-minutes: 90
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      revision: ${{ steps.version.outputs.revision }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+          persist-credentials: false
+      - name: Validate version and record the exact source revision
+        id: version
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          python scripts/package/windows-release.py validate-tag --tag $env:RELEASE_TAG
+          if ($LASTEXITCODE -ne 0) { throw 'Invalid release version.' }
+          $revision = git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve the source revision.' }
+          "tag=$env:RELEASE_TAG" >> $env:GITHUB_OUTPUT
+          "revision=$revision" >> $env:GITHUB_OUTPUT
+      - name: Install the pinned Rust toolchain and Windows target
+        run: |
+          rustup show
+          if ($LASTEXITCODE -ne 0) { throw 'Rust toolchain installation failed.' }
+          rustup target add $env:RELEASE_TARGET
+      - name: Check translations
+        run: python scripts/i18n/audit.py
+      - name: Test the localization audit
+        run: python -m unittest discover -s scripts/i18n -p test_*.py
+      - name: Test release packaging and publication logic
+        run: python -m unittest discover -s scripts/package -p test_*.py
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: CPU and headless UI tests with the release profile
+        run: cargo test --locked --release --target $env:RELEASE_TARGET --workspace --lib
+      - name: Scene and graph integration tests
+        run: cargo test --locked --release --target $env:RELEASE_TARGET -p syfrack-core --tests
+      - name: Build optimized Studio and CLI with the static C runtime
+        run: cargo build --locked --release --target $env:RELEASE_TARGET --workspace --bins
+      - name: Package and verify the portable archive
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_REVISION: ${{ steps.version.outputs.revision }}
+        run: |
+          python scripts/package/windows-release.py build --tag $env:RELEASE_TAG --revision $env:RELEASE_REVISION --target-dir target --output-dir dist
+          if ($LASTEXITCODE -ne 0) { throw 'Release packaging failed.' }
+          $archive = Get-ChildItem -LiteralPath dist -Filter '*.zip'
+          if (@($archive).Count -ne 1) { throw 'Expected one release archive.' }
+          python scripts/package/windows-release.py verify --archive $archive.FullName --smoke-test
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows-release
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS.txt
+            dist/RELEASE_NOTES.md
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+  publish:
+    name: Publish downloadable release assets
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.build.outputs.revision }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: windows-release
+          path: dist
+      - name: Attach verified binaries and publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+          RELEASE_REVISION: ${{ needs.build.outputs.revision }}
+        run: python scripts/package/publish-release.py --tag "$RELEASE_TAG" --revision "$RELEASE_REVISION" --assets dist

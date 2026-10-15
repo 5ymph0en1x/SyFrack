@@ -1,0 +1,982 @@
+(
+    seed: 7,
+    fractal: Graph((
+        nodes: [
+            (
+                id: 0,
+                kind: Input,
+                name: "Entrée",
+                pos: (0.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 1,
+                kind: Translate(
+                    offset: (3.7, 0.6, 1.8),
+                ),
+                name: "Translation",
+                pos: (70.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 2,
+                kind: Rotate(
+                    angles: (12.0, 24.0, -7.0),
+                ),
+                name: "Rotation",
+                pos: (140.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 3,
+                kind: RoundBox(
+                    half: (2.3, 1.5, 1.5),
+                    radius: 0.35,
+                ),
+                name: "Boîte arrondie",
+                pos: (210.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 4,
+                kind: MaterialTag(
+                    index: 1,
+                ),
+                name: "Matériau de branche",
+                pos: (280.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 5,
+                kind: Translate(
+                    offset: (2.6, -0.5, 2.4),
+                ),
+                name: "Translation",
+                pos: (350.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 6,
+                kind: Rotate(
+                    angles: (-14.0, -7.0, 9.0),
+                ),
+                name: "Rotation",
+                pos: (420.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 7,
+                kind: RoundBox(
+                    half: (1.6, 0.8, 1.0),
+                    radius: 0.35,
+                ),
+                name: "Boîte arrondie",
+                pos: (490.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 8,
+                kind: MaterialTag(
+                    index: 1,
+                ),
+                name: "Matériau de branche",
+                pos: (560.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 9,
+                kind: Translate(
+                    offset: (-3.1, 0.65, 5.0),
+                ),
+                name: "Translation",
+                pos: (630.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 10,
+                kind: Rotate(
+                    angles: (4.0, -31.0, 12.0),
+                ),
+                name: "Rotation",
+                pos: (700.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 11,
+                kind: RoundBox(
+                    half: (2.0, 1.4, 1.35),
+                    radius: 0.35,
+                ),
+                name: "Boîte arrondie",
+                pos: (770.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 12,
+                kind: MaterialTag(
+                    index: 1,
+                ),
+                name: "Matériau de branche",
+                pos: (840.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 13,
+                kind: Translate(
+                    offset: (-0.4, 0.9, -2.7),
+                ),
+                name: "Translation",
+                pos: (910.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 14,
+                kind: Rotate(
+                    angles: (9.0, 12.0, -11.0),
+                ),
+                name: "Rotation",
+                pos: (980.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 15,
+                kind: RoundBox(
+                    half: (1.05, 1.1, 1.5),
+                    radius: 0.35,
+                ),
+                name: "Boîte arrondie",
+                pos: (1050.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 16,
+                kind: MaterialTag(
+                    index: 1,
+                ),
+                name: "Matériau de branche",
+                pos: (1120.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 17,
+                kind: Translate(
+                    offset: (5.2, 1.2, -3.3),
+                ),
+                name: "Translation",
+                pos: (1190.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 18,
+                kind: Rotate(
+                    angles: (-8.0, 39.0, 6.0),
+                ),
+                name: "Rotation",
+                pos: (1260.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 19,
+                kind: RoundBox(
+                    half: (0.85, 1.0, 0.9),
+                    radius: 0.35,
+                ),
+                name: "Boîte arrondie",
+                pos: (1330.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 20,
+                kind: MaterialTag(
+                    index: 1,
+                ),
+                name: "Matériau de branche",
+                pos: (1400.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 21,
+                kind: Translate(
+                    offset: (-1.2, 0.7, -0.3),
+                ),
+                name: "Translation",
+                pos: (1470.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 22,
+                kind: Rotate(
+                    angles: (0.0, 18.0, 0.0),
+                ),
+                name: "Rotation",
+                pos: (1540.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 23,
+                kind: RoundBox(
+                    half: (0.32, 0.13, 1.5),
+                    radius: 0.06,
+                ),
+                name: "Boîte arrondie",
+                pos: (1610.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 24,
+                kind: MaterialTag(
+                    index: 2,
+                ),
+                name: "Matériau de branche",
+                pos: (1680.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 25,
+                kind: Translate(
+                    offset: (-2.0500002, 0.94, -0.3),
+                ),
+                name: "Translation",
+                pos: (1750.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 26,
+                kind: Rotate(
+                    angles: (0.0, 18.0, 0.0),
+                ),
+                name: "Rotation",
+                pos: (1820.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 27,
+                kind: RoundBox(
+                    half: (0.32, 0.13, 1.5),
+                    radius: 0.06,
+                ),
+                name: "Boîte arrondie",
+                pos: (1890.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 28,
+                kind: MaterialTag(
+                    index: 3,
+                ),
+                name: "Matériau de branche",
+                pos: (1960.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 29,
+                kind: Translate(
+                    offset: (-2.9, 1.18, -0.3),
+                ),
+                name: "Translation",
+                pos: (2030.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 30,
+                kind: Rotate(
+                    angles: (0.0, 18.0, 0.0),
+                ),
+                name: "Rotation",
+                pos: (2100.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 31,
+                kind: RoundBox(
+                    half: (0.32, 0.13, 1.5),
+                    radius: 0.06,
+                ),
+                name: "Boîte arrondie",
+                pos: (2170.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 32,
+                kind: MaterialTag(
+                    index: 2,
+                ),
+                name: "Matériau de branche",
+                pos: (2240.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 33,
+                kind: Translate(
+                    offset: (-3.7500002, 1.42, -0.3),
+                ),
+                name: "Translation",
+                pos: (2310.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 34,
+                kind: Rotate(
+                    angles: (0.0, 18.0, 0.0),
+                ),
+                name: "Rotation",
+                pos: (2380.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 35,
+                kind: RoundBox(
+                    half: (0.32, 0.13, 1.5),
+                    radius: 0.06,
+                ),
+                name: "Boîte arrondie",
+                pos: (2450.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 36,
+                kind: MaterialTag(
+                    index: 3,
+                ),
+                name: "Matériau de branche",
+                pos: (2520.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 37,
+                kind: Translate(
+                    offset: (-4.6000004, 1.66, -0.3),
+                ),
+                name: "Translation",
+                pos: (2590.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 38,
+                kind: Rotate(
+                    angles: (0.0, 18.0, 0.0),
+                ),
+                name: "Rotation",
+                pos: (2660.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 39,
+                kind: RoundBox(
+                    half: (0.32, 0.13, 1.5),
+                    radius: 0.06,
+                ),
+                name: "Boîte arrondie",
+                pos: (2730.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 40,
+                kind: MaterialTag(
+                    index: 2,
+                ),
+                name: "Matériau de branche",
+                pos: (2800.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 41,
+                kind: Translate(
+                    offset: (3.5, -1.25, 2.2),
+                ),
+                name: "Translation",
+                pos: (2870.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 42,
+                kind: Rotate(
+                    angles: (0.0, 0.0, 0.0),
+                ),
+                name: "Rotation",
+                pos: (2940.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 43,
+                kind: Cylinder(
+                    radius: 0.12,
+                    half_height: 1.0,
+                ),
+                name: "Cylindre",
+                pos: (3010.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 44,
+                kind: MaterialTag(
+                    index: 4,
+                ),
+                name: "Matériau de branche",
+                pos: (3080.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 45,
+                kind: Translate(
+                    offset: (3.5, -2.3, 2.2),
+                ),
+                name: "Translation",
+                pos: (3150.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 46,
+                kind: Rotate(
+                    angles: (0.0, 0.0, 0.0),
+                ),
+                name: "Rotation",
+                pos: (3220.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 47,
+                kind: Sphere(
+                    radius: 0.21,
+                ),
+                name: "Sphère",
+                pos: (3290.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 48,
+                kind: MaterialTag(
+                    index: 5,
+                ),
+                name: "Matériau de branche",
+                pos: (3360.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 49,
+                kind: Union,
+                name: "Union",
+                pos: (3430.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 50,
+                kind: Union,
+                name: "Union",
+                pos: (3500.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 51,
+                kind: Union,
+                name: "Union",
+                pos: (3570.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 52,
+                kind: Union,
+                name: "Union",
+                pos: (3640.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 53,
+                kind: Union,
+                name: "Union",
+                pos: (3710.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 54,
+                kind: Union,
+                name: "Union",
+                pos: (3780.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 55,
+                kind: Union,
+                name: "Union",
+                pos: (3850.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 56,
+                kind: Union,
+                name: "Union",
+                pos: (3920.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 57,
+                kind: Union,
+                name: "Union",
+                pos: (3990.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 58,
+                kind: Union,
+                name: "Union",
+                pos: (4060.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 59,
+                kind: Union,
+                name: "Union",
+                pos: (4130.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 60,
+                kind: Output,
+                name: "Sortie",
+                pos: (4200.0, 0.0),
+                enabled: true,
+            ),
+        ],
+        links: [
+            (
+                from: (0, 0),
+                to: (1, 0),
+            ),
+            (
+                from: (1, 0),
+                to: (2, 0),
+            ),
+            (
+                from: (2, 0),
+                to: (3, 0),
+            ),
+            (
+                from: (3, 0),
+                to: (4, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (5, 0),
+            ),
+            (
+                from: (5, 0),
+                to: (6, 0),
+            ),
+            (
+                from: (6, 0),
+                to: (7, 0),
+            ),
+            (
+                from: (7, 0),
+                to: (8, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (9, 0),
+            ),
+            (
+                from: (9, 0),
+                to: (10, 0),
+            ),
+            (
+                from: (10, 0),
+                to: (11, 0),
+            ),
+            (
+                from: (11, 0),
+                to: (12, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (13, 0),
+            ),
+            (
+                from: (13, 0),
+                to: (14, 0),
+            ),
+            (
+                from: (14, 0),
+                to: (15, 0),
+            ),
+            (
+                from: (15, 0),
+                to: (16, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (17, 0),
+            ),
+            (
+                from: (17, 0),
+                to: (18, 0),
+            ),
+            (
+                from: (18, 0),
+                to: (19, 0),
+            ),
+            (
+                from: (19, 0),
+                to: (20, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (21, 0),
+            ),
+            (
+                from: (21, 0),
+                to: (22, 0),
+            ),
+            (
+                from: (22, 0),
+                to: (23, 0),
+            ),
+            (
+                from: (23, 0),
+                to: (24, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (25, 0),
+            ),
+            (
+                from: (25, 0),
+                to: (26, 0),
+            ),
+            (
+                from: (26, 0),
+                to: (27, 0),
+            ),
+            (
+                from: (27, 0),
+                to: (28, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (29, 0),
+            ),
+            (
+                from: (29, 0),
+                to: (30, 0),
+            ),
+            (
+                from: (30, 0),
+                to: (31, 0),
+            ),
+            (
+                from: (31, 0),
+                to: (32, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (33, 0),
+            ),
+            (
+                from: (33, 0),
+                to: (34, 0),
+            ),
+            (
+                from: (34, 0),
+                to: (35, 0),
+            ),
+            (
+                from: (35, 0),
+                to: (36, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (37, 0),
+            ),
+            (
+                from: (37, 0),
+                to: (38, 0),
+            ),
+            (
+                from: (38, 0),
+                to: (39, 0),
+            ),
+            (
+                from: (39, 0),
+                to: (40, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (41, 0),
+            ),
+            (
+                from: (41, 0),
+                to: (42, 0),
+            ),
+            (
+                from: (42, 0),
+                to: (43, 0),
+            ),
+            (
+                from: (43, 0),
+                to: (44, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (45, 0),
+            ),
+            (
+                from: (45, 0),
+                to: (46, 0),
+            ),
+            (
+                from: (46, 0),
+                to: (47, 0),
+            ),
+            (
+                from: (47, 0),
+                to: (48, 0),
+            ),
+            (
+                from: (4, 0),
+                to: (49, 0),
+            ),
+            (
+                from: (8, 0),
+                to: (49, 1),
+            ),
+            (
+                from: (49, 0),
+                to: (50, 0),
+            ),
+            (
+                from: (12, 0),
+                to: (50, 1),
+            ),
+            (
+                from: (50, 0),
+                to: (51, 0),
+            ),
+            (
+                from: (16, 0),
+                to: (51, 1),
+            ),
+            (
+                from: (51, 0),
+                to: (52, 0),
+            ),
+            (
+                from: (20, 0),
+                to: (52, 1),
+            ),
+            (
+                from: (52, 0),
+                to: (53, 0),
+            ),
+            (
+                from: (24, 0),
+                to: (53, 1),
+            ),
+            (
+                from: (53, 0),
+                to: (54, 0),
+            ),
+            (
+                from: (28, 0),
+                to: (54, 1),
+            ),
+            (
+                from: (54, 0),
+                to: (55, 0),
+            ),
+            (
+                from: (32, 0),
+                to: (55, 1),
+            ),
+            (
+                from: (55, 0),
+                to: (56, 0),
+            ),
+            (
+                from: (36, 0),
+                to: (56, 1),
+            ),
+            (
+                from: (56, 0),
+                to: (57, 0),
+            ),
+            (
+                from: (40, 0),
+                to: (57, 1),
+            ),
+            (
+                from: (57, 0),
+                to: (58, 0),
+            ),
+            (
+                from: (44, 0),
+                to: (58, 1),
+            ),
+            (
+                from: (58, 0),
+                to: (59, 0),
+            ),
+            (
+                from: (48, 0),
+                to: (59, 1),
+            ),
+            (
+                from: (59, 0),
+                to: (60, 0),
+            ),
+        ],
+        safety: 1.0,
+        bounding_radius_hint: 40.0,
+    )),
+    camera: (
+        mode: Free(
+            position: (12.0, 9.0, 18.0),
+            target: (-0.5, 0.0, -1.0),
+            roll: 0.0,
+        ),
+        focal_mm: 43.0,
+        f_number: 0.0,
+        focus_distance: 5.0,
+    ),
+    lights: [
+        Sun(
+            direction: (-0.5631145, 0.24777038, -0.7883603),
+            color: Kelvin(4200.0),
+            intensity: 0.85,
+            angular_size: 3.0,
+        ),
+        Area(
+            position: (-20.0, 40.0, 30.0),
+            normal: (0.2761724, -0.9205746, -0.2761724),
+            size: (25.0, 25.0),
+            color: Kelvin(9500.0),
+            intensity: 0.65,
+        ),
+        Area(
+            position: (-3.5, 2.2, -2.2),
+            normal: (0.0, -1.0, 0.0),
+            size: (0.3, 0.3),
+            color: Kelvin(2400.0),
+            intensity: 55.0,
+        ),
+    ],
+    material: (
+        albedo: (0.7, 0.65, 0.6),
+        roughness: 0.4,
+        metallic: 0.0,
+        specular: 0.04,
+        coloring: r#None,
+        texture: None,
+        surface: None,
+        finishes: [
+            (
+                name: "Wet basalt",
+                albedo: (0.09, 0.105, 0.1),
+                roughness: 0.25,
+                metallic: 0.0,
+                specular: 0.04,
+                emission: (0.0, 0.0, 0.0),
+                detail: None,
+            ),
+            (
+                name: "Submerged limestone",
+                albedo: (0.75, 0.6, 0.36),
+                roughness: 0.6,
+                metallic: 0.0,
+                specular: 0.04,
+                emission: (0.0, 0.0, 0.0),
+                detail: None,
+            ),
+            (
+                name: "Submerged copper",
+                albedo: (0.3, 0.09, 0.025),
+                roughness: 0.4,
+                metallic: 0.65,
+                specular: 0.04,
+                emission: (0.0, 0.0, 0.0),
+                detail: None,
+            ),
+            (
+                name: "Beacon bronze",
+                albedo: (0.35, 0.2, 0.08),
+                roughness: 0.24,
+                metallic: 0.85,
+                specular: 0.04,
+                emission: (0.0, 0.0, 0.0),
+                detail: None,
+            ),
+            (
+                name: "Amber lantern",
+                albedo: (0.6, 0.2, 0.04),
+                roughness: 0.4,
+                metallic: 0.0,
+                specular: 0.04,
+                emission: (12.0, 4.0, 0.65),
+                detail: None,
+            ),
+        ],
+    ),
+    atmosphere: (
+        fog_density: 0.0,
+        fog_color: (1.0, 1.0, 1.0),
+        fog_height: 0.0,
+        fog_falloff: 1.0,
+        anisotropy: 0.0,
+        cavity_darkness: 0.0,
+        seascape: Some((
+            sea_level: 0.0,
+            sky_zenith: (0.065, 0.14, 0.3),
+            sky_horizon: (0.48, 0.33, 0.24),
+            water_color: (0.045, 0.16, 0.19),
+            intensity: 1.0,
+            wave_strength: 0.22,
+            wave_scale: 0.65,
+            clouds: 0.28,
+            haze: 0.35,
+            surface: Some((
+                wave_height: 0.6,
+                wavelength: 6.0,
+                wind_direction: -28.0,
+                crest_sharpness: 0.8,
+                time: 8.0,
+                ripple_strength: 0.12,
+                roughness: 0.12,
+                foam_amount: 0.85,
+                shore_width: 0.8,
+                depth: 6.0,
+                ior: 1.333,
+                absorption: (0.18, 0.045, 0.025),
+                scattering: 0.04,
+                foam_color: (0.88, 0.93, 0.91),
+                seabed_color: (0.19, 0.23, 0.2),
+            )),
+        )),
+    ),
+    look: (
+        exposure_ev: 1.2,
+        auto_exposure: None,
+        temperature: 6500.0,
+        tint: 0.0,
+        shadows: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        midtones: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        highlights: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        tonemap: Agx(
+            slope: 1.0,
+            power: 1.0,
+            offset: 0.0,
+        ),
+        saturation: 1.0,
+        vibrance: 0.0,
+        vignette: None,
+        grain: None,
+        output: Srgb,
+        dither: true,
+    ),
+)

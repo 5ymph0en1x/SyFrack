@@ -1,0 +1,437 @@
+(
+    seed: 10102026,
+    fractal: Graph((
+        nodes: [
+            (
+                id: 0,
+                kind: Input,
+                name: "Espace de la cite",
+                pos: (0.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 1,
+                kind: Rotate(
+                    angles: (90.0, 0.0, 0.0),
+                ),
+                name: "Axe du puits",
+                pos: (230.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 2,
+                kind: Kaleido(
+                    planes: 7,
+                    phase: 9.0,
+                ),
+                name: "Sept galeries en couronne",
+                pos: (460.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 3,
+                kind: Translate(
+                    offset: (-1.25, 0.0, 0.0),
+                ),
+                name: "Decentrer les galeries",
+                pos: (690.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 4,
+                kind: MengerFold(
+                    scale: 2.78,
+                    offset: (1.0, 1.0, 1.0),
+                ),
+                name: "Plis des galeries",
+                pos: (920.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 5,
+                kind: SphereFold(
+                    min_radius: 0.65,
+                    fixed_radius: 1.0,
+                ),
+                name: "Voutes courbes",
+                pos: (1150.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 6,
+                kind: AddConstant(
+                    multiplier: (0.0, 0.0, 0.0),
+                    julia: (0.065, 0.012, -0.08),
+                ),
+                name: "Courbure asymetrique",
+                pos: (1380.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 7,
+                kind: Rotate(
+                    angles: (0.0, 13.0, 8.0),
+                ),
+                name: "Torsion recursive",
+                pos: (1610.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 8,
+                kind: Trap(
+                    slot: 0,
+                    measure: Norm,
+                    scale: 1.8,
+                ),
+                name: "Strates du metal",
+                pos: (1840.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 9,
+                kind: Iterate(
+                    iterations: 14,
+                    bailout: 100.0,
+                    body: [
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                    ],
+                ),
+                name: "Quatorze echelles imbriquees",
+                pos: (2070.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 10,
+                kind: Box(
+                    half: (1.0, 1.0, 1.0),
+                ),
+                name: "Surface du puits",
+                pos: (2300.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 11,
+                kind: Cylinder(
+                    radius: 0.43,
+                    half_height: 6.0,
+                ),
+                name: "Ouverture centrale",
+                pos: (2530.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 12,
+                kind: Subtraction,
+                name: "Lumiere au fond du puits",
+                pos: (0.0, 140.0),
+                enabled: true,
+            ),
+            (
+                id: 13,
+                kind: Sphere(
+                    radius: 4.6,
+                ),
+                name: "Emprise du monde",
+                pos: (230.0, 140.0),
+                enabled: true,
+            ),
+            (
+                id: 14,
+                kind: Intersection,
+                name: "Corolle architecturale",
+                pos: (460.0, 140.0),
+                enabled: true,
+            ),
+            (
+                id: 15,
+                kind: Instances(
+                    placements: [
+                        (position: (0.0, 0.0, -4.2), angles: (0.0, 0.0, -13.0), scale: (0.13, 0.13, 0.13)),
+                        (position: (0.0, 0.0, -2.8), angles: (0.0, 0.0, 23.0), scale: (0.36, 0.36, 0.36)),
+                        (position: (0.0, 0.0, 0.0), angles: (0.0, 0.0, 0.0), scale: (1.0, 1.0, 1.0)),
+                    ],
+                    half: (4.7, 4.7, 4.7),
+                    margin: 0.45,
+                ),
+                name: "Trois profondeurs du puits",
+                pos: (690.0, 140.0),
+                enabled: true,
+            ),
+            (
+                id: 16,
+                kind: Output,
+                name: "Le Puits des Eons",
+                pos: (920.0, 140.0),
+                enabled: true,
+            ),
+        ],
+        links: [
+            (
+                from: (0, 0),
+                to: (1, 0),
+            ),
+            (
+                from: (1, 0),
+                to: (2, 0),
+            ),
+            (
+                from: (2, 0),
+                to: (3, 0),
+            ),
+            (
+                from: (3, 0),
+                to: (9, 0),
+            ),
+            (
+                from: (9, 0),
+                to: (10, 0),
+            ),
+            (
+                from: (1, 0),
+                to: (11, 0),
+            ),
+            (
+                from: (10, 0),
+                to: (12, 0),
+            ),
+            (
+                from: (11, 0),
+                to: (12, 1),
+            ),
+            (
+                from: (0, 0),
+                to: (13, 0),
+            ),
+            (
+                from: (12, 0),
+                to: (14, 0),
+            ),
+            (
+                from: (13, 0),
+                to: (14, 1),
+            ),
+            (
+                from: (14, 0),
+                to: (15, 0),
+            ),
+            (
+                from: (15, 0),
+                to: (16, 0),
+            ),
+        ],
+        safety: 0.55,
+        bounding_radius_hint: 8.0,
+    )),
+    camera: (
+        mode: Free(
+            position: (0.8, 0.4, 5.1),
+            target: (-0.15, 0.05, -1.0),
+            roll: -12.0,
+        ),
+        focal_mm: 42.0,
+        f_number: 0.0,
+        focus_distance: 4.0,
+    ),
+    lights: [
+        Sun(
+            direction: (-0.48, 0.66, 0.58),
+            color: Linear((1.0, 0.76, 0.43)),
+            intensity: 4.0,
+            angular_size: 5.0,
+        ),
+        Area(
+            position: (4.0, 4.0, 5.0),
+            normal: (-0.53, -0.53, -0.66),
+            size: (4.0, 4.0),
+            color: Linear((0.1, 0.65, 1.0)),
+            intensity: 10.628947,
+        ),
+        Area(
+            position: (0.0, 0.85, -1.8),
+            normal: (0.0, -0.3, -1.0),
+            size: (0.6, 0.55),
+            color: Kelvin(3740.0),
+            intensity: 18.0,
+        ),
+        Environment(
+            zenith: Linear((0.035, 0.075, 0.12)),
+            horizon: Linear((0.035, 0.08, 0.095)),
+            ground: Linear((0.018, 0.035, 0.055)),
+            intensity: 0.5,
+            rotation: 0.0,
+        ),
+    ],
+    material: (
+        albedo: (0.8, 0.8, 0.8),
+        roughness: 0.4,
+        metallic: 0.55,
+        specular: 0.04,
+        coloring: Trap(
+            slot: 0,
+            ramp: (
+                stops: [
+                    (0.04, 0.11, 0.14),
+                    (0.11, 0.32, 0.31),
+                    (0.57, 0.36, 0.16),
+                    (0.88, 0.71, 0.45),
+                ],
+            ),
+        ),
+        texture: Some((
+            graph: (
+                nodes: [
+                    (
+                        id: 0,
+                        kind: Input,
+                        name: "Entrée",
+                        pos: (0.0, 0.0),
+                        enabled: true,
+                    ),
+                    (
+                        id: 1,
+                        kind: Iterate(iterations: 12, bailout: 1000.0, body: [2, 3, 4, 5, 6]),
+                        name: "Répéter",
+                        pos: (240.0, 0.0),
+                        enabled: true,
+                    ),
+                    (
+                        id: 2,
+                        kind: BoxFold(limit: 1.0),
+                        name: "Pli boîte",
+                        pos: (240.0, 96.0),
+                        enabled: true,
+                    ),
+                    (
+                        id: 3,
+                        kind: Trap(slot: 0, measure: Norm, scale: 2.0),
+                        name: "Piège",
+                        pos: (240.0, 192.0),
+                        enabled: true,
+                    ),
+                    (
+                        id: 4,
+                        kind: SphereFold(min_radius: 0.5, fixed_radius: 1.0),
+                        name: "Pli sphère",
+                        pos: (240.0, 288.0),
+                        enabled: true,
+                    ),
+                    (
+                        id: 5,
+                        kind: Scale(factor: 2.0),
+                        name: "Échelle",
+                        pos: (240.0, 384.0),
+                        enabled: true,
+                    ),
+                    (
+                        id: 6,
+                        kind: AddOrigin,
+                        name: "Ajouter l\'origine",
+                        pos: (240.0, 480.0),
+                        enabled: true,
+                    ),
+                    (
+                        id: 7,
+                        kind: NormFence(inset: 0.0),
+                        name: "Clôture norme",
+                        pos: (480.0, 0.0),
+                        enabled: true,
+                    ),
+                    (
+                        id: 8,
+                        kind: Output,
+                        name: "Sortie",
+                        pos: (720.0, 0.0),
+                        enabled: true,
+                    ),
+                ],
+                links: [
+                    (
+                        from: (0, 0),
+                        to: (1, 0),
+                    ),
+                    (
+                        from: (1, 0),
+                        to: (7, 0),
+                    ),
+                    (
+                        from: (7, 0),
+                        to: (8, 0),
+                    ),
+                ],
+                safety: 0.6,
+                bounding_radius_hint: 10.392304,
+            ),
+            channel: Trap(
+                slot: 0,
+            ),
+            scale: 3.0,
+            offset: (0.37, 0.19, 0.53),
+            rotation: (0.0, 0.0, 0.0),
+            octaves: 2,
+            contrast: 2.0,
+            ramp: (
+                stops: [
+                    (0.18, 0.34, 0.39),
+                    (0.9, 0.69, 0.37),
+                ],
+            ),
+            strength: 0.35,
+            roughness: 0.15,
+            bump: 0.0,
+            parallax: 0.0,
+            parallax_steps: 8,
+            fan: None,
+            mask: None,
+        )),
+        surface: Some((
+            slot: 0,
+            roughness: (0.5, 0.34),
+            metallic: (0.25, 0.7),
+        )),
+        finishes: [],
+    ),
+    atmosphere: (
+        fog_density: 0.0,
+        fog_color: (1.0, 1.0, 1.0),
+        fog_height: 0.0,
+        fog_falloff: 0.1,
+        anisotropy: 0.0,
+        cavity_darkness: 0.05,
+        seascape: None,
+        ground: None,
+        portal: None,
+    ),
+    look: (
+        exposure_ev: 0.7,
+        auto_exposure: None,
+        temperature: 6500.0,
+        tint: 0.0,
+        shadows: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        midtones: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        highlights: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        tonemap: Agx(
+            slope: 1.0,
+            power: 1.12,
+            offset: 0.0,
+        ),
+        saturation: 1.0,
+        vibrance: 0.0,
+        vignette: None,
+        grain: None,
+        output: Srgb,
+        dither: true,
+    ),
+)

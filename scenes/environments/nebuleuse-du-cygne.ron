@@ -1,0 +1,35 @@
+// NEBULEUSE DU CYGNE - etude procedurale inspiree de la reference bleu/orange.
+// Aucun fond photographique : volume 3D, poussiere absorbante et etoiles.
+// Atmosphere > Nuage / nebuleuse volumetrique. 32 pas pour etudier, 128-192 pour finir.
+(
+    seed: 111026,
+    fractal: Graph((
+        nodes: [
+            (id: 0, kind: Input, name: "Espace", pos: (0.0,0.0), enabled: true),
+            (id: 1, kind: Plane(normal: (0.0,1.0,0.0), offset: -100.0), name: "Support hors champ", pos: (240.0,0.0), enabled: true),
+            (id: 2, kind: Output, name: "Nébuleuse volumétrique", pos: (480.0,0.0), enabled: true),
+        ],
+        links: [(from: (0,0), to: (1,0)), (from: (1,0), to: (2,0))],
+        safety: 1.0, bounding_radius_hint: 1.0,
+    )),
+    camera: (mode: Free(position: (0.0,0.0,25.0), target: (0.0,0.0,0.0), roll: 0.0), focal_mm: 30.0, f_number: 0.0, focus_distance: 25.0),
+    lights: [Environment(zenith: Linear((0.0,0.0,0.0)), horizon: Linear((0.0,0.0,0.0)), ground: Linear((0.0,0.0,0.0)), intensity: 0.0, rotation: 0.0)],
+    material: (albedo: (0.0,0.0,0.0), roughness: 1.0, metallic: 0.0, specular: 0.0, coloring: None),
+    atmosphere: (
+        fog_density: 0.0, fog_color: (1.0,1.0,1.0), fog_height: 0.0, fog_falloff: 1.0, anisotropy: 0.0, cavity_darkness: 0.0,
+        nebula: Some((center: (4.0,-0.6,0.0), half_size: (14.0,7.0,0.9), angle: 55.0,
+            particles: Some((count: 4000000, resolution: 1536, time: 1.5, smoke: false, filaments: true,
+                buoyancy: 0.0, wind: (0.4,0.0,0.0), radius: 0.75, dissipation: 0.01,
+                shadow_steps: 32, multiple_scattering: 0.25)),
+            density: 0.80, emission: 1.25, dust: 8.0, scattering: 0.3, anisotropy: 0.35, turbulence: 1.2, detail: 2.5,
+            cool_color: (0.018,0.17,0.29), warm_color: (1.0,0.20,0.025),
+            core_position: (4.2,-0.6,-0.3), core_radius: 0.8, core_energy: 4.0,
+            stars: 0.09, seed: 407, steps: 192)),
+    ),
+    look: (exposure_ev: 0.0, auto_exposure: None, temperature: 6500.0, tint: 0.0,
+        shadows: (offset: (0.0,0.0,0.0), gain: 0.0), midtones: (offset: (0.0,0.0,0.0), gain: 0.0), highlights: (offset: (0.0,0.0,0.0), gain: 0.0),
+        tonemap: Agx(slope: 1.0, power: 1.25, offset: 0.0), saturation: 1.05, vibrance: 0.0, vignette: None, grain: None, output: Srgb, dither: true),
+)
+
+
+

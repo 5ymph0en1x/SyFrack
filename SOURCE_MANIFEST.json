@@ -1,0 +1,1539 @@
+{
+  "format": 1,
+  "generated_at_utc": "2026-10-15T05:29:41.460000+00:00",
+  "purpose": "Local source preparation; no Git initialization, remote or upload",
+  "file_count": 306,
+  "total_bytes": 23068187,
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 288,
+      "sha256": "62a8b521b5dddc09c4aef7ac95c71d67be0bd9a651a309c8e6f71e5913a43479"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+      "bytes": 587,
+      "sha256": "a93db519ebd7ec6df6df7e50834d23e47f3a8d87341c8b47237f8cf81d003aa6"
+    },
+    {
+      "path": ".github/pull_request_template.md",
+      "bytes": 245,
+      "sha256": "a1e9df571913c3c70566f466d47ab608a131c87f9ffceaceb78cd25db025cb74"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 1105,
+      "sha256": "f888023850c30a94e8f81a262a3cd860479cdcba9869337d0f12770d2bf186e8"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "bytes": 4287,
+      "sha256": "aba3f040bc4a11a5eef046884fff0feacbc7a281e354a09c9695c0a074177722"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 210,
+      "sha256": "3a5f80164cfeb5c84e3035b0aa6d24bf01fd1651766d749e358e2cb5422ac7e9"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 816,
+      "sha256": "ad5e69a0c9a3ccd45a1962ea286a5554e5e93af0189b6728aaf1fef91d89dd0c"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "bytes": 1528,
+      "sha256": "49d4056f991b5599db1df61f52f72fd9ca6c9a980408dbb6e572e1c9ab183fd6"
+    },
+    {
+      "path": "Cargo.lock",
+      "bytes": 98350,
+      "sha256": "572ef03bb0cbaa97abe113206ea22df1f6213591b6ca127cee720d298164baa2"
+    },
+    {
+      "path": "Cargo.toml",
+      "bytes": 1214,
+      "sha256": "70da84ff5fd96cec7ed8fac72b4f188f67bf62388c8c3ebf7aee5a1905357cb3"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1077,
+      "sha256": "daf2f8de7a4c9b3e5e63f18dd2659be4ecf53cbdc63e09502567a60e338f4ac2"
+    },
+    {
+      "path": "README.fr.md",
+      "bytes": 3835,
+      "sha256": "4824db910114a532ed9fc0e832385a946f8c8848285969eb96e5d783dcd4bdd9"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5315,
+      "sha256": "252b55fe373d097fb819827e93ff18c098f8f69eeeab7c2f456607b301db9602"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 2255,
+      "sha256": "2de44c4ac349c34b536e81ce6de438471b6ee9e961ef49f708ffdce3dfdf3650"
+    },
+    {
+      "path": "assets/hdri/kloppenheim_06_puresky_2k.hdr",
+      "bytes": 4434394,
+      "sha256": "99451201586489ef3288c97bfac2a2ac232a5491c51a1faf0ec8ea39f3ccd533"
+    },
+    {
+      "path": "assets/hdri/kloppenheim_06_puresky_2k.source.json",
+      "bytes": 338,
+      "sha256": "c01a95cd7039efd2d8775cc480326c24a0451afbded9213911992e1b5eacd58f"
+    },
+    {
+      "path": "assets/hdri/rogland_sunset_2k.hdr",
+      "bytes": 6149597,
+      "sha256": "27ee3f4e044688f3c46eea32a56e96188ab4dd0492f9e614f6764c4ac25defae"
+    },
+    {
+      "path": "assets/hdri/rogland_sunset_2k.source.json",
+      "bytes": 267,
+      "sha256": "1c3d002a2a4a3342c64cc5c2f78ac2b70e0bfefb3b83cb5617d20f888bcc14f7"
+    },
+    {
+      "path": "assets/licenses/Apache-2.0.txt",
+      "bytes": 10860,
+      "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb"
+    },
+    {
+      "path": "assets/licenses/SOURCES.json",
+      "bytes": 829,
+      "sha256": "90bc072bec2875cde7d42ff36da6f4044ce8c922cb56aab9ca325647cfa857c9"
+    },
+    {
+      "path": "assets/licenses/clipboard-win-5.4.1.txt",
+      "bytes": 1338,
+      "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566"
+    },
+    {
+      "path": "assets/licenses/pulp-wasm-simd-flag-0.1.1.txt",
+      "bytes": 1062,
+      "sha256": "d64f878c89bd5f1e5ada7e4aad57690b122727cf5229b7b87ea1980c188da1d9"
+    },
+    {
+      "path": "crates/syfrack-app/Cargo.toml",
+      "bytes": 613,
+      "sha256": "df657abce574fa77e9de6bf31d5027388fb077ea05bfa1abcee40bd684e0a254"
+    },
+    {
+      "path": "crates/syfrack-app/assets/make_symbols.py",
+      "bytes": 5352,
+      "sha256": "f30020207cf07222438201deb59ae0ef0c80d1e9bf9a5e2a4f54295bc0b8af7d"
+    },
+    {
+      "path": "crates/syfrack-app/assets/symbols.ttf",
+      "bytes": 868,
+      "sha256": "7cf7d25f8927397d44b948e2d1ebb2fb2d7581c106ff3610deb7eac2bd6c2404"
+    },
+    {
+      "path": "crates/syfrack-app/examples/desktop_smoke.rs",
+      "bytes": 8093,
+      "sha256": "2dbcda3668befcda68fe42bc1dd55e7c489dec600e819bca9082dbbdf0cb30cb"
+    },
+    {
+      "path": "crates/syfrack-app/examples/release_images.rs",
+      "bytes": 1163,
+      "sha256": "9b9f39a08551c579972a5868ed83b65f1fbd91894574ea5af4b522e1ed8222eb"
+    },
+    {
+      "path": "crates/syfrack-app/examples/studio_capture.rs",
+      "bytes": 19017,
+      "sha256": "2c747129dd8ca441adc5344b122c369a47ce58c1cfa60f94aabb21ec3cb31952"
+    },
+    {
+      "path": "crates/syfrack-app/src/canvas.rs",
+      "bytes": 21638,
+      "sha256": "6496069191ba19de594c60e146658d1d6424c17ac2bb83498262b7d72ea8da34"
+    },
+    {
+      "path": "crates/syfrack-app/src/desktop.rs",
+      "bytes": 4834,
+      "sha256": "21bf460fd86e01d542889f86b54c6e50a3ca4ca9710e68ea8f6da9dafafb2234"
+    },
+    {
+      "path": "crates/syfrack-app/src/display.rs",
+      "bytes": 8948,
+      "sha256": "79f62acfc20457a2ada754b3cd38817caf54b625b3c8dfdfdbcc5695fbc8e743"
+    },
+    {
+      "path": "crates/syfrack-app/src/egui_layer.rs",
+      "bytes": 5791,
+      "sha256": "69a1ecb844583fd2f96fa6fd0bd563b2d375fbf4c16a3071b7298805e9244bfa"
+    },
+    {
+      "path": "crates/syfrack-app/src/final_render.rs",
+      "bytes": 13708,
+      "sha256": "4de6ec796a99791ec2a47fff33eb4695727f82ac998dd6c5a64f67155c0d0d31"
+    },
+    {
+      "path": "crates/syfrack-app/src/gallery.rs",
+      "bytes": 29520,
+      "sha256": "46d0eda0aa23db8b24c9ecb90674fd704c6ef179cf9794cd973ea8765baa2fc6"
+    },
+    {
+      "path": "crates/syfrack-app/src/gizmos.rs",
+      "bytes": 17059,
+      "sha256": "96531d8ab1e5942cff3d1f39cb9da928aaffbe7e397b64984cd499afa6feae1d"
+    },
+    {
+      "path": "crates/syfrack-app/src/graph_edit.rs",
+      "bytes": 22410,
+      "sha256": "929872d772bc0a7d02cce1d09c7a29497cf883c60966f31847ddb21d1e1736b0"
+    },
+    {
+      "path": "crates/syfrack-app/src/input.rs",
+      "bytes": 12747,
+      "sha256": "603b9f2c050fc66ef6e97587c77d53e7c01560c2f9bd2293bf56617479873746"
+    },
+    {
+      "path": "crates/syfrack-app/src/lib.rs",
+      "bytes": 252,
+      "sha256": "f2a01a8d7850a757d775a2260addbef1a670de011835c55e00a6875beb8bb800"
+    },
+    {
+      "path": "crates/syfrack-app/src/library.rs",
+      "bytes": 15330,
+      "sha256": "005896622bcedca126372600817f765b8ebbe2b5c6dc34e0480fd3d33e5b5050"
+    },
+    {
+      "path": "crates/syfrack-app/src/main.rs",
+      "bytes": 25831,
+      "sha256": "596318719844aa3eb077650f4a6650f4d210fb35160b183234bb1c50250a6aa2"
+    },
+    {
+      "path": "crates/syfrack-app/src/paths.rs",
+      "bytes": 2214,
+      "sha256": "b6e075c71ffded50f45e187aa3e66ec3492c385e96de91e65bd097792d1faa1a"
+    },
+    {
+      "path": "crates/syfrack-app/src/preview.rs",
+      "bytes": 31829,
+      "sha256": "6c37b37ef772272e5cfbb6db1c272fa23b7149756fd1b546cdfe000e9676679c"
+    },
+    {
+      "path": "crates/syfrack-app/src/shaders/display.wgsl",
+      "bytes": 3940,
+      "sha256": "91174b8d83a6c455ab9ac7c74f3886d887ca8710f7ba6b1fc8c56a4d33f1b648"
+    },
+    {
+      "path": "crates/syfrack-app/src/state.rs",
+      "bytes": 28654,
+      "sha256": "42b0aa0e66926ae896a847e92d1a8f9d1d37dbf19bbe083fdbde859c507fca9c"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/chrome.rs",
+      "bytes": 12297,
+      "sha256": "87ebb2829ec9f12bc4124c3e84be25051fe33109089bf4a4205c379a3afb345e"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/file_browser.rs",
+      "bytes": 39295,
+      "sha256": "4526b53d2b5da18335d2929385f2ccd6d24089f386fb8a10f17eddbddd6a3ef2"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/floating.rs",
+      "bytes": 12264,
+      "sha256": "98abb43b5c4c647dc082ed07d713e5ed4b9506cc48085d49e17b68bd34049d8f"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/construction.rs",
+      "bytes": 12589,
+      "sha256": "4659d608f236b92f76bcbc2b95d3481338cb948567e58b9b76eed45ce3d230fa"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/draw.rs",
+      "bytes": 11619,
+      "sha256": "6c24689cc4c37cc8593d970139288d01e8be461da6da644237ea61f15ca96466"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/edits.rs",
+      "bytes": 5967,
+      "sha256": "157f5c22d455c2048600c08de8be94aa84e73f8b32d757e99bba94c0f3d1b00f"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/inline.rs",
+      "bytes": 7710,
+      "sha256": "0a5a1d7e6857008e88ed5329644d20c094ffe1c02284d2a37ba4249786ad45ff"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/inspector.rs",
+      "bytes": 23787,
+      "sha256": "93b6d1de10eb4e4e6b1571051f9a62289004ac36d82d7c50e8805677b1d131ea"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/menus.rs",
+      "bytes": 8023,
+      "sha256": "98ecf17e7a207abe241db9ac735a6b3abd9bc583e68a9b82b7905a42d2eaa45e"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/mod.rs",
+      "bytes": 25765,
+      "sha256": "26694f6e28de0283a52cbb3aecd6aedca097a0dc054fc93b5e0147a81fe3d902"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/radius.rs",
+      "bytes": 4286,
+      "sha256": "41e352a9881f5fe974a7723ed64791d99fcce899f7d7decc3c6f4e6f6380de21"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/shelf.rs",
+      "bytes": 14706,
+      "sha256": "70f81c6beabd8fb856953277e873f6bb56e421220aaa814afb3992a0c116a350"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/source.rs",
+      "bytes": 7541,
+      "sha256": "95fbc5bd7eb12af7aa53a5a3e0d606c2133fbac6ce52e301e80662980df02683"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/form_panel/wires.rs",
+      "bytes": 4276,
+      "sha256": "b09bcddcab4b4a90efcbd02a192fbd920ec183af06d71b2656594665c6daab2b"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/gallery_panel.rs",
+      "bytes": 23933,
+      "sha256": "995a065836f5af8b83d3661eda13658e4e21bf73fc3e11306b03b82aad922df5"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/inspector.rs",
+      "bytes": 2731,
+      "sha256": "46b0ddcce83355d72ce6069fb59f8c329abbe4a2e7756e24d7cc8241f1233c6f"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/mod.rs",
+      "bytes": 11260,
+      "sha256": "a6e27f6759f82d7edcd4c2149d67b90a0ea482177a8fc13d14c06245002d6bb8"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/panels/atmosphere.rs",
+      "bytes": 24839,
+      "sha256": "f8e92f0e50911df1c004d6a4de84465ae47dc38a2595caef27dae2dc49e783d2"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/panels/camera.rs",
+      "bytes": 3398,
+      "sha256": "25a872adb427e046bca2749f36adc23aa4561a1acf668df61daae0b0f3b8672a"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/panels/fractal.rs",
+      "bytes": 1621,
+      "sha256": "1233f62ec2498c8854b57c336f30ad2a3b88c9c689730fbc66d6acff2069b52c"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/panels/lights.rs",
+      "bytes": 14216,
+      "sha256": "18a17193cee99e2f7c75f71c56dd36127f493d66196840065f29a60db598dcf4"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/panels/look.rs",
+      "bytes": 5904,
+      "sha256": "e2bb90eb43296845321c902eb6165fe5065ef68df20b10187e56870a20e7b301"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/panels/material.rs",
+      "bytes": 37430,
+      "sha256": "7cd707b59480292e19941759e57387774f8d53b923fb450dc3f310a0d89c7fe4"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/panels/mod.rs",
+      "bytes": 19649,
+      "sha256": "d9404387c9ff4586cf95db46ac7c7feb55f59898d804ba168c6b9e8f413be19c"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/render_panel.rs",
+      "bytes": 39340,
+      "sha256": "b124e7a7654b2ceca21f4eac17b09e4e0e6cb923a137320b68c82a82497b544f"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/render_panel/layout.rs",
+      "bytes": 33980,
+      "sha256": "3af1c80eab2d44feeba701229ec65edd1d393a142796e9a48964ac0ecf31374b"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/tests.rs",
+      "bytes": 44417,
+      "sha256": "c7406453a0aedfdde48b6d0d439806794a5ac857e5a016d6d88c1d01f454098b"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/texture_preview.rs",
+      "bytes": 4807,
+      "sha256": "9b1141eca837b9842000db01bad89ce295ecabe268033fcfceb594b9287a4862"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/theme.rs",
+      "bytes": 6112,
+      "sha256": "95c47fe09155b4d0d56e140ea96939186760d39a049dfccacbaf8d52776ba03d"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/viewport.rs",
+      "bytes": 32724,
+      "sha256": "20ed422622d74f233d34350aac78b9562b2e98f6f861e2a97d14ff6ac7b8110a"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/widgets.rs",
+      "bytes": 33431,
+      "sha256": "378352296c9e8ff0c17168d18f0d7d951a89bc83bbef67f55e4c38bd550809d7"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/workshops.rs",
+      "bytes": 43024,
+      "sha256": "0d7c23ec51b09cfba796868fbbf949f6b2ced669263c97ed9687f1e1f973123a"
+    },
+    {
+      "path": "crates/syfrack-app/src/window.rs",
+      "bytes": 4612,
+      "sha256": "d402dd0d77e378025e0980d84045fd38ef94f47b133ce881aa7b5d3e62629b56"
+    },
+    {
+      "path": "crates/syfrack-app/tests/gpu_display.rs",
+      "bytes": 6455,
+      "sha256": "1b43dce2e9078a98176a1c7d11430595598249a287b72cee60fee0d855706fd0"
+    },
+    {
+      "path": "crates/syfrack-app/tests/gpu_final_render.rs",
+      "bytes": 15035,
+      "sha256": "fd5e2c55d7e961b4a7db7c05bdff0ecd4d00f1d879b326e312b839bb98b3bff8"
+    },
+    {
+      "path": "crates/syfrack-app/tests/gpu_pick.rs",
+      "bytes": 1709,
+      "sha256": "00fd88f697beabffc8faf42d789ac6227fbd414619b86777f8489fb9e2d0f399"
+    },
+    {
+      "path": "crates/syfrack-app/tests/gpu_preview_2d.rs",
+      "bytes": 897,
+      "sha256": "2533b372512c08776fc7bd4fa597833dacc6fbfa10f309e8a21be58c0083fa51"
+    },
+    {
+      "path": "crates/syfrack-app/tests/gpu_preview_async.rs",
+      "bytes": 7541,
+      "sha256": "759d796dec8ff072b08f89471435f7c68733e9e8cd4ef7e30d7cf6dee8cbaa76"
+    },
+    {
+      "path": "crates/syfrack-app/tests/gpu_preview_inactive.rs",
+      "bytes": 3495,
+      "sha256": "7e1e9c81a0e8739faeccba0bae686a870e34cd26bc4490ee3793c7abbf241ff0"
+    },
+    {
+      "path": "crates/syfrack-cli/Cargo.toml",
+      "bytes": 381,
+      "sha256": "63aa78afb33b98e693257b0e30a9742fcc9f847ef311c1992446ca45d2d6b0f0"
+    },
+    {
+      "path": "crates/syfrack-cli/src/main.rs",
+      "bytes": 25889,
+      "sha256": "afa9deff643f646bce94c0091d7613dcf7eb96c7a07339c7d6cfe90374e54f4b"
+    },
+    {
+      "path": "crates/syfrack-cli/tests/render_cli.rs",
+      "bytes": 19463,
+      "sha256": "bd53cc5f0aa1ac83766de9b5f054cf6a4fcd820031a4c468df0ae67e9c28df68"
+    },
+    {
+      "path": "crates/syfrack-color/Cargo.toml",
+      "bytes": 220,
+      "sha256": "785dd2a9b4173a952e584d6b3ed745fd95eb1af3b39ab4b45f7cf5e3c2fdd421"
+    },
+    {
+      "path": "crates/syfrack-color/src/balance.rs",
+      "bytes": 2362,
+      "sha256": "637c135d5383cd6f21b3f6118efbe891d262cb38ef75b6575b857c45e0663551"
+    },
+    {
+      "path": "crates/syfrack-color/src/develop.rs",
+      "bytes": 3069,
+      "sha256": "c67c18a260b4f537a2d518120ca85e0ff604ada2561935572af58b64a12ed3a0"
+    },
+    {
+      "path": "crates/syfrack-color/src/dither.rs",
+      "bytes": 5931,
+      "sha256": "549c812653f5390e498e955a8bc5d781cc5bc3982cfbe414adea2bd508c6b954"
+    },
+    {
+      "path": "crates/syfrack-color/src/encode.rs",
+      "bytes": 6002,
+      "sha256": "73507b9e9c937f2bfe0dfb827a15fb41edf234ac38fe706ae1ef60725092daf2"
+    },
+    {
+      "path": "crates/syfrack-color/src/export.rs",
+      "bytes": 11653,
+      "sha256": "aafeb1c79262ee83d9ab90d29dd7b14247687a6502ac8ee2e049bf6db1ece75a"
+    },
+    {
+      "path": "crates/syfrack-color/src/exposure.rs",
+      "bytes": 2234,
+      "sha256": "b194247dd1f67a5df0aa44326dfedabfab6445ad13347c8fbea3573362f64e1a"
+    },
+    {
+      "path": "crates/syfrack-color/src/grade.rs",
+      "bytes": 3079,
+      "sha256": "5a2868ff25ad384744d63c62964beb41981f5c5021c9bf83dc31d0faa8fbfb37"
+    },
+    {
+      "path": "crates/syfrack-color/src/grain.rs",
+      "bytes": 3599,
+      "sha256": "728e802a896a5a79454b52a9b5940ffe9a3f7f9fe02ef4da272382d8cdfab762"
+    },
+    {
+      "path": "crates/syfrack-color/src/lib.rs",
+      "bytes": 402,
+      "sha256": "29ccb0a36f3cb2a8c04c89689e4852e4f00ee49e64e1fe41d8b30dbac60f3795"
+    },
+    {
+      "path": "crates/syfrack-color/src/neon.rs",
+      "bytes": 777,
+      "sha256": "7c9cbcef0ea286a239afc56174c74f333c75981ccfaa593b8186881b1a49addb"
+    },
+    {
+      "path": "crates/syfrack-color/src/saturation.rs",
+      "bytes": 1726,
+      "sha256": "624d0d20b08f361be5b0d6f3080953b072e5b4eaef7aee661aaa6599c9b8815a"
+    },
+    {
+      "path": "crates/syfrack-color/src/tonemap.rs",
+      "bytes": 3841,
+      "sha256": "ffac0f3d4a8870035174a900f8bf6a86a1cdef0e8e865b93f86068a24aa92a4c"
+    },
+    {
+      "path": "crates/syfrack-color/src/vignette.rs",
+      "bytes": 2888,
+      "sha256": "c52d2eb7837794f91c8cf6215e035a399566eb229c64b8f35a20377c534497de"
+    },
+    {
+      "path": "crates/syfrack-color/src/wgsl.rs",
+      "bytes": 2248,
+      "sha256": "fafe6074e1bdc79fbfc6dea272e03922ef980647e748961a36636b69aaedcf70"
+    },
+    {
+      "path": "crates/syfrack-core/Cargo.toml",
+      "bytes": 246,
+      "sha256": "ff2029d976fac03c334666f74530e60fa3b9ab89ae1bbd213f31f137ef33cb34"
+    },
+    {
+      "path": "crates/syfrack-core/src/image.rs",
+      "bytes": 2865,
+      "sha256": "c0951e37c610c58966514c198446de734091650d22e215fd2c5a4cd64d118373"
+    },
+    {
+      "path": "crates/syfrack-core/src/lib.rs",
+      "bytes": 148,
+      "sha256": "e7eb21210b43abd98be3b7713f47845d7074d31e29527ff6ef193a1c1eb0ea40"
+    },
+    {
+      "path": "crates/syfrack-core/src/params.rs",
+      "bytes": 3924,
+      "sha256": "95a54949bb87ce301de4d64bde2e4ae9e3c8cbd1c07cee12d401d86aeb182983"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/atmosphere.rs",
+      "bytes": 6745,
+      "sha256": "d1280d2811537d855bdaf1a6920d7cb79a5bbc523ae4ed8697d82134adcd920a"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/camera.rs",
+      "bytes": 8182,
+      "sha256": "2e86857f950e48f04f5216f782f8e037f7d8cdce4fc397e71acd30bc0173b996"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/clay.rs",
+      "bytes": 4216,
+      "sha256": "55c41f4c7350a44e14b04f96667b8638a0e6ee9bf3f0cc2e199f4aa9a843a4cb"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/flame.rs",
+      "bytes": 8113,
+      "sha256": "e7f171891ed5d3e162c990da74dd60591f63086c60858a25b91f02978517087b"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/fractal.rs",
+      "bytes": 7010,
+      "sha256": "b315f3f6a00bdc2f66d1a71366fbc290cb80dbfe2076aba561f55e06046f220c"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/graph/bundled.rs",
+      "bytes": 2530,
+      "sha256": "3af9713acec1c737992b9d78efa22bdfa5526903b09dbf4c6ed7a9ca2cedf10f"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/graph/eval.rs",
+      "bytes": 38246,
+      "sha256": "e79389a1b3cf90f9a21e041675dd01b0a8f6a17f9fb34bcc2c68aeda0d7e93e9"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/graph/language.rs",
+      "bytes": 37557,
+      "sha256": "681fe403e27e46fc6b9aa408d5dc7132411bc049e8dd3070ae18c28f2c110f8e"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/graph/mod.rs",
+      "bytes": 27018,
+      "sha256": "14a512bad23de8aecbf1f33fc57f3a075dce6af9fd6b18695d8bd8be111a70e9"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/graph/validate.rs",
+      "bytes": 27411,
+      "sha256": "6a297810503f3addd9fcff6844e0d51f428881411cdfb3270a90189f76e058e7"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/light.rs",
+      "bytes": 8717,
+      "sha256": "ab452d8f0a3ccd2a6c9a535ea6abd665fb5cf13355b6560d31fd24b1008029ba"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/look.rs",
+      "bytes": 6965,
+      "sha256": "0b140073e66fed6d9ed6ee81b4d952c96e1b119272a5100da35ce2af38df7f74"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/material.rs",
+      "bytes": 13229,
+      "sha256": "1b65a2b7c3ca483f0d797fdbdfd633e88eb6493890f7fab4363ed249d3559867"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/mod.rs",
+      "bytes": 32959,
+      "sha256": "577f728331b791c093373ee10cfb4cd85077f9188c3cefa891ea93181d94aa02"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/nebula.rs",
+      "bytes": 14760,
+      "sha256": "0cfa43cd345ba03dd57cc871ccf9889f85269f6311f235d757f66bc1e7d2320f"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/optics.rs",
+      "bytes": 3346,
+      "sha256": "80d65d2a7e631ec0a4126460ae6586e33a442dec66b5a706011eff0a516ad6a5"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/palette.rs",
+      "bytes": 8457,
+      "sha256": "d457a106daa83680868411493b5244828988babc5e7a44494552fa5d0faae135"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/planar.rs",
+      "bytes": 11550,
+      "sha256": "d3707e4242c32da5c00588f3306f9f3ef10fff170b31dba7d9bde5397bc55032"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/seascape.rs",
+      "bytes": 7959,
+      "sha256": "dcbf064ede0e1a8461f9caef9becc4dae501284f8dfdbd915a23ead75724c5b1"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/texture.rs",
+      "bytes": 13795,
+      "sha256": "f7d06e238618dd0e73b254eeafd87eca899d8f507d1a9a3961bfa368a0f4e409"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/workspace.rs",
+      "bytes": 1975,
+      "sha256": "1089520c3223db185d79fdd2f25032de5173cced668cfb58863a0c5cde525161"
+    },
+    {
+      "path": "crates/syfrack-core/tests/architecture.rs",
+      "bytes": 12301,
+      "sha256": "01c1a25d9c8c4038999cd9d1b7026b924ded80cf4840383c14622546a421cb99"
+    },
+    {
+      "path": "crates/syfrack-core/tests/fixtures/parity/mandelbox.ron",
+      "bytes": 7622,
+      "sha256": "e040ff47779f93f7984c6e523ea884e107d91f7db0652161bfd9255a56744cb7"
+    },
+    {
+      "path": "crates/syfrack-core/tests/fixtures/parity/mandelbulb.ron",
+      "bytes": 7637,
+      "sha256": "e4c0733510dba552cfd0c5279a9c8002b7d6e64322f2e9cec3f9145d371374d8"
+    },
+    {
+      "path": "crates/syfrack-core/tests/fixtures/parity/menger.ron",
+      "bytes": 7638,
+      "sha256": "d9734fbc179b804e933d77ed94067ec61b90022f8ef4aaa381adf05c64b127e6"
+    },
+    {
+      "path": "crates/syfrack-core/tests/fixtures/parity/sphere.ron",
+      "bytes": 7120,
+      "sha256": "471522e13b6a8f109f7ad70d0008d4ab20788ccff73f7aae8b4acb90fcd2bb7c"
+    },
+    {
+      "path": "crates/syfrack-core/tests/graph_parity.rs",
+      "bytes": 11208,
+      "sha256": "dfdc4a1da6953148ddd97816b9108dc8e6ce2b8ccf871ba40e1b272e74d14043"
+    },
+    {
+      "path": "crates/syfrack-core/tests/library.rs",
+      "bytes": 7998,
+      "sha256": "ff493beeacc603fc610b9fc9bef069e1ed3c9ac0106a72b57d90cdcdd2972a93"
+    },
+    {
+      "path": "crates/syfrack-core/tests/palette_orbits.rs",
+      "bytes": 3671,
+      "sha256": "8a56d69e84398c878b31f6e94fe90bce44719843b4d04e036afe0a272061c1be"
+    },
+    {
+      "path": "crates/syfrack-core/tests/photometric.rs",
+      "bytes": 1098,
+      "sha256": "9e8f9d4580a88b60c2f6a5bbd5274db66d7bde64c3a7f6d95dc93549ff0de47d"
+    },
+    {
+      "path": "crates/syfrack-core/tests/workshops.rs",
+      "bytes": 1083,
+      "sha256": "f49ca756591b6c27f74fd28316e55641509971a89bccd736a09b42a4bca5cab0"
+    },
+    {
+      "path": "crates/syfrack-i18n/Cargo.toml",
+      "bytes": 204,
+      "sha256": "ba15acd58fcf167357f7b88954a230d57906b409018411feec069cd360caabf1"
+    },
+    {
+      "path": "crates/syfrack-i18n/build.rs",
+      "bytes": 1927,
+      "sha256": "7c5671c9d33d58f1948809cfeefe68b5db5819c26ef0613ef01d3de01484c919"
+    },
+    {
+      "path": "crates/syfrack-i18n/messages.tsv",
+      "bytes": 85268,
+      "sha256": "f8335f7d136384233f17f7e877bd046052d2a0d8185e866d3f76b82d02a21c07"
+    },
+    {
+      "path": "crates/syfrack-i18n/src/lib.rs",
+      "bytes": 5631,
+      "sha256": "5503d0b5475c87bd36b63d344ce4cd7dde767e206fd66973232023afb3aeb45f"
+    },
+    {
+      "path": "crates/syfrack-render/Cargo.toml",
+      "bytes": 493,
+      "sha256": "5c08944b123e2bba5547322ade6d45c393867bafe227dc5c927d3b653dcf4aa9"
+    },
+    {
+      "path": "crates/syfrack-render/examples/backend_study.rs",
+      "bytes": 3376,
+      "sha256": "37efad9102965f6266b0dfcf054e97f0f387955ede85a0c52120f79faf155027"
+    },
+    {
+      "path": "crates/syfrack-render/examples/complex_lab.rs",
+      "bytes": 2931,
+      "sha256": "e62cc8ccc5d3a62ff58c003a533432aca465861e5dc23f15a8cdfb015800522e"
+    },
+    {
+      "path": "crates/syfrack-render/examples/cyberpunk_scene.rs",
+      "bytes": 9961,
+      "sha256": "2edddb4ef3c7b37cd361232ca47b0bb3cb16a1a21bb346e65b0241fac554619e"
+    },
+    {
+      "path": "crates/syfrack-render/examples/denoise_checkpoint_export.rs",
+      "bytes": 1435,
+      "sha256": "996a4a572b5e5e599303af514e2abe81f1c4e5d1b0ca31f63d348e4350b6a5f0"
+    },
+    {
+      "path": "crates/syfrack-render/examples/denoise_export.rs",
+      "bytes": 1096,
+      "sha256": "f3691cb0403033164ca3ff09f015652dca7c6f2eb22e46ac3f16dea8efe76690"
+    },
+    {
+      "path": "crates/syfrack-render/examples/denoise_profile.rs",
+      "bytes": 1378,
+      "sha256": "dbfb47520e3ebede95d5ddbc39d8884a72ea8174872c4f7f6e71d9385e040c60"
+    },
+    {
+      "path": "crates/syfrack-render/examples/duet_lab.rs",
+      "bytes": 10473,
+      "sha256": "77aed10fa380483e372c53bb1e29d094076a3397e32552506805af7830fa8255"
+    },
+    {
+      "path": "crates/syfrack-render/examples/guiding_lab.rs",
+      "bytes": 6934,
+      "sha256": "327b098a760bf06f426a203d9d90b16bd9132c44f2ba7bdfe7a366e76afd5d39"
+    },
+    {
+      "path": "crates/syfrack-render/examples/guiding_profile.rs",
+      "bytes": 9190,
+      "sha256": "f7986afbf9a6e003af5efe3547fa1e40aba99a729fa873f42fa1565a0bd192b7"
+    },
+    {
+      "path": "crates/syfrack-render/examples/hdri_lab.rs",
+      "bytes": 3493,
+      "sha256": "77de8ab13380102a92e9d0ad94b08ce7d557940bac712b9fedf061ffb145c9ff"
+    },
+    {
+      "path": "crates/syfrack-render/examples/lighting_lab.rs",
+      "bytes": 3208,
+      "sha256": "338b7a96194e7d7eac62547bd68d6bb72b52ee91ca6eb909bcdea65497a0bccc"
+    },
+    {
+      "path": "crates/syfrack-render/examples/ocean_lab.rs",
+      "bytes": 9111,
+      "sha256": "638fb0ec9cb5c7aa559790d7b0375457b95730f73fdb527b9a1d46bbbefaafe9"
+    },
+    {
+      "path": "crates/syfrack-render/examples/probe.rs",
+      "bytes": 361,
+      "sha256": "0cf25aff21fc889c805d142e7121eefb6c3fc409bce077d31ba6bcef55441279"
+    },
+    {
+      "path": "crates/syfrack-render/examples/render_profile.rs",
+      "bytes": 5273,
+      "sha256": "6792a6dae986973fd2c1cc3ec18ec75c870af4bca85043bd3d4e588f31a27b3a"
+    },
+    {
+      "path": "crates/syfrack-render/examples/volume_denoise_study.rs",
+      "bytes": 3923,
+      "sha256": "301453ef09dbe5c2f244a7554557ce3bd5c410d3cd3e45a2c60bfdab035dd981"
+    },
+    {
+      "path": "crates/syfrack-render/examples/volume_layer_study.rs",
+      "bytes": 3773,
+      "sha256": "95a14d01c89fd587de8f1db3db8f7a030e09147e397b9c20da93a7669292b6e9"
+    },
+    {
+      "path": "crates/syfrack-render/examples/volume_sampling_study.rs",
+      "bytes": 2871,
+      "sha256": "6bbb203f52d0ed81dc4bf287505c77f3ac230c8bf29bffa0dae0e04d04aed414"
+    },
+    {
+      "path": "crates/syfrack-render/examples/volume_study.rs",
+      "bytes": 2176,
+      "sha256": "234004e7b6685db0cb29c4a988152927bc03bdab114f2957fcdf2a7e3b302be1"
+    },
+    {
+      "path": "crates/syfrack-render/examples/workgroup_profile.rs",
+      "bytes": 2080,
+      "sha256": "8dc41eb0156be0b50962931a4ef0d3ac9524c0d1f2533cf7afbb7d6c3e160e36"
+    },
+    {
+      "path": "crates/syfrack-render/src/denoise.rs",
+      "bytes": 21425,
+      "sha256": "fb203bbb7cb268410fcb349b0680fa5e422a64a3fb79f03f31f4b79bd1074396"
+    },
+    {
+      "path": "crates/syfrack-render/src/environment.rs",
+      "bytes": 16466,
+      "sha256": "130141326b57a160af8be27c2190a04cf2117b7485955995ca61068faee7f439"
+    },
+    {
+      "path": "crates/syfrack-render/src/flame.rs",
+      "bytes": 16480,
+      "sha256": "3eef3f5d85278f2be72ba5e22bbdcd1b3cc817b9d5fc1a32ece358243392f870"
+    },
+    {
+      "path": "crates/syfrack-render/src/gpu.rs",
+      "bytes": 7935,
+      "sha256": "6b13c9cced2b352b9523ce2bfba9305f37c92c4fdafe1c6b961f37fa36bae8bb"
+    },
+    {
+      "path": "crates/syfrack-render/src/graph_wgsl.rs",
+      "bytes": 71040,
+      "sha256": "895ff1539b1beb354ea7b68a660dbf93491335fa2d3a279ecc9441e64faa0f5f"
+    },
+    {
+      "path": "crates/syfrack-render/src/guiding.rs",
+      "bytes": 23253,
+      "sha256": "5947e403ab2134c7cce7f7ba091f1a200555c3d759fc4dde1af9c46d9ef0636e"
+    },
+    {
+      "path": "crates/syfrack-render/src/lib.rs",
+      "bytes": 668,
+      "sha256": "6ba0659a64d6d90a00587a3242bd91805526a59f0b776ca1d98b11d79d591072"
+    },
+    {
+      "path": "crates/syfrack-render/src/oidn.rs",
+      "bytes": 9630,
+      "sha256": "4bf27fd6dfc13b0b686aa029d58aedcd135c5dc77396e02228e3eb5705c98a72"
+    },
+    {
+      "path": "crates/syfrack-render/src/particles.rs",
+      "bytes": 90989,
+      "sha256": "c05bc08dc848b9a683cf3a9453bfea4bd4d2dfdab6c04d2fb96193895d61cec9"
+    },
+    {
+      "path": "crates/syfrack-render/src/pipeline_cache.rs",
+      "bytes": 13107,
+      "sha256": "55aa1c20542dc1fc01876b755f248f903fa09f83ee0351dd19227b10fcb8ba1a"
+    },
+    {
+      "path": "crates/syfrack-render/src/renderer.rs",
+      "bytes": 29161,
+      "sha256": "785ab4bd41e1711669cbf71f278a73ef15aa995965fe53dd4b79e36f2c1395e7"
+    },
+    {
+      "path": "crates/syfrack-render/src/session.rs",
+      "bytes": 59859,
+      "sha256": "2b80a4c97eb371786290a0247edd03a5e8da06df37778fa3ee408663c49a2396"
+    },
+    {
+      "path": "crates/syfrack-render/src/shader_source.rs",
+      "bytes": 6603,
+      "sha256": "bdea5bf0969fc7bf6234342ff83ad3d73bd7125503382773becc17b1252938c5"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/common.wgsl",
+      "bytes": 11502,
+      "sha256": "15f32b0f1ad27f79f3009f5814797915bb1eee4e9c89a1015d441e659738a678"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/de_probe.wgsl",
+      "bytes": 713,
+      "sha256": "ff417a1fb5e0bd59ca32e3fea4e9c6f59be81d9e577e053b7c5d3a946951d4b9"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/environment.wgsl",
+      "bytes": 4447,
+      "sha256": "e8534cb1411e5f6bce128119014fbeb67bf129cf876844701b4f1084c94e8fa8"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/export_guides.wgsl",
+      "bytes": 2880,
+      "sha256": "a1b6e05ed8396abba45ad8652b0d76b5acd243d0550507a6e57ba9806e310c57"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/finish_detail.wgsl",
+      "bytes": 8249,
+      "sha256": "0cec0e673d138d411ae96af1ae09305283d2cb008e2ce25d87904ef694d90f6b"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/guiding.wgsl",
+      "bytes": 6495,
+      "sha256": "3ab230ae1b5b0fba20092b23153ea48eec71a2aed1acccdb4a6060978ab35141"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/landscape.wgsl",
+      "bytes": 8315,
+      "sha256": "537b8974ec18a8a67e0fad0f955b02ff9e7a49b21404b5a3a34acfee52a5c67a"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/lights.wgsl",
+      "bytes": 13544,
+      "sha256": "af03302304462036e46d4abfb34d4d50f70878930b0fec781a64a0afdfa0ab16"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/nebula.wgsl",
+      "bytes": 22481,
+      "sha256": "ac4bc8731b3c380492a20d61a11f6b129a059e1b38a00f64f1b7986a6fce3d57"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/ocean.wgsl",
+      "bytes": 10672,
+      "sha256": "801f7db7a54615232ad1cddd98d36d222b808e2f47a89733c84fde2d3c82cc4e"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/optics.wgsl",
+      "bytes": 2471,
+      "sha256": "13a4dc3a7b0fcf064aeb549f0be6dba1f493983472d54420359529d029a6e45e"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/pathtrace.wgsl",
+      "bytes": 55636,
+      "sha256": "eed7f55763b74f589a73af8a6d2c0498f01f2804e0336be8452168b36ce44f4f"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/planar.wgsl",
+      "bytes": 3811,
+      "sha256": "e760ada69b44432de1eb8e711d06c6bc6ce8e8c00d2ef741c22f09edb6b91f12"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/portal.wgsl",
+      "bytes": 3562,
+      "sha256": "a6908f5cdaf68ff2827c45a55986bd8eae1e390921d24381c9a6204e4cb44684"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/probe.wgsl",
+      "bytes": 235,
+      "sha256": "2e67f6d4917c0c7dd35be941d4c12f1eccc1fad04524e42be0819d0df85c4617"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/seascape.wgsl",
+      "bytes": 4293,
+      "sha256": "493e582b54b7a0ac7b742c901d05d227df9189c67d16f65ae867f97503a707e9"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/texture.wgsl",
+      "bytes": 5025,
+      "sha256": "8528d18a0831a5452000290368a9338fad5f7ed2be56aeaf31f0e4d92df75853"
+    },
+    {
+      "path": "crates/syfrack-render/src/tiles.rs",
+      "bytes": 13784,
+      "sha256": "c82be6bfacc994559b1b19a4b020c8d73a716483242676ecae554e4dbffcbdb2"
+    },
+    {
+      "path": "crates/syfrack-render/src/uniforms.rs",
+      "bytes": 34589,
+      "sha256": "13922afc95b23d7782906790d6001fc4997107ba16b0074a009ae1d2b1ee3d5a"
+    },
+    {
+      "path": "crates/syfrack-render/src/volume_reconstruction.rs",
+      "bytes": 15440,
+      "sha256": "79f3d3c6955c9bceb4cb4d31be1d102da6843bf5327e248105bb2c08dd06e4f3"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_architecture.rs",
+      "bytes": 18507,
+      "sha256": "1c2cb97dccb1046c12edc96e3b98fce49bae1437b106220d9f3a4c0225e45966"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_canvas.rs",
+      "bytes": 3379,
+      "sha256": "63a0557d4032d74878793d8d843be8ddc3b028f4e013b1b75410dc43e517a961"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_de.rs",
+      "bytes": 19484,
+      "sha256": "c278f2ba7465cb18df44c434c9c6847c685d4a99bf2259521ba3f7ae72460c7a"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_environment.rs",
+      "bytes": 12512,
+      "sha256": "91b63ac141660456abf8c7cc2c3c3186028938b5c7fd32c43b81700a8d5e05e4"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_flame.rs",
+      "bytes": 2438,
+      "sha256": "c799d9df93369972937b321d2c98abfd1a9526cee46e6c23adbf8d7081e3abd3"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_ground.rs",
+      "bytes": 3760,
+      "sha256": "eab6299de1d7a02ae1d56dc2487617a8cff6aa6de5372e3418e968057cecdc85"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_guiding.rs",
+      "bytes": 12562,
+      "sha256": "6eaef0692ef2b2eb57ee05eac642cb0a5646832f133ec30c118ea094654ca714"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_landscape.rs",
+      "bytes": 5715,
+      "sha256": "40b0476015c26d93efa35bfb424a05c928560a1e3e07a6a75ef0bde745b3b5d1"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_lighting.rs",
+      "bytes": 15104,
+      "sha256": "7a864e56f97181bb2b5faeacbcce45a46fcd458a7ce20f57c8021f3bb27a4112"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_nebula.rs",
+      "bytes": 17352,
+      "sha256": "f02276aa80f0a6c5f66a6a15bfe60c940f2f1fbd25aed3acf859107b881533d1"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_ocean.rs",
+      "bytes": 6890,
+      "sha256": "aeeed52d3eba7ece597ef28955b185b9b854a61316546e69a4d8b3afdcc38f60"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_optics.rs",
+      "bytes": 3605,
+      "sha256": "0f8e05b11f59ad18a0646fc53384a366aa17a1468616e4434fd3af3d39997bf2"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_palettes.rs",
+      "bytes": 4517,
+      "sha256": "eecbaff00667f15465a45f53c575d5326b88ca091503bb3bf3d484fb06c94ae7"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_photometric.rs",
+      "bytes": 12712,
+      "sha256": "0101c296d073ff7e759cbab2442cac8699d1f2ee828f980ae4086e075f544f2f"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_planar.rs",
+      "bytes": 5105,
+      "sha256": "ebb5cfeabdf3b627da689bdfafd9fb775605ba41298209a350f10dd7e70cdf23"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_probe.rs",
+      "bytes": 506,
+      "sha256": "e4028dfc4b8660dc555009b8f790865ba8a5aa4c007b1e9861fb6b6e00033846"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_render.rs",
+      "bytes": 54144,
+      "sha256": "ed28ae05fc501b60e2fcaf238c3d548c4f8a562abc502f3ae06fd712a0d731d5"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_volume_reconstruction.rs",
+      "bytes": 5792,
+      "sha256": "48b4376b64506a08571ce0641dfe6a1e3be44cedb1f3be933af5ccaccca50fad"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_volume_sampling.rs",
+      "bytes": 10875,
+      "sha256": "8381334a73cecdfaf03b27f16fcea7af9b0de5c48b2a64e3e4a750ed0699637c"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "bytes": 2511,
+      "sha256": "d8eff746995650d2550557a01cb9b4eb943f8d5ea651d3161b8c07375194c983"
+    },
+    {
+      "path": "docs/BUILDING.md",
+      "bytes": 4621,
+      "sha256": "06325b14f9bc1861146562fe359858ff4fcd7973888e6f2d993104e319edd030"
+    },
+    {
+      "path": "docs/LOCALIZATION.md",
+      "bytes": 2602,
+      "sha256": "8c66edf8cbbbecf5833840ba6c4d1c9dc75e24fd511e416099efbfdb068fec04"
+    },
+    {
+      "path": "docs/PUBLISHING.md",
+      "bytes": 4321,
+      "sha256": "0f7e00a42477baa58abb03ffd419cd6ec11fe2b77bf055c9f5505164e6e3b340"
+    },
+    {
+      "path": "docs/RELEASE_VERIFICATION.md",
+      "bytes": 4208,
+      "sha256": "ab5516bb43b9d07cd6f04e5f82832beb97f735313602bec674829ce50400ebab"
+    },
+    {
+      "path": "docs/USER_GUIDE.md",
+      "bytes": 5860,
+      "sha256": "b5b8b47e7218b201b8fcd59c18999effcaef766a5cc4936c2f90a19f404f309b"
+    },
+    {
+      "path": "docs/images/breath-of-the-titans.jpg",
+      "bytes": 4975753,
+      "sha256": "32258ddd30a2518be287dac44e8e93b09be4c74de8c791116f173a2b4f45169e"
+    },
+    {
+      "path": "docs/images/studio-2d-en.png",
+      "bytes": 1662457,
+      "sha256": "58b469a88c6ef999919cac5c60a82c136e6f7fc846487c3e70995c26f00a2769"
+    },
+    {
+      "path": "docs/images/studio-en.png",
+      "bytes": 842602,
+      "sha256": "e337b29148f42590c30a0ed5d5f0ce13ad5cd15765af219a1c7a5780f37f38c7"
+    },
+    {
+      "path": "docs/images/studio-fr.png",
+      "bytes": 847280,
+      "sha256": "e8acfe82684b1fac1b128f9d47c3efb128b3522255fc629ff5cb727e17654c74"
+    },
+    {
+      "path": "graphs/boite-bulbe.png",
+      "bytes": 39429,
+      "sha256": "5cf5c5f31e826aa7d5b279407af99dd92d141e16d0ae1f61a43fa9f89c23a2a4"
+    },
+    {
+      "path": "graphs/boite-bulbe.ron",
+      "bytes": 2502,
+      "sha256": "ff2f148d93fdf7e9843609fd2ca65f16c491aa47d9279001efac3f6abb660336"
+    },
+    {
+      "path": "graphs/cathedrale.png",
+      "bytes": 48375,
+      "sha256": "1217010617e2a22e9c2c359ce43761255dfbbb42538e07141c4f3d82dddce42f"
+    },
+    {
+      "path": "graphs/cathedrale.ron",
+      "bytes": 3112,
+      "sha256": "3f806d0a8d9d094066bd38c119c60c401747acccec16aff827279e60defde83c"
+    },
+    {
+      "path": "graphs/dentelle-inversee.png",
+      "bytes": 77983,
+      "sha256": "6dc1768932d32ea51198056fae383df4acfa3a20f516a45a7a867fad376ce1a0"
+    },
+    {
+      "path": "graphs/dentelle-inversee.ron",
+      "bytes": 1577,
+      "sha256": "f4418d3be698a753a4e30968cf1680021abf2052676a306c63d93bb01ad4601b"
+    },
+    {
+      "path": "graphs/evidement.png",
+      "bytes": 40771,
+      "sha256": "ba431566e39dc01549b63f87674483a5fb4d6e9059a9f53a13851c0af86962da"
+    },
+    {
+      "path": "graphs/evidement.ron",
+      "bytes": 4965,
+      "sha256": "d74bc98b3979cd7db94ba2354504523803f393755c3d21704ba8eced636646b5"
+    },
+    {
+      "path": "graphs/mandelbox.png",
+      "bytes": 40097,
+      "sha256": "215b92a3176317df930c77928ef319aab00e5abbae5fa797974701def1231926"
+    },
+    {
+      "path": "graphs/mandelbox.ron",
+      "bytes": 2278,
+      "sha256": "3faf6cbe4e5cb303628d3ad2d7f6111e132779bb2c4880e97d0f853ff026116f"
+    },
+    {
+      "path": "graphs/mandelbulb.png",
+      "bytes": 56998,
+      "sha256": "1dd6e84da81ecab1ca81ae9629549c66334ec578674a26b0bae670055bb78656"
+    },
+    {
+      "path": "graphs/mandelbulb.ron",
+      "bytes": 1740,
+      "sha256": "7c4b227ae1e959c5ccb2d55f54a34da62c67035d3acdba513d3ae46c9a9e0b4e"
+    },
+    {
+      "path": "graphs/menger-kaleido.png",
+      "bytes": 49375,
+      "sha256": "a444056c98073b5b7d6ab9e67ae47000dbb44958ed7fc468fe64d088d98ca0ab"
+    },
+    {
+      "path": "graphs/menger-kaleido.ron",
+      "bytes": 2198,
+      "sha256": "0f745668e816eaa3084d8b898c11a7cb273ff742906f0cad7a87ee42093b6f42"
+    },
+    {
+      "path": "graphs/menger-torsade.png",
+      "bytes": 56122,
+      "sha256": "90401fd1fae102ff62a52d3ef9992ace730d23facd3921324557ffeedd1f845b"
+    },
+    {
+      "path": "graphs/menger-torsade.ron",
+      "bytes": 1331,
+      "sha256": "a4228b614f5236f870be23b79361178829a92f2cc0ea4c68eadf1cb5f4a5e8a7"
+    },
+    {
+      "path": "graphs/menger.png",
+      "bytes": 51686,
+      "sha256": "d3578540914a492f31f764355eeec247f47d0faedc486f690ee0b1eac740579a"
+    },
+    {
+      "path": "graphs/menger.ron",
+      "bytes": 1637,
+      "sha256": "5411f492b49b5c8ecacb8ab1211d527e8fa7cd72f9734fa34296e30587a40076"
+    },
+    {
+      "path": "graphs/rosace-plis.png",
+      "bytes": 50022,
+      "sha256": "0723816b9bcf5a047a632ba1da93e4d4023790f880c1627e9cb53b3d0a21d01e"
+    },
+    {
+      "path": "graphs/rosace-plis.ron",
+      "bytes": 1573,
+      "sha256": "a53dcb838092fa377bf8a055a5e8694a442b71bd3444189ce1bdb9ac4c79244b"
+    },
+    {
+      "path": "graphs/sphere.png",
+      "bytes": 66642,
+      "sha256": "062fdb2ec5b0d5e7f45e4cc1b920faf83c75a531296fe2d16972aa8eb37f1cba"
+    },
+    {
+      "path": "graphs/sphere.ron",
+      "bytes": 1653,
+      "sha256": "a75b712e6006468b7dd05c938cbab42d61258908dc5c1f738453a25b9025f95f"
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "bytes": 66,
+      "sha256": "10c67ce85265f8fc5b1a52b416af1a553e56ad96ca9843da6579e2854741e084"
+    },
+    {
+      "path": "scenes/README.md",
+      "bytes": 1067,
+      "sha256": "b8495fddfc75af5da26d525b9041c70868fd91a536d7297cb9f9e3c2c2d13a93"
+    },
+    {
+      "path": "scenes/couronne.ron",
+      "bytes": 7070,
+      "sha256": "c7b87834e83f01b05b8d4f97908cd399085b3bc78c93600f7c456566354823aa"
+    },
+    {
+      "path": "scenes/dentelle-inversee.ron",
+      "bytes": 3006,
+      "sha256": "edcaadcf35dfb6e57cd3d402fc9e28a5c1f3f8140f3e7c05ec991faae4f58167"
+    },
+    {
+      "path": "scenes/dentelle-inversee.syf",
+      "bytes": 953,
+      "sha256": "724cc19a3fdb9ba1f56736e732d2b2af51ef2ce46936de2a609993768e7b34e4"
+    },
+    {
+      "path": "scenes/environments/azurite.ron",
+      "bytes": 5783,
+      "sha256": "a4d7cc954184939d7cc2f963498761a3a508e03222d7568e8c5001b8c91f1ea5"
+    },
+    {
+      "path": "scenes/environments/azurite.syf",
+      "bytes": 2040,
+      "sha256": "3e946c11af21fad8925b19facc6e1554e3040cb43d9c01527f53c7533e6fc886"
+    },
+    {
+      "path": "scenes/environments/cathedrale-neon.ron",
+      "bytes": 11647,
+      "sha256": "438ee97772786ffe9903ec4bbd702fcafd5ea512bd793d6eab11232059788bdc"
+    },
+    {
+      "path": "scenes/environments/elysium-shore.ron",
+      "bytes": 135399,
+      "sha256": "0928b4eb17ed6c58f7166e68e69e9a83142923370b7f1aeebbdfdc9ce72547ed"
+    },
+    {
+      "path": "scenes/environments/elysium-shore.syf",
+      "bytes": 97294,
+      "sha256": "65ef5fb9871b3bb739cd38ab2c40f9bce7328d0396482a9391827eab976ce09c"
+    },
+    {
+      "path": "scenes/environments/elysium.ron",
+      "bytes": 135398,
+      "sha256": "2a653d5f418632003889d0aef231b1344b6c2abb430df8f2c1023b4bf8b2dd37"
+    },
+    {
+      "path": "scenes/environments/elysium.syf",
+      "bytes": 97294,
+      "sha256": "65ef5fb9871b3bb739cd38ab2c40f9bce7328d0396482a9391827eab976ce09c"
+    },
+    {
+      "path": "scenes/environments/fumee-particules.ron",
+      "bytes": 2031,
+      "sha256": "b51ac3d45258cd8a7a0d3d336414400dd65467636f70be7f51709bbc1e37ebb6"
+    },
+    {
+      "path": "scenes/environments/nebuleuse-de-laraignee.ron",
+      "bytes": 5084,
+      "sha256": "5d4dc757943211115d071648ae71fb0061dd025e32ce3e8107ef778f82bfbb72"
+    },
+    {
+      "path": "scenes/environments/nebuleuse-du-cygne.ron",
+      "bytes": 2344,
+      "sha256": "51d4ed244dad3075db594c3209c922e8e87c83eafad15332a72d26e6821478c3"
+    },
+    {
+      "path": "scenes/environments/nef-des-marees.ron",
+      "bytes": 87232,
+      "sha256": "8b542cbd04e14eacd161b90fd26448c62135b2fd78e80bd5af55a3d14f94d791"
+    },
+    {
+      "path": "scenes/environments/nef-des-marees.syf",
+      "bytes": 19947,
+      "sha256": "3d4b021d3e86bab85f206ad60efd0c5238365f0b6eb280dba0dc32a106930c98"
+    },
+    {
+      "path": "scenes/environments/nef-des-sables.ron",
+      "bytes": 39172,
+      "sha256": "cf6ff529e21dd21e6003ef033b8c3ce87b1ac1376f08583e18a3f5973e184ba6"
+    },
+    {
+      "path": "scenes/environments/nef-des-sables.syf",
+      "bytes": 24277,
+      "sha256": "b215e6520218d330b6e23bc715b35d49ac188cc155b69241126e897e2c1e5971"
+    },
+    {
+      "path": "scenes/environments/nef-des-titans.ron",
+      "bytes": 42331,
+      "sha256": "010deb0ffd33a61a8ec454655a7199980ff76ee62a7979aaf7a510e8f78299bf"
+    },
+    {
+      "path": "scenes/environments/nef-des-titans.syf",
+      "bytes": 26905,
+      "sha256": "3e06504192e6f714410409f950b762f19b9b4384324e4dfe4b1aa3a45d86f857"
+    },
+    {
+      "path": "scenes/environments/ocean-surface.ron",
+      "bytes": 25519,
+      "sha256": "71adcf303fbb319e723771e42166ac024721d3998c3124871526265afdbc24a3"
+    },
+    {
+      "path": "scenes/environments/ocean-surface.syf",
+      "bytes": 3941,
+      "sha256": "4cca19cdea441d97cf3874ccc3d09bf9bd6b743f2a5de607a138285064664b48"
+    },
+    {
+      "path": "scenes/environments/palais-des-mille-ciselures.ron",
+      "bytes": 41767,
+      "sha256": "c0277a263908fd4b6db238157af7ce18691a7b25b74e1370366cb02eb1b515e5"
+    },
+    {
+      "path": "scenes/environments/palais-hybride.ron",
+      "bytes": 2903,
+      "sha256": "0379959bd8c7e4c1d084ffadb9b6ca92e5ad2b5b69a21573cbbf19382c3f7c0b"
+    },
+    {
+      "path": "scenes/environments/palais-hybride.syf",
+      "bytes": 908,
+      "sha256": "9949928d2812178e7ca6d51115182044b30b8f190e7ef08aacacbadbdd11e234"
+    },
+    {
+      "path": "scenes/environments/palais-rose-sur-mer.ron",
+      "bytes": 42095,
+      "sha256": "869050b723f7f4f63c36578e48bbc810ed50c3273146ac5ecc92c85dd38462bb"
+    },
+    {
+      "path": "scenes/environments/porte-des-sables.ron",
+      "bytes": 13526,
+      "sha256": "03399574d0ce1ba758c6cc881ee186366f592a916ba92872cf93201690c6d07e"
+    },
+    {
+      "path": "scenes/environments/porte-des-sables.syf",
+      "bytes": 7805,
+      "sha256": "50281ebfc365c8c18fcbe636e37e20c4b84b92435ac73e7f9d7dfa4017d7bab2"
+    },
+    {
+      "path": "scenes/environments/puits-des-eons.ron",
+      "bytes": 8065,
+      "sha256": "c518f605c8093707b14a128df65fe5c6290c20e38532730be3335ed7f01fb755"
+    },
+    {
+      "path": "scenes/environments/puits-des-eons.syf",
+      "bytes": 1666,
+      "sha256": "e1eccc60bcd12050cb85f4a3ca263f7fd5b88943b45636ed16387a9830ecca6a"
+    },
+    {
+      "path": "scenes/environments/seuil-des-eons.ron",
+      "bytes": 9806,
+      "sha256": "fd8b9d34bf9d1bf39b22387d7ed345ae90d60e2162dc3600f928515ae9c2fd90"
+    },
+    {
+      "path": "scenes/environments/seuil-des-eons.syf",
+      "bytes": 3020,
+      "sha256": "607b20dddfcf10ba1000a0e462b87af92cab13ae4be5fa60a8dec92f47795676"
+    },
+    {
+      "path": "scenes/environments/tempete-dopale.ron",
+      "bytes": 5384,
+      "sha256": "3452ea92dbd436e4d62cdf66d6df9acaa4c7386d8233fcd640ac9344be97fb54"
+    },
+    {
+      "path": "scenes/environments/transparence-lab.ron",
+      "bytes": 15792,
+      "sha256": "79f9ca36a0cc0ce24b0f2f54859f17fb94e0ecdd68a1e33873279636a599d8a4"
+    },
+    {
+      "path": "scenes/example.ron",
+      "bytes": 3683,
+      "sha256": "c9052e7a13cadfc6fd9ac762112695fd774bf722695d90aca6c7b985e1665aab"
+    },
+    {
+      "path": "scenes/exhibition.ron",
+      "bytes": 5547,
+      "sha256": "21af0d8977b3d06df76c36393d3d7fc5eeac832210ab12bcfcf748f04bd399ab"
+    },
+    {
+      "path": "scenes/forme-exposition.ron",
+      "bytes": 4290,
+      "sha256": "31165f6a2090bf8702cb6df73d2544effa1159b222ccf91f93fbab22031f157b"
+    },
+    {
+      "path": "scenes/mandelbox.ron",
+      "bytes": 4624,
+      "sha256": "be0499c9c45020fb27467e5b9e43f01a8dff18dcfe1b0312e71fb52ad0e6fbe1"
+    },
+    {
+      "path": "scenes/mandelbulb.ron",
+      "bytes": 3992,
+      "sha256": "bb64971ea344303f521b4acbd94e9d1a798c71ac7f732c6a4a869362c94f9bff"
+    },
+    {
+      "path": "scenes/materials/marbre-rose-eventail.ron",
+      "bytes": 4981,
+      "sha256": "ba64930a2b13e3a59a9b0790825b37dae11a798f79b770ed3effea4cd4d53cc3"
+    },
+    {
+      "path": "scenes/materials/texture-fractale.ron",
+      "bytes": 7076,
+      "sha256": "2c89766cd877a518bc130a5ad353bd38f9c8e396bc934cbd9e88ff09c9d5b5c9"
+    },
+    {
+      "path": "scenes/menger-torsade.ron",
+      "bytes": 2760,
+      "sha256": "ef29ae46541f0dca88be9eb133d8c8a942cd8467c7b17fa34ffe14c94cd3a112"
+    },
+    {
+      "path": "scenes/menger-torsade.syf",
+      "bytes": 793,
+      "sha256": "88f29b8dc393dd022730585cb24e9bd34d1c7c601eca5837560052b6c5ee4be6"
+    },
+    {
+      "path": "scenes/menger.ron",
+      "bytes": 3832,
+      "sha256": "ec4c08174f137902484af6d5ef1ae1041db14305f12428fcad1088ea35085a51"
+    },
+    {
+      "path": "scenes/orfevrerie.ron",
+      "bytes": 5931,
+      "sha256": "f8ea3953db9ad12e0d3f4f18d89ab0951e9b309780d77b3f266806516d2ccd5e"
+    },
+    {
+      "path": "scenes/puits-des-eons.ron",
+      "bytes": 12355,
+      "sha256": "b6092a9c28b5c19d55593d29b1087853d6ce2ef5fe15f84b5f17865e568068da"
+    },
+    {
+      "path": "scenes/rosace-plis.ron",
+      "bytes": 3002,
+      "sha256": "6c525926d8c66ab034b57956ee1d841f0fd9629f0cc5954b7858fecb5faeee86"
+    },
+    {
+      "path": "scenes/rosace-plis.syf",
+      "bytes": 950,
+      "sha256": "07096b71e568ec0ef22906ba038e4b129c19ab0d97be9a7879f0a2c46d547912"
+    },
+    {
+      "path": "scenes/showcase/README.md",
+      "bytes": 1345,
+      "sha256": "4d855fea726b798224c60a88c883320332a4785f6ecf7a5f97338c517733b6ea"
+    },
+    {
+      "path": "scenes/showcase/atlas-guardian-of-infinity.ron",
+      "bytes": 12658,
+      "sha256": "2d04b72b6bce6a99576ba5c4ee2b5292d2be74df87954758e132e3cf512db6f9"
+    },
+    {
+      "path": "scenes/showcase/breath-of-the-titans.ron",
+      "bytes": 2666,
+      "sha256": "04266e576b100e482f90d20a2d6fa940eaf884bbe802aca3c4b5bc46d90e99db"
+    },
+    {
+      "path": "scripts/build.ps1",
+      "bytes": 616,
+      "sha256": "753d38be5e3be0d11614ad4c792c4d32a80b4719a670d20dd061b83fcfb64593"
+    },
+    {
+      "path": "scripts/i18n/audit.py",
+      "bytes": 4136,
+      "sha256": "3d2f93d1c17f7148433935ed33957f66f1f08c583fed950bcea618688c9b883d"
+    },
+    {
+      "path": "scripts/i18n/rust_strings.py",
+      "bytes": 3961,
+      "sha256": "7c74b7d15ddeb5772ed5acc385f8bf61b4423f83ac2baa79d357521a9fe45d62"
+    },
+    {
+      "path": "scripts/i18n/test_rust_strings.py",
+      "bytes": 1059,
+      "sha256": "18b725a921179f89f6079a92b83b70097a93df39c0b56fa921e9e47642110113"
+    },
+    {
+      "path": "scripts/install-oidn.py",
+      "bytes": 2244,
+      "sha256": "e7a526570da0749aa18dd2c3ff451bf869bbba5fef373065b56c1d969c9ffec4"
+    },
+    {
+      "path": "scripts/package/prepare-source.py",
+      "bytes": 7219,
+      "sha256": "97021504c41153176332a5d99d7af619d3ccc208976e784e6543b45a32d8de97"
+    },
+    {
+      "path": "scripts/package/publish-release.py",
+      "bytes": 3312,
+      "sha256": "c2064caa9a444be2477a2ca60a23a34f2b0a3d379646fe7dad8fc3ca2dfa3441"
+    },
+    {
+      "path": "scripts/package/test_release.py",
+      "bytes": 6451,
+      "sha256": "9d9751e9a7b8ffc6cf00df9a8514628feadb5847645bcab17ade70c8252ab3b4"
+    },
+    {
+      "path": "scripts/package/verify-source.py",
+      "bytes": 1876,
+      "sha256": "48db5ae5f246ab8522686dca7a17d1e4fc5a3cda6f204090af87b251844f5c40"
+    },
+    {
+      "path": "scripts/package/windows-release.py",
+      "bytes": 14369,
+      "sha256": "b06a0ea875100c5d1aa723416f985a7a8cb712890c2d58e79208405d270cf554"
+    }
+  ]
+}

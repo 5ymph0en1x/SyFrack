@@ -1,0 +1,83 @@
+(
+    nodes: [
+        (
+            id: 0,
+            kind: Input,
+            name: "Entrée",
+            pos: (0.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 1,
+            kind: Trap(
+                slot: 0,
+                measure: Norm,
+                scale: 1.0,
+            ),
+            name: "Piège",
+            pos: (240.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 2,
+            kind: Sphere(
+                radius: 1.0,
+            ),
+            name: "Sphère",
+            pos: (480.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 3,
+            kind: Plane(
+                normal: (0.0, 1.0, 0.0),
+                offset: -1.0,
+            ),
+            name: "Plan",
+            pos: (480.0, 96.0),
+            enabled: true,
+        ),
+        (
+            id: 4,
+            kind: Union,
+            name: "Union",
+            pos: (720.0, 0.0),
+            enabled: true,
+        ),
+        (
+            id: 5,
+            kind: Output,
+            name: "Sortie",
+            pos: (960.0, 0.0),
+            enabled: true,
+        ),
+    ],
+    links: [
+        (
+            from: (0, 0),
+            to: (1, 0),
+        ),
+        (
+            from: (1, 0),
+            to: (2, 0),
+        ),
+        (
+            from: (1, 0),
+            to: (3, 0),
+        ),
+        (
+            from: (2, 0),
+            to: (4, 0),
+        ),
+        (
+            from: (3, 0),
+            to: (4, 1),
+        ),
+        (
+            from: (4, 0),
+            to: (5, 0),
+        ),
+    ],
+    safety: 1.0,
+    bounding_radius_hint: 100.0,
+)

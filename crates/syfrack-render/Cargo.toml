@@ -1,0 +1,21 @@
+[package]
+name = "syfrack-render"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+wgpu.workspace = true
+pollster.workspace = true
+bytemuck.workspace = true
+anyhow.workspace = true
+syfrack-core.workspace = true
+glam.workspace = true
+serde.workspace = true
+ron.workspace = true
+rayon.workspace = true
+half = "2.7.1"
+image = { version = "0.25.10", default-features = false, features = ["hdr", "exr"] }
+
+[dev-dependencies]
+syfrack-color.workspace = true

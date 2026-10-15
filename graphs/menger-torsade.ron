@@ -1,0 +1,16 @@
+(
+ nodes: [(id: 0, kind: Input, name: "Espace", pos: (0.0, 0.0), enabled: true),
+(id: 1, kind: Iterate(iterations: 12, bailout: 100.0, body: [2, 5, 6, 7]), name: "Architecture recursive", pos: (240.0, 0.0), enabled: true),
+(id: 2, kind: MengerFold(scale: 2.8, offset: (1.0, 1.0, 1.0)), name: "Plis de structure", pos: (240.0, 110.0), enabled: true),
+
+
+(id: 5, kind: AddConstant(multiplier: (0.0, 0.0, 0.0), julia: (0.04, 0.0, -0.08)), name: "Constante de la famille", pos: (240.0, 440.0), enabled: true),
+(id: 6, kind: Rotate(angles: (0.0, 12.0, 8.0)), name: "Orientation entre generations", pos: (240.0, 550.0), enabled: true),
+(id: 7, kind: Trap(slot: 0, measure: Norm, scale: 2.0), name: "Lecture des replis", pos: (240.0, 660.0), enabled: true),
+(id: 8, kind: Box(half: (1.0, 1.0, 1.0)), name: "Surface", pos: (480.0, 0.0), enabled: true),
+(id: 9, kind: Sphere(radius: 4.0), name: "Limite de composition", pos: (480.0, 820.0), enabled: true),
+(id: 10, kind: Intersection, name: "Volume expose", pos: (720.0, 0.0), enabled: true),
+(id: 11, kind: Output, name: "menger-torsade", pos: (960.0, 0.0), enabled: true),],
+ links: [(from: (0,0), to: (1,0)), (from: (1,0), to: (8,0)), (from: (0,0), to: (9,0)), (from: (8,0), to: (10,0)), (from: (9,0), to: (10,1)), (from: (10,0), to: (11,0))],
+ safety: 0.55, bounding_radius_hint: 4.0,
+)

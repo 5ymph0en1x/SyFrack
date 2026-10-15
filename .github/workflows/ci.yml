@@ -1,0 +1,35 @@
+name: Source checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install the pinned Rust toolchain
+        run: rustup show
+      - name: Check translations
+        run: python scripts/i18n/audit.py
+      - name: Test the localization audit
+        run: python -m unittest discover -s scripts/i18n -p test_*.py
+      - name: Test release packaging and publication logic
+        run: python -m unittest discover -s scripts/package -p test_*.py
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Check all targets
+        run: cargo check --locked --workspace --all-targets
+      - name: CPU and headless UI tests
+        run: cargo test --locked --workspace --lib
+      - name: Scene and graph integration tests
+        run: cargo test --locked -p syfrack-core --tests
+      - name: Build Studio and CLI
+        run: cargo build --locked --workspace --bins

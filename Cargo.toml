@@ -1,0 +1,49 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+syfrack-i18n = { path = "crates/syfrack-i18n" }
+syfrack-core = { path = "crates/syfrack-core" }
+syfrack-render = { path = "crates/syfrack-render" }
+syfrack-color = { path = "crates/syfrack-color" }
+syfrack-app = { path = "crates/syfrack-app" }
+winit = "0.30.13"
+egui = "0.36.2"
+egui-winit = "0.36.2"
+egui-wgpu = "0.36.2"
+wgpu = "30"
+pollster = "1"
+bytemuck = { version = "1", features = ["derive"] }
+glam = { version = "0.34", features = ["serde"] }
+ron = "0.12"
+serde = { version = "1", features = ["derive"] }
+exr = "1.74"
+png = "0.18"
+anyhow = "1"
+thiserror = "2"
+clap = { version = "4", features = ["derive"] }
+rayon = "1.12"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+# Fluid preparation runs on the CPU even in GPU studies. Keep this crate
+# optimised in development so preview tuning exercises useful performance.
+[profile.dev.package.syfrack-render]
+opt-level = 3
+
+# Optional local tuning profile; leave RUSTFLAGS unset for portable builds.
+[profile.laptop]
+inherits = "release"
+lto = "thin"
+codegen-units = 1
+strip = "debuginfo"

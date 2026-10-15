@@ -1,0 +1,20 @@
+# Forme 1 · sources nommées ; paramètres après ;
+réglages pas=0.55 rayon=8
+
+espace_de_la_cite_0 = départ()
+axe_du_puits_1 = tourner(espace_de_la_cite_0; angles=(90, 0, 0))
+sept_galeries_en_couronne_2 = kaléidoscope(axe_du_puits_1; secteurs=7; phase=9)
+decentrer_les_galeries_3 = déplacer(sept_galeries_en_couronne_2; position=(-1.25, 0, 0))
+plis_des_galeries_4 = menger(; échelle=2.78; position=(1, 1, 1))
+voutes_courbes_5 = plier_sphère(; rayon_min=0.65; rayon_fixe=1)
+courbure_asymetrique_6 = constante(; multiplicateur=(0, 0, 0); julia=(0.065, 0.012, -0.08))
+torsion_recursive_7 = tourner(; angles=(0, 13, 8))
+strates_du_metal_8 = mesurer(; canal=0; échelle=1.8; mesure=norme)
+quatorze_echelles_imbriquees_9 = répéter(decentrer_les_galeries_3; fois=14; seuil=100; étapes=[plis_des_galeries_4, voutes_courbes_5, courbure_asymetrique_6, torsion_recursive_7, strates_du_metal_8])
+surface_du_puits_10 = boîte(quatorze_echelles_imbriquees_9; taille=(1, 1, 1))
+ouverture_centrale_11 = cylindre(axe_du_puits_1; rayon=0.43; demi_hauteur=6)
+lumiere_au_fond_du_puits_12 = creuser(surface_du_puits_10, ouverture_centrale_11)
+emprise_du_monde_13 = sphère(espace_de_la_cite_0; rayon=4.6)
+corolle_architecturale_14 = croiser(lumiere_au_fond_du_puits_12, emprise_du_monde_13)
+trois_profondeurs_du_puits_15 = dupliquer(corolle_architecturale_14; taille=(4.7, 4.7, 4.7); marge=0.45; copies=[(position:(0.0,0.0,-4.2),angles:(0.0,0.0,-13.0),scale:(0.13,0.13,0.13)),(position:(0.0,0.0,-2.8),angles:(0.0,0.0,23.0),scale:(0.36,0.36,0.36)),(position:(0.0,0.0,0.0),angles:(0.0,0.0,0.0),scale:(1.0,1.0,1.0))])
+le_puits_des_eons_16 = montrer(trois_profondeurs_du_puits_15)

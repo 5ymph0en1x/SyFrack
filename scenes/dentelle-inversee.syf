@@ -1,0 +1,15 @@
+# Forme 1 · sources nommées ; paramètres après ;
+réglages pas=0.55 rayon=4
+
+espace_0 = départ()
+plis_de_structure_2 = plier_axes(; limite=(1, 1, 1); axes="xyz")
+inversions_des_volumes_3 = inverser_sphère(; rayon=1.15; rayon_min=0.15)
+rapport_des_echelles_4 = agrandir(; facteur=1)
+constante_de_la_famille_5 = constante(; multiplicateur=(0, 0, 0); julia=(0, 0, 0))
+orientation_entre_generations_6 = tourner(; angles=(0, 0, 0))
+lecture_des_replis_7 = mesurer(; canal=0; échelle=2; mesure=norme)
+architecture_recursive_1 = répéter(espace_0; fois=18; seuil=100; étapes=[plis_de_structure_2, inversions_des_volumes_3, rapport_des_echelles_4, constante_de_la_famille_5, orientation_entre_generations_6, lecture_des_replis_7])
+surface_8 = surface(architecture_recursive_1; retrait=0)
+limite_de_composition_9 = sphère(espace_0; rayon=4)
+volume_expose_10 = croiser(surface_8, limite_de_composition_9)
+dentelle_inversee_11 = montrer(volume_expose_10)
