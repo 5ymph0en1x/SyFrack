@@ -28,8 +28,10 @@ impl Drop for Tmp {
 fn job_completes_and_matches_a_direct_render_bit_for_bit() {
     let r = Renderer::new(Arc::new(GpuContext::new().unwrap())).unwrap();
     let scene = Scene::example();
-    let mut cfg = RenderConfig::new(64, 48, 8);
-    cfg.tile_size = 64;
+    // Ragged image/tile edges and a partial final sample batch exercise the
+    // lower-right corner which an old periodic preview could leave unfinished.
+    let mut cfg = RenderConfig::new(67, 53, 5);
+    cfg.tile_size = 32;
     cfg.samples_per_dispatch = 2;
     let reference = r.render(&scene, &cfg, &mut |_| {}).unwrap();
     let dir = Tmp::new("job");
@@ -39,13 +41,13 @@ fn job_completes_and_matches_a_direct_render_bit_for_bit() {
         scene.clone(),
         RenderJob {
             out_stem: stem.clone(),
-            width: 64,
-            height: 48,
-            samples: 8,
+            width: 67,
+            height: 53,
+            samples: 5,
             bounces: 4,
             max_steps: 256,
             pixel_tolerance: 1.0,
-            tile_size: 64,
+            tile_size: 32,
             samples_per_dispatch: 2,
             denoise: false,
             guiding: false,
@@ -53,6 +55,7 @@ fn job_completes_and_matches_a_direct_render_bit_for_bit() {
     )
     .unwrap();
     let mut finished = None;
+    let mut final_preview = None;
     let mut last_min = 0;
     let deadline = std::time::Instant::now() + Duration::from_secs(60);
     while finished.is_none() && std::time::Instant::now() < deadline {
@@ -69,7 +72,14 @@ fn job_completes_and_matches_a_direct_render_bit_for_bit() {
                         .iter()
                         .all(|&done| (p.samples_min..=p.samples_max).contains(&done)));
                 }
-                Event::Finished { exr, .. } => finished = Some(exr),
+                Event::Preview(image) => final_preview = Some(image),
+                Event::Finished { exr, .. } => {
+                    assert!(
+                        final_preview.is_some(),
+                        "the completed image precedes Finished, even for short renders"
+                    );
+                    finished = Some(exr);
+                }
                 Event::Failed(m) => panic!("job failed: {m}"),
                 _ => {}
             }
@@ -80,13 +90,25 @@ fn job_completes_and_matches_a_direct_render_bit_for_bit() {
     assert!(!job.is_running());
     let img = syfrack_color::read_exr(&exr).unwrap();
     assert_eq!(img.data, reference.color.data);
+    let preview = final_preview.unwrap();
+    assert_eq!((preview.width, preview.height), (67, 53));
+    assert_eq!(
+        preview.data, img.data,
+        "the last preview includes every exported tile"
+    );
+    assert_eq!(
+        preview.get(66, 52),
+        img.get(66, 52),
+        "the lower-right corner is current"
+    );
+    assert_eq!(last_min, 5, "all tiles reached the target sample count");
     let saved: SessionState = ron::from_str(
         &std::fs::read_to_string(stem.with_extension("state").join("state.ron")).unwrap(),
     )
     .unwrap();
     assert_eq!(
         (saved.cfg.tile_size, saved.cfg.samples_per_dispatch),
-        (64, 2)
+        (32, 2)
     );
     let png = dir.0.join("job.png");
     assert!(png.exists());

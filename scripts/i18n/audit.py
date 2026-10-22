@@ -68,7 +68,18 @@ def main():
                 # data, not UI prose. Both parser vocabularies remain readable.
                 legacy = not is_app and relative == 'scene/graph/language.rs'
                 palette_key = not is_app and relative == 'scene/palette.rs' and key in {'Aurore', 'Acide'}
-                if legacy or palette_key:
+                # Natural experiment/card names are saved scene data. The field
+                # canvas and preset buttons translate these stable catalog keys.
+                natural_data = (not is_app and relative in {'scene/phenomena/presets.rs', 'scene/phenomena/simulation.rs'} and key in catalog)
+                # CreationKind labels and the creation editor's catalogue,
+                # socket descriptions and status keys are translated by the
+                # editor's label() helper at draw time. Require catalogue
+                # coverage for these deferred display values too.
+                creation_display = (relative in (
+                    {'ui/creation.rs', 'ui/creation/workflow.rs', 'ui/creation/workspace.rs'}
+                    if is_app else {'scene/creation.rs'}
+                ) and key in catalog)
+                if legacy or palette_key or natural_data or creation_display:
                     continue
                 if not is_app or key not in RAW_KEYS.get(relative, set()):
                     errors.append(f'{location}: untranslated French literal: {key}')

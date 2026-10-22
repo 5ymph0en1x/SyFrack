@@ -61,16 +61,16 @@ fn main() -> Result<()> {
     style.animation_time = 0.0;
     ctx.set_global_style(style);
     let content = syfrack_app_lib::paths::content_root();
-    let workshop = workspace
-        .as_deref()
-        .is_some_and(|s| s.starts_with("workshop-") || s.starts_with("chrome-"));
+    let workshop = workspace.as_deref().is_some_and(|s| {
+        s.starts_with("workshop-") || s.starts_with("chrome-") || s.starts_with("simple-")
+    });
     let crown = workspace
         .as_deref()
         .is_some_and(|s| s == "chrome-2d" || s.contains("render-flame"));
     let flat = crown
         || workspace
             .as_deref()
-            .is_some_and(|s| s.starts_with("workshop-2d"));
+            .is_some_and(|s| s.starts_with("workshop-2d") || s.starts_with("simple-2d"));
     let scene_path = std::env::args()
         .nth(4)
         .map(PathBuf::from)
@@ -100,6 +100,53 @@ fn main() -> Result<()> {
             Some(scene_path)
         },
     );
+    if workspace
+        .as_deref()
+        .is_some_and(|s| s.starts_with("simple-"))
+    {
+        state.set_interface(syfrack_app_lib::interface::InterfaceMode::Simple);
+    }
+    // A small, real mixed graph for reviewing socket labels and inspector layout.
+    // The preview below remains explicitly labelled as a native render reference.
+    if workspace.as_deref().is_some_and(|s| s.starts_with("nodal")) {
+        use syfrack_core::scene::phenomena::FieldOp;
+        use syfrack_core::{CreationGraph, CreationKind, FractalTexture, PlanarFractal};
+        let mut g = CreationGraph::default();
+        let p = g.add(CreationKind::Field(FieldOp::Position), [32.0, 96.0]);
+        let pattern = g.add(
+            CreationKind::Texture(Box::new(FractalTexture {
+                planar: Some(PlanarFractal::default()),
+                scale: 1.0,
+                octaves: 1,
+                ..Default::default()
+            })),
+            [352.0, 96.0],
+        );
+        let mut ramp = syfrack_core::scene::palette::neon_palette(2);
+        ramp.frequency = 4.0;
+        let palette = g.add(CreationKind::Palette(ramp), [672.0, 96.0]);
+        let out = g.add(CreationKind::Output, [992.0, 48.0]);
+        for (from, to) in [
+            ((p, 0), (pattern, 0)),
+            ((pattern, 0), (palette, 0)),
+            ((palette, 0), (out, 1)),
+        ] {
+            g.connect(from, to)?;
+        }
+        let mut scene = Scene::example_2d();
+        scene.canvas.zoom = 2.0;
+        scene.creation = Some(g);
+        scene.unify()?;
+        state.load_scene(scene, None);
+        state.form.selected = vec![palette];
+    }
+    if workspace.as_deref() == Some("nature") {
+        state.load_scene(
+            syfrack_core::scene::phenomena::presets::scene("interference")?,
+            None,
+        );
+        state.tab = syfrack_app_lib::state::Tab::Forme;
+    }
     state.show_gizmos = false;
     if workspace
         .as_deref()
@@ -131,7 +178,33 @@ fn main() -> Result<()> {
     } else {
         content.join("docs/images/breath-of-the-titans.png")
     };
-    let (w, h, rgba) = syfrack_app_lib::gallery::thumbnail(&reference_path, 1920)?;
+    let nodal = workspace.as_deref().is_some_and(|s| s.starts_with("nodal"));
+    let (w, h, rgba) = if nodal {
+        let rendered = engine.render(
+            &state.scene,
+            &syfrack_render::RenderConfig::new(640, 360, 16),
+            &mut |_| {},
+        )?;
+        anyhow::ensure!(
+            rendered.color.data.iter().flatten().all(|v| v.is_finite()),
+            "nonfinite graph preview"
+        );
+        let encoded = syfrack_color::develop_and_encode(&rendered.color, &state.scene.look, 8);
+        let rgba: Vec<u8> = if encoded.has_alpha() {
+            encoded.data.iter().map(|v| *v as u8).collect()
+        } else {
+            encoded
+                .data
+                .chunks_exact(3)
+                .flat_map(|p| [p[0] as u8, p[1] as u8, p[2] as u8, 255])
+                .collect()
+        };
+        write_png(&dir.join("nodal-native.png"), [640, 360], &rgba)?;
+        state.scene.save(&dir.join("nodal-native.ron"))?;
+        (640, 360, rgba)
+    } else {
+        syfrack_app_lib::gallery::thumbnail(&reference_path, 1920)?
+    };
     let reference = ctx.load_texture(
         "native-palace-reference",
         egui::ColorImage::from_rgba_unmultiplied([w as usize, h as usize], &rgba),
@@ -140,7 +213,9 @@ fn main() -> Result<()> {
     let mut view = Viewport {
         texture: Some(reference.id()),
         size: (w, h),
-        caption: if workshop {
+        caption: if nodal {
+            "Native graph render · 16 spp".into()
+        } else if workshop {
             "Native render reference · 2D / 3D workshop".into()
         } else {
             "Native render reference".into()
@@ -158,20 +233,52 @@ fn main() -> Result<()> {
         form.view = ui::form_panel::FormView {
             texture: Some(reference.id()),
             size: (w, h),
-            caption: "Native render reference".into(),
+            caption: if nodal {
+                "Native graph render · 16 spp".into()
+            } else {
+                "Native render reference".into()
+            },
+            ..Default::default()
         };
-        if let Some(n) = state
-            .scene
-            .fractal
-            .to_graph()
-            .nodes
-            .iter()
-            .find(|n| matches!(n.kind, syfrack_core::NodeKind::Box { .. }))
-        {
-            state.form.selected = vec![n.id];
+        if !nodal {
+            if let Some(n) = state
+                .scene
+                .fractal
+                .to_graph()
+                .nodes
+                .iter()
+                .find(|n| matches!(n.kind, syfrack_core::NodeKind::Box { .. }))
+            {
+                state.form.selected = vec![n.id];
+            }
         }
     }
     let mut render = RenderPanel::new();
+    if workspace.as_deref() == Some("mosaic") {
+        ui::mosaic::open_image(&ctx, &reference_path);
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(180);
+        while ui::mosaic::is_busy(&ctx) {
+            ui::mosaic::poll(&ctx);
+            anyhow::ensure!(
+                std::time::Instant::now() < deadline,
+                "mosaic import timed out"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        ui::mosaic::request_generate(&ctx);
+        while ui::mosaic::is_busy(&ctx) {
+            ui::mosaic::poll(&ctx);
+            anyhow::ensure!(
+                std::time::Instant::now() < deadline,
+                "mosaic capture timed out"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        anyhow::ensure!(
+            ui::mosaic::has_result(&ctx),
+            "mosaic did not produce a preview"
+        );
+    }
     let format = wgpu::TextureFormat::Rgba8Unorm;
     let mut painter =
         egui_wgpu::Renderer::new(&gpu.device, format, egui_wgpu::RendererOptions::default());
@@ -192,7 +299,12 @@ fn main() -> Result<()> {
         } else {
             page
         };
-        state.tab = if workspace.as_deref().is_some_and(|s| s != "explorer") && !native && !workshop
+        state.tab = if workspace.as_deref() == Some("mosaic") {
+            syfrack_app_lib::state::Tab::Mosaic
+        } else if workspace.as_deref().is_some_and(|s| s != "explorer")
+            && !native
+            && !workshop
+            && workspace.as_deref() != Some("nature")
         {
             syfrack_app_lib::state::Tab::Forme
         } else {
@@ -234,7 +346,18 @@ fn main() -> Result<()> {
                     egui::vec2(size[0] as f32 / zoom, size[1] as f32 / zoom),
                 )),
                 time: Some(time),
-                events: if open_render
+                events: if workspace.as_deref() == Some("nodal-add") && time < 0.02 {
+                    vec![
+                        egui::Event::ModifiersChanged(egui::Modifiers::SHIFT),
+                        egui::Event::Key {
+                            key: egui::Key::A,
+                            physical_key: None,
+                            pressed: true,
+                            repeat: false,
+                            modifiers: egui::Modifiers::SHIFT,
+                        },
+                    ]
+                } else if open_render
                     && (workspace.as_deref() == Some("explorer") || native_explorer)
                 {
                     vec![

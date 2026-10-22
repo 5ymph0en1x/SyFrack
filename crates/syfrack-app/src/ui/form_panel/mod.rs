@@ -78,6 +78,10 @@ const LOAD_MARGIN: f32 = 5.0 * theme::GRID;
 /// The preview as the app hands it to the tab: drawn under the inspector.
 #[derive(Clone, Debug, Default)]
 pub struct FormView {
+    pub can_specialize: bool,
+    pub specializing: bool,
+    pub specialized: bool,
+    pub exporting: bool,
     /// None while the preview waits for a complete form.
     pub texture: Option<egui::TextureId>,
     /// Size in pixels of the preview texture.
@@ -157,6 +161,8 @@ enum MenuAction {
 }
 
 pub struct FormPanel {
+    pub specialization_requested: bool,
+    pub control_requested: bool,
     pub mode: FormMode,
     query: String,
     drag: Option<Drag>,
@@ -185,6 +191,8 @@ pub struct FormPanel {
     /// The preview image, set by the app each frame.
     pub view: FormView,
     pub library: Library,
+    pub(crate) creation: super::creation::Editor,
+    flat: bool,
 }
 
 impl Default for FormPanel {
@@ -200,6 +208,8 @@ impl FormPanel {
 
     pub fn new() -> Self {
         Self {
+            specialization_requested: false,
+            control_requested: false,
             mode: FormMode::default(),
             query: String::new(),
             drag: None,
@@ -213,9 +223,11 @@ impl FormPanel {
             focus_name: false,
             radius: radius::RadiusEstimate::default(),
             compile_ms: None,
-            clay: true,
+            clay: false,
             view: FormView::default(),
             library: Library::default(),
+            creation: super::creation::Editor::default(),
+            flat: false,
         }
     }
 
@@ -236,53 +248,49 @@ impl FormPanel {
     }
 
     pub fn show(&mut self, ui: &mut Ui, state: &mut AppState) {
-        egui::Panel::top("form-reading-mode").show(ui, |ui| {
+        self.flat = state.scene.dimension == syfrack_core::Dimension::TwoD;
+        let mut editor = std::mem::take(&mut self.creation);
+        super::creation::show(ui, state, self, &mut editor);
+        self.creation = editor;
+    }
+    pub(crate) fn creation_forms(&mut self) -> Vec<crate::library::LibraryEntry> {
+        self.library.refresh();
+        self.library.entries.clone()
+    }
+
+    /// Compatibility view for embedders of the geometry-only editor. Studio
+    /// uses `show`, the unified canvas. Edits still adapt to the canonical DAG.
+    pub fn show_geometry_compatibility(&mut self, ui: &mut Ui, state: &mut AppState) {
+        egui::Panel::top("legacy-geometry-mode").show(ui, |ui| {
             ui.horizontal(|ui| {
                 for (mode, label) in [
                     (FormMode::Construction, "Construction"),
                     (FormMode::Expert, syfrack_i18n::tr!("Graphe expert")),
                 ] {
-                    let button = crate::ui::widgets::choice_button(ui, self.mode == mode, label);
-                    #[cfg(test)]
-                    ui.data_mut(|d| d.insert_temp(Id::new(("form-mode", label)), button.rect));
-                    if button.clicked() {
+                    if widgets::choice_button(ui, self.mode == mode, label).clicked() {
                         self.mode = mode;
                     }
                 }
-                ui.separator();
-                ui.label(
-                    RichText::new(syfrack_i18n::tr!(
-                        "Construire par étapes ou relier les nœuds"
-                    ))
-                    .small()
-                    .color(theme::TEXT_DIM),
-                );
             });
         });
-        // One read of the graph per frame (again only after an edit).
         let mut g = state.scene.fractal.to_graph();
-        let undo_before = state.can_undo();
-        let scene_before = state.scene.fractal.clone();
-        {
-            self.library.compact = self.mode == FormMode::Construction;
-            egui::Panel::left("form-library")
-                .resizable(false)
-                .exact_size(if self.mode == FormMode::Expert {
-                    LIBRARY_W
-                } else {
-                    224.0
-                })
-                .show(ui, |ui| self.library.show(ui, state));
-        }
-        let mut edited = state.can_undo() != undo_before || state.scene.fractal != scene_before;
-        egui::Panel::right("form-inspector")
+        let before = state.scene.fractal.clone();
+        let undo = state.can_undo();
+        self.library.compact = self.mode == FormMode::Construction;
+        egui::Panel::left("legacy-geometry-library")
+            .resizable(false)
+            .exact_size(if self.mode == FormMode::Expert {
+                LIBRARY_W
+            } else {
+                224.0
+            })
+            .show(ui, |ui| self.library.show(ui, state));
+        let mut edited = state.scene.fractal != before || state.can_undo() != undo;
+        egui::Panel::right("legacy-geometry-inspector")
             .resizable(false)
             .exact_size(INSPECTOR_W)
             .show(ui, |ui| {
-                egui::Panel::bottom("form-preview")
-                    .resizable(false)
-                    .frame(egui::Frame::NONE.inner_margin(egui::Margin::symmetric(0, 8)))
-                    .show(ui, |ui| self.preview(ui));
+                egui::Panel::bottom("legacy-geometry-preview").show(ui, |ui| self.preview(ui));
                 edited |= self.inspector(ui, state, &g);
             });
         if edited {
@@ -298,15 +306,44 @@ impl FormPanel {
 
     /// The preview under the inspector: the « argile / look réel » switch,
     /// the image letterboxed in a 16:9 box, its caption.
-    fn preview(&mut self, ui: &mut Ui) {
+    pub(crate) fn preview(&mut self, ui: &mut Ui) {
+        self.preview_controls(ui);
+        self.preview_image(ui);
+    }
+
+    /// Shared with the workshop status bar: requesting native compilation is
+    /// explicit in both views, and disabled while export owns the GPU.
+    pub fn preview_controls(&mut self, ui: &mut Ui) {
+        if self.view.can_specialize {
+            ui.horizontal(|ui| {
+                if self.view.specialized {
+                    if ui.add_enabled(!self.view.exporting,egui::Button::new(syfrack_i18n::tr!("Revenir au contrôle GPU"))).clicked() {
+                        self.control_requested=true;
+                    }
+                } else {
+                    if ui.add_enabled(!self.view.exporting && !self.view.specializing,egui::Button::new(syfrack_i18n::tr!("Compiler l’aperçu spécialisé")))
+                        .on_hover_text(syfrack_i18n::tr!("Affiner l’éclairage et les matières. Le contrôle géométrique reste disponible pendant la compilation.")).clicked() {
+                        self.specialization_requested=true;
+                    }
+                    if self.view.specializing { ui.spinner(); }
+                }
+            });
+        }
+    }
+
+    fn preview_image(&mut self, ui: &mut Ui) {
         let current = usize::from(!self.clay);
-        if let Some(i) = panels::choice(
-            ui,
-            syfrack_i18n::tr!("Aperçu"),
-            &["argile", syfrack_i18n::tr!("look réel")],
-            current,
-        ) {
-            self.clay = i == 0;
+        // The fixed geometry view has one neutral look. Offer the look switch
+        // after explicit specialization, when it actually changes the image.
+        if !self.flat && (!self.view.can_specialize || self.view.specialized) {
+            if let Some(i) = panels::choice(
+                ui,
+                syfrack_i18n::tr!("Aperçu"),
+                &["argile", syfrack_i18n::tr!("look réel")],
+                current,
+            ) {
+                self.clay = i == 0;
+            }
         }
         ui.add_space(theme::GRID / 2.0);
         let w = ui.available_width();

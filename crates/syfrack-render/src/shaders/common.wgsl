@@ -154,6 +154,12 @@ struct SurfaceVariation {
     finish: vec4f, // roughness endpoints, metallic endpoints
 }
 
+struct Phenomena {
+    program:vec4u,
+    grid:vec4u,outputs:vec4u,center:vec4f,half:vec4f,gains:vec4f,
+    film:vec4f,film_extra:vec4f,lens_center:vec4f,lens_axis:vec4f,lens_config:vec4f,
+    palette:Palette,
+}
 struct Uniforms {
     image_size: vec2u,
     tile_origin: vec2u,
@@ -181,9 +187,21 @@ struct Uniforms {
     finishes: array<Finish, 8>,
     nebula: Nebula,
     optics: array<Optics, 9>,
+    phenomena: Phenomena,
 }
 
 @group(0) @binding(0) var<uniform> u: Uniforms;
+
+// Export-only compact storage. Guiding is disabled in this mode, so its two
+// schedule words carry the storage origin; the reserved fractal kind.w is pitch.
+// Rays/RNG still use global image coordinates, including subdispatches.
+fn output_index(px: vec2u) -> u32 {
+    if ((u.flags & 8u) != 0u) {
+        let local = px - vec2u(u.guiding_record_round, u.guiding_training_end);
+        return local.y * u.fractal.kind.w + local.x;
+    }
+    return px.y * u.image_size.x + px.x;
+}
 
 fn ray_extent() -> f32 {
     return max(max(T_MAX,u.fractal.p0.z), select(0.0, 4000.0, u.atmosphere.dunes.x > 0.0));
@@ -192,6 +210,14 @@ fn ray_extent() -> f32 {
 // ---------------------------------------------------------------- Graph helpers
 
 @group(0) @binding(4) var<uniform> graph_params: array<vec4f, 2048>;
+@group(0) @binding(16) var graph_params_overflow: texture_2d<f32>;
+
+fn gp_row(i: u32) -> vec4f {
+    if (i < 2048u) { return graph_params[i]; }
+    let row = i - 2048u;
+    let width = textureDimensions(graph_params_overflow).x;
+    return textureLoad(graph_params_overflow, vec2u(row % width, row / width), 0);
+}
 
 struct DeSample {
     distance: f32,
@@ -207,7 +233,7 @@ fn cylinder_distance(p: vec3f, radius: f32, half_height: f32) -> f32 {
 }
 
 fn gp(i: u32) -> f32 {
-    return graph_params[i / 4u][i % 4u];
+    return gp_row(i / 4u)[i % 4u];
 }
 
 // glam's `v.try_normalize().unwrap_or(Vec3::Y)`: rcp = 1 / length must be
@@ -299,7 +325,7 @@ fn blend_traps(a: vec4f, b: vec4f, h: f32) -> vec4f {
 }
 
 fn de(p: vec3f) -> f32 {
-    return de_sample(p).distance;
+    return nature_surface(p,de_sample(p)).distance;
 }
 
 fn palette_mix(r: Palette, a: u32, b: u32, amount: f32) -> vec3f {
@@ -344,7 +370,7 @@ fn ramp_sample(t: f32) -> vec3f {
 fn surface_sample(p: vec3f) -> DeSample {
     var s = de_sample(p);
     if (s.flags != 0u) { s = de_sample_exact(p); }
-    return s;
+    return nature_surface(p,s);
 }
 
 fn normal_at(p: vec3f, h: f32) -> vec3f {

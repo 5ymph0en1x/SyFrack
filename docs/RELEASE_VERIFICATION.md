@@ -1,67 +1,85 @@
-# Local release verification
+# Local verification — SyFrack 0.2.0
 
-Prepared on 15 October 2026 for manual publication by the project owner.
+Prepared on 22 October 2026 for manual publication by the project owner.
+The Cargo workspace and all six locked SyFrack packages are version **0.2.0**.
+The current release notes and publication examples target **v0.2.0**; the
+0.1.0 changelog entry remains historical.
 
-The standalone export was checked and built locally. All checks below passed
-against its source files; Cargo build artifacts were kept outside the export.
+The following checks passed against the standalone source export on Windows
+x64. Cargo used the pinned Rust 1.99.0 toolchain, cached dependencies and
+`--offline --locked`. Build artifacts were kept outside the export, and Python
+checks used `PYTHONDONTWRITEBYTECODE=1`.
 
 | Check | Result |
 | --- | --- |
-| English/French catalog and source audit | 967 complete messages; matching format fields |
+| Workspace, lockfile and release-tag consistency | Six local packages at 0.2.0; `v0.2.0` accepted |
+| English/French catalog and Studio source audit | 1,356 complete messages; matching format fields |
 | Localization audit regression tests | 2 passed |
+| Source/release packaging and publication regression tests | 19 passed; remote operations mocked |
 | `cargo fmt --all -- --check` | Passed |
-| `cargo check --locked --workspace --all-targets` | Passed from the export |
-| `cargo test --locked --workspace --lib` | 450 passed; 2 deliberately ignored |
-| Core scene/graph integration tests | 32 passed; 1 asset-generation helper ignored |
-| Studio and CLI development binaries | Built successfully from the export |
-| CLI help and language option | Passed |
-| Vulkan compute probe | Passed: 256 expected values |
-| File inventory and documentation links | SHA-256, size and local links verified |
-| Optimized Windows x64 release binaries | Built with the static C runtime in 11 min 34 s |
-| Portable release archive | 488 files; 24.71 MiB; every hash and packaged documentation link checked |
-| Extracted release CLI | Help smoke test passed; no external MSVC runtime imports |
-| Release binary Vulkan probe | Passed: Quadro K3100M, 256 expected values |
-| Release packaging/publication regression tests | 10 passed; remote calls mocked |
+| `cargo check --workspace --all-targets` | Passed |
+| Workspace library tests | 548 passed; 2 intentionally ignored |
+| Core scene/graph integration tests | 56 passed; 1 asset writer ignored |
+| CLI and Mosaic integration tests | 19 passed; 9 GPU cases ignored |
+| Completed-render GPU regression | 1 passed; final preview matches the complete EXR and direct render bit for bit |
+| Studio and CLI development binaries | Built successfully from the 0.2.0 export |
+| CLI version, help and language option | `syfrack 0.2.0`; long/short version options and French language selection passed |
+| Vulkan compute probe | Quadro K3100M; 256 expected values; last value 511 |
 | GitHub workflow static validation | Both workflows passed actionlint 1.7.12 |
+| Exported Python and PowerShell scripts | Syntax checks passed |
+| Scene HDR asset references | All 4 resolve to files inside the export |
+| Source inventory and documentation | 665 payload files; exact sizes, SHA-256 hashes and local links verified |
 
-The library suite comprises 203 Studio, 48 colour, 106 core, 4 localization and
-89 renderer tests. The 32 integration tests are additional to those counts;
-the core unit suite is also rerun by Cargo's `--tests` command.
+The library count comprises 239 Studio, 52 colour, 114 core, 4 localization
+and 139 renderer tests. The integration tests are additional to those counts.
+Together with the focused GPU regression, **624 distinct Rust tests passed**.
+The latest CLI run includes its new version-reporting regression. The core and
+CLI cases were initially selected alongside the library suites in one workspace
+invocation; CLI integration tests were rerun after adding `--version` / `-V`.
 
-UI checks cover both workshops, language switching without scene/history or
-generated-shader changes, decimal separators, detached-dialog identity and
-portrait thumbnail bounds. Real egui/wgpu captures were reviewed in English
-and French, including the English 2D colour controls and custom render settings.
-The Studio illustration labels its viewport as a saved native render reference.
+The final-render regression uses a 67 × 53 image, 32-pixel tiles, five samples
+and batches of two. Both image edges and the final sample batch are partial.
+It checks the entire final HDR preview, the lower-right pixel at (66, 52),
+monotone progress, the completed checkpoint and the scene embedded in the PNG.
+A completed Preview event must precede Finished. This checks the previously
+stale display while retaining the renderer's complete exported image.
 
-Local commands used the pinned Rust toolchain and `--offline --locked`, with
-dependencies already cached. The original executable check used the development
-profile. The additional release check used `--release --target
-x86_64-pc-windows-msvc` and `RUSTFLAGS=-C target-feature=+crt-static`, without
-`target-cpu=native`. Both executables passed PE architecture/subsystem and import
-checks. The local package records an all-zero source revision because this
-preparation has no publication commit yet; it is a packaging validation artifact,
-kept outside the export, not an official GitHub release. Actions will substitute
-the exact commit resolved from the owner's version tag.
+UI checks cover Simple/Advanced switching, shared 2D/3D scene and history,
+connected pattern/palette/volume edits, unfinished graphs, compact navigation,
+render-window scrolling and fixed actions, localization and detached windows.
+Native egui/wgpu captures in English and French were reviewed for the Simple
+workspaces and redesigned render window. Saved native viewport references are
+explicitly labelled; the image index dates the older nodal-editor captures.
 
-The package includes the two optimized binaries, curated scenes/graphs/HDRI,
-guides, the optional OIDN installer (not the OIDN runtime), dependency notices and
-embedded-font license texts. A 217-package dependency inventory includes resolved
-build/test dependencies as well as runtime dependencies. The outer ZIP checksum
-and all inner file hashes were verified; the extracted CLI ran successfully.
-The release-profile CPU test steps are configured in Actions; the 482 Rust tests
-reported above were run with the development test profile during source
-preparation, not rerun locally in the release profile for this packaging change.
+The export includes editable scenes and composition records, graph/font/HDRI
+assets, the cathedral's native neon panorama, three historical GPU reference
+EXRs and the guiding profiler's scene/reference inputs. Its synthetic studio
+panorama is generated by `hdri_lab`; the scene now uses a relative asset path.
+The required EXR inputs have explicit Git ignore/verifier exceptions and binary
+attributes. Working renders, checkpoints, caches and runtime downloads remain
+outside the source inventory. Documentation includes its linked guides,
+figures and benchmark evidence.
 
-The export inventory excludes its own manifest and is regenerated after the
-final documentation/image update. The matching HDRI provenance checksums were
-verified during preparation. No working renders or checkpoints were moved.
+`SOURCE_MANIFEST.json` records every payload file's size and SHA-256, excluding
+itself. The final inventory is regenerated after this report and the last guide
+updates. Source synchronization validates the previous managed copies before
+updating them and preserves independently changed or unmanaged files by refusing
+the operation. Regression tests exercise those protections and documentation
+closure. HDRI provenance checksums are checked during preparation.
 
-Both GitHub workflows are supplied but have not been run on GitHub by this preparation.
-No repository, remote, commit, tag, release or upload has been created.
+The ignored library tests are the shipped-scene generator and optional OIDN
+runtime test. The additional core helper writes library assets. Other GPU
+integration cases were not rerun in full. The strict native arithmetic parity
+gate and its existing limits are documented in [Determinism](DETERMINISM.md);
+the local preview regression and compute probe do not qualify every GPU or
+cross-device arithmetic path.
 
-The source export contains no prebuilt Studio/CLI binaries. Windows x64 is the
-locally tested target. Vulkan graphics checks use an NVIDIA Quadro K3100M;
-results are not a claim of compatibility with every GPU or operating system.
-The full set of ignored GPU integration tests was not rerun for this localization
-change. The local compute probe and offscreen GPU UI captures are smoke checks.
+These results cover development-profile builds. A new optimized portable
+Windows archive with the static C runtime was not built in this preparation.
+The [release workflow](PUBLISHING.md) builds and verifies that archive from the
+owner's version tag, including its exact source commit and dependency notices.
+Both workflows were checked locally but have not been run on GitHub here.
+
+No Git repository, remote, commit, tag, GitHub Release or upload was created.
+Publish the reviewed source contents into the existing repository and preserve
+its history before creating the new `v0.2.0` tag.

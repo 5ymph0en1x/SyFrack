@@ -1,7 +1,7 @@
 //! Harness tests of the studio UI: whole frames driven by synthetic input.
 
 use super::*;
-use egui::{Event, Pos2, RawInput, Rect};
+use egui::{Event, Id, Pos2, RawInput, Rect};
 use syfrack_core::Scene;
 
 const SCREEN: Rect = Rect::from_min_max(Pos2::ZERO, Pos2::new(1600.0, 900.0));
@@ -176,6 +176,269 @@ const CTRL: Modifiers = Modifiers {
 };
 
 #[test]
+fn interface_switch_is_reversible_and_preserves_document_and_redo() {
+    use crate::interface::InterfaceMode;
+    let mut h = Harness::new();
+    assert_eq!(h.state.interface, InterfaceMode::Advanced);
+    h.state.path = Some("scenes/same-project.ron".into());
+    h.state.set_param("look.exposure_ev", 1.0);
+    h.state.set_param("look.saturation", 0.5);
+    h.state.undo();
+    h.state.form.selected = vec![2];
+    let before = h.state.scene.clone();
+    let path = h.state.path.clone();
+    let modified = h.state.is_modified();
+    h.state.take_preview_dirty();
+    for mode in [
+        InterfaceMode::Simple,
+        InterfaceMode::Advanced,
+        InterfaceMode::Simple,
+    ] {
+        let at = control(&h, Id::new(("interface-mode", mode))).center();
+        click(&mut h, at);
+        assert_eq!(h.state.interface, mode);
+        assert_eq!(h.state.scene, before);
+        assert_eq!(h.state.path, path);
+        assert_eq!(h.state.form.selected, vec![2]);
+        assert_eq!(h.state.is_modified(), modified);
+        assert!(h.state.can_redo());
+        assert!(!h.state.take_preview_dirty());
+    }
+    assert!(h.state.redo());
+    assert_eq!(h.state.scene.look.saturation, 0.5);
+}
+
+#[test]
+fn both_interfaces_keep_navigation_and_export_visible_in_both_languages() {
+    use crate::interface::InterfaceMode;
+    let mut h = Harness::new();
+    h.state.path = Some(format!("scenes/{}.ron", "long-title-".repeat(40)).into());
+    let before = h.state.scene.clone();
+    for language in syfrack_i18n::Language::ALL {
+        h.language = language;
+        for mode in InterfaceMode::ALL {
+            h.state.set_interface(mode);
+            for width in [700.0, 800.0, 1000.0, 1280.0, 1600.0, 1920.0] {
+                h.screen = Rect::from_min_size(Pos2::ZERO, egui::vec2(width, 900.0));
+                h.frame(vec![]);
+                h.frame(vec![]);
+                for id in [
+                    Id::new("render-open-button"),
+                    Id::new("display-menu"),
+                    Id::new(("interface-mode", InterfaceMode::Simple)),
+                    Id::new(("interface-mode", InterfaceMode::Advanced)),
+                    Id::new(("dimension", "2D")),
+                    Id::new(("dimension", "3D")),
+                ] {
+                    let rect = control(&h, id);
+                    assert!(
+                        h.screen.contains_rect(rect),
+                        "{language:?}/{mode:?}/{width}: {rect:?}"
+                    );
+                }
+                let render = control(&h, Id::new("render-open-button"));
+                assert!(!render.intersects(control(&h, Id::new("document-title"))));
+                assert!(h.view_available.0 >= 200 && h.view_available.1 >= 400);
+            }
+        }
+    }
+    assert_eq!(h.state.scene, before);
+    assert!(!h.state.can_undo());
+}
+
+#[test]
+fn simple_pattern_and_palette_edit_the_connected_graph_and_undo() {
+    use crate::interface::InterfaceMode;
+    use syfrack_core::CreationKind;
+    let mut h = Harness::new();
+    assert!(h.state.load_scene(Scene::example_2d(), None));
+    h.state.set_interface(InterfaceMode::Simple);
+    h.frame(vec![]);
+    h.frame(vec![]);
+    let before = h.state.scene.clone();
+    let at = control(&h, Id::new(("simple-family", "Mandelbrot"))).center();
+    click(&mut h, at);
+    let graph = h.state.scene.creation.as_ref().unwrap();
+    assert_eq!(graph.links, before.creation.as_ref().unwrap().links);
+    assert!(graph
+        .nodes
+        .iter()
+        .any(|n| matches!(&n.kind, CreationKind::Texture(t)
+        if t.planar.as_ref().is_some_and(|p| p.family == syfrack_core::PlanarFamily::Mandelbrot))));
+    assert_eq!(h.state.scene, h.state.scene.render_scene().unwrap());
+    assert!(h.state.take_preview_dirty());
+    assert!(h.state.undo());
+    assert_eq!(h.state.scene, before);
+    h.state.inspector = crate::state::Inspector::Material;
+    h.frame(vec![]);
+    h.frame(vec![]);
+    let at = control(&h, Id::new(("simple-palette", 2usize))).center();
+    click(&mut h, at);
+    assert_ne!(h.state.scene.creation, before.creation);
+    assert_eq!(
+        h.state.scene.creation.as_ref().unwrap().links,
+        before.creation.as_ref().unwrap().links
+    );
+    assert_eq!(h.state.scene, h.state.scene.render_scene().unwrap());
+    let coloured = h.state.scene.clone();
+    let palette_id = coloured
+        .creation
+        .as_ref()
+        .unwrap()
+        .nodes
+        .iter()
+        .find(|n| matches!(n.kind, CreationKind::Palette(_)))
+        .unwrap()
+        .id;
+    let frequency = format!("creation.nodes[{palette_id}].palette.frequency");
+    let row = control(&h, Id::new(("creative-param", frequency.as_str())));
+    let left = row.left() + widgets::label_width(row.width());
+    let right = row.right() - widgets::VALUE_W - theme::GRID;
+    h.drag(
+        egui::pos2(left + (right - left) * 0.2, row.center().y),
+        egui::pos2(left + (right - left) * 0.8, row.center().y),
+    );
+    assert_ne!(h.state.scene.creation, coloured.creation);
+    assert_eq!(h.state.scene, h.state.scene.render_scene().unwrap());
+    h.state.set_interface(InterfaceMode::Advanced);
+    assert!(h.state.undo());
+    assert_eq!(h.state.scene, coloured);
+    assert!(h.state.undo());
+    assert_eq!(h.state.scene, before);
+}
+
+#[test]
+fn simple_volume_slider_updates_the_authoritative_form() {
+    use crate::interface::InterfaceMode;
+    let mut h = Harness::new();
+    h.state.set_interface(InterfaceMode::Simple);
+    h.frame(vec![]);
+    h.frame(vec![]);
+    let before = h.state.scene.clone();
+    let path = "creation.nodes[2].limit";
+    let row = control(&h, Id::new(("creative-param", path)));
+    let left = row.left() + widgets::label_width(row.width());
+    let right = row.right() - widgets::VALUE_W - theme::GRID;
+    h.drag(
+        egui::pos2(left + (right - left) * 0.3, row.center().y),
+        egui::pos2(left + (right - left) * 0.9, row.center().y),
+    );
+    assert_ne!(h.state.scene.creation, before.creation);
+    assert_eq!(h.state.scene, h.state.scene.render_scene().unwrap());
+    assert!(h.state.undo());
+    assert_eq!(h.state.scene, before);
+}
+
+#[test]
+fn simple_can_start_a_2d_pattern_from_a_3d_scene_without_losing_geometry() {
+    use crate::interface::InterfaceMode;
+    let mut h = Harness::new();
+    h.state.set_interface(InterfaceMode::Simple);
+    h.frame(vec![]);
+    h.frame(vec![]);
+    let before = h.state.scene.clone();
+    let at = control(&h, Id::new(("dimension", "2D"))).center();
+    click(&mut h, at);
+    assert_eq!(h.state.scene.dimension, syfrack_core::Dimension::TwoD);
+    assert_ne!(h.state.scene.creation, before.creation);
+    assert_eq!(h.state.scene.fractal, before.fractal);
+    assert!(h.state.scene.creation_draft.is_none());
+    assert_eq!(h.state.scene, h.state.scene.render_scene().unwrap());
+    assert!(h.state.undo());
+    assert_eq!(h.state.scene, before);
+}
+
+#[test]
+fn simple_preserves_unfinished_graphs_and_offers_the_advanced_editor() {
+    use crate::interface::InterfaceMode;
+    let mut h = Harness::new();
+    let mut draft = h.state.scene.creation.clone().unwrap();
+    draft.links.clear();
+    h.state.scene.creation_draft = Some(draft);
+    h.state.set_interface(InterfaceMode::Simple);
+    let before = h.state.scene.clone();
+    h.frame(vec![]);
+    h.frame(vec![]);
+    let at = control(&h, Id::new("simple-open-advanced")).center();
+    click(&mut h, at);
+    assert_eq!(h.state.interface, InterfaceMode::Advanced);
+    assert_eq!(h.state.tab, Tab::Forme);
+    assert_eq!(h.state.scene, before);
+    assert!(!h.state.can_undo());
+}
+
+#[test]
+fn simple_tools_reach_mosaic_and_the_complete_graph_without_changing_the_scene() {
+    use crate::interface::InterfaceMode;
+    let mut h = Harness::new();
+    h.state.set_interface(InterfaceMode::Simple);
+    let before = h.state.scene.clone();
+    h.frame(vec![]);
+    h.frame(vec![]);
+    let tools = control(&h, Id::new("simple-tools")).center();
+    click(&mut h, tools);
+    let mosaic = control(&h, Id::new("simple-mosaic")).center();
+    click(&mut h, mosaic);
+    assert_eq!(h.state.tab, Tab::Mosaic);
+    assert_eq!(h.state.interface, InterfaceMode::Simple);
+    let tools = control(&h, Id::new("simple-tools")).center();
+    click(&mut h, tools);
+    let graph = control(&h, Id::new("simple-graph")).center();
+    click(&mut h, graph);
+    assert_eq!(h.state.tab, Tab::Forme);
+    assert_eq!(h.state.interface, InterfaceMode::Advanced);
+    assert_eq!(h.state.scene, before);
+    assert!(!h.state.can_undo());
+    h.state.set_interface(InterfaceMode::Simple);
+    assert_eq!(h.state.tab, Tab::Atelier);
+}
+
+#[test]
+fn mosaic_tab_is_accessible_in_both_languages_and_does_not_undo_the_scene() {
+    let mut h = Harness::new();
+    h.state.edit(|s| s.seed = s.seed.wrapping_add(1));
+    let before = h.state.scene.clone();
+    let tab = control(&h, Id::new(("workspace-tab", "MOSAÏQUE"))).center();
+    click(&mut h, tab);
+    assert_eq!(h.state.tab, Tab::Mosaic);
+    for (language, label) in [
+        (syfrack_i18n::Language::French, "MOSAÏQUE"),
+        (syfrack_i18n::Language::English, "MOSAIC"),
+    ] {
+        h.language = language;
+        for size in [
+            egui::vec2(1600.0, 900.0),
+            egui::vec2(1000.0, 640.0),
+            egui::vec2(760.0, 660.0),
+        ] {
+            h.screen = Rect::from_min_size(Pos2::ZERO, size);
+            h.frame(vec![]);
+            h.frame(vec![]);
+            assert!(h.labels.iter().any(|s| s == label));
+            for action in ["open", "generate", "export"] {
+                let rect = control(&h, Id::new(("mosaic-button", action)));
+                assert!(
+                    h.screen.contains_rect(rect),
+                    "{action} outside {size:?}: {rect:?}"
+                );
+            }
+            let image = control(&h, Id::new("mosaic-image-area"));
+            assert!(image.width() > 200.0 && image.height() > 200.0);
+        }
+    }
+    h.key(Key::Z, CTRL, Modifiers::NONE);
+    assert_eq!(h.state.scene, before);
+    assert!(h.state.can_undo());
+    h.key(Key::O, CTRL, Modifiers::NONE);
+    let dialog = h
+        .ctx
+        .data(|d| d.get_temp::<FileDialog>(dialog_id()))
+        .unwrap();
+    assert!(matches!(dialog.action, FileAction::Image(_)));
+    assert_eq!(h.state.scene, before);
+}
+
+#[test]
 fn inspector_navigation_and_view_options_preserve_the_scene() {
     let mut h = Harness::new();
     let before = h.state.scene.clone();
@@ -200,50 +463,34 @@ fn inspector_navigation_and_view_options_preserve_the_scene() {
 }
 
 #[test]
-fn the_two_workshops_keep_separate_files_histories_and_unsaved_changes() {
+fn projections_share_the_graph_file_and_undo_history() {
     let mut h = Harness::new();
-    let original = h.state.scene.clone();
-    let source = std::path::PathBuf::from("scenes/my-volume.ron");
-    h.state.path = Some(source.clone());
-    let at = control(&h, egui::Id::new(("dimension", "2D"))).center();
-    click(&mut h, at);
-    assert_eq!(h.state.scene.dimension, syfrack_core::Dimension::TwoD);
-    assert!(
-        h.state.path.is_none(),
-        "new canvas must not overwrite the volume file"
-    );
-    assert!(
-        !h.state.can_undo(),
-        "workshop selection is outside scene history"
-    );
-    h.state.inspector = crate::state::Inspector::Material;
-    h.frame(vec![]);
-    h.frame(vec![]);
-    let before = h.state.scene.clone();
-    let at = control(&h, egui::Id::new(("palette-preset", 3usize))).center();
-    click(&mut h, at);
-    assert_ne!(h.state.scene, before, "preset changes the real palette");
-    let edited = h.state.scene.clone();
-    let at = control(&h, egui::Id::new(("dimension", "3D"))).center();
-    click(&mut h, at);
-    assert_eq!(h.state.scene, original);
-    assert_eq!(h.state.path, Some(source));
-    assert!(!h.state.is_modified());
-    assert!(
-        h.state.has_unsaved_workspaces(),
-        "quit must protect the inactive canvas"
-    );
-    let at = control(&h, egui::Id::new(("dimension", "2D"))).center();
-    click(&mut h, at);
-    assert_eq!(h.state.scene, edited);
+    h.state.load_scene(Scene::example_2d(), None);
+    let path = std::path::PathBuf::from("scenes/one-composition.ron");
+    h.state.path = Some(path.clone());
+    let graph = h.state.scene.creation.clone();
+    h.state.switch_dimension(syfrack_core::Dimension::ThreeD);
+    assert_eq!(h.state.scene.dimension, syfrack_core::Dimension::ThreeD);
+    assert_eq!(h.state.scene.creation, graph);
+    assert_eq!(h.state.path, Some(path.clone()));
+    h.state.set_param("look.exposure_ev", 1.0);
+    h.state.switch_dimension(syfrack_core::Dimension::TwoD);
+    assert_eq!(h.state.scene.look.exposure_ev, 1.0);
+    assert_eq!(h.state.scene.creation, graph);
+    assert_eq!(h.state.path, Some(path));
+    assert!(h.state.is_modified());
     assert!(h.state.undo());
-    assert_eq!(h.state.scene, before, "canvas retains its own undo history");
+    assert_eq!(h.state.scene.dimension, syfrack_core::Dimension::ThreeD);
+    assert!(h.state.undo());
+    assert_eq!(h.state.scene.look.exposure_ev, 0.0);
 }
 
 #[test]
 fn texture_graph_parameters_change_only_the_texture_and_reject_zero_scale() {
     let mut h = Harness::new();
-    h.state.scene.material.texture = Some(syfrack_core::FractalTexture::default());
+    let mut scene = Scene::example();
+    scene.material.texture = Some(syfrack_core::FractalTexture::default());
+    h.state.load_scene(scene, None);
     let form = h.state.scene.fractal.clone();
     let texture = h.state.scene.material.texture.clone();
     assert!(!h
@@ -311,7 +558,9 @@ fn compact_workspace_keeps_actions_and_an_image_area_with_a_long_filename() {
         "scenes/{}.ron",
         "palais-".repeat(40)
     )));
-    h.state.scene.material.texture = Some(syfrack_core::FractalTexture::default());
+    let mut scene = Scene::example();
+    scene.material.texture = Some(syfrack_core::FractalTexture::default());
+    h.state.load_scene(scene, None);
     h.state.scene.atmosphere.seascape = Some(syfrack_core::Seascape::default());
     for &page in workshops::pages(syfrack_core::Dimension::ThreeD) {
         h.state.inspector = page;
@@ -359,7 +608,7 @@ fn command_bar_condenses_and_its_history_and_display_controls_work() {
         let gallery = control(&h, egui::Id::new(("workspace-tab", "Galerie")));
         assert!(h.screen.contains_rect(gallery));
         assert!(
-            gallery.bottom() < if width >= 1280.0 { 52.0 } else { 88.0 },
+            gallery.bottom() < if width >= 1500.0 { 52.0 } else { 88.0 },
             "{width}: {gallery:?}"
         );
     }
@@ -404,10 +653,13 @@ fn library_point(h: &Harness) -> Pos2 {
 /// The harness on the Atelier with the Mandelbox as a form graph.
 fn atelier_graph_harness() -> Harness {
     let mut h = Harness::new();
-    let mut scene = h.state.scene.clone();
-    scene.fractal =
-        syfrack_core::Fractal::Graph(syfrack_core::Graph::bundled("mandelbox").unwrap());
-    assert!(h.state.load_scene(scene, None));
+    h.body = |ui, state, _, _, _| {
+        coalesce_gestures(ui, state);
+        shortcuts(ui, state);
+        panels::param("fractal.nodes[2].limit", "Pli boîte").show(ui, state);
+        panels::fractal::show(ui, state, &[]);
+    };
+    h.frame(vec![]);
     h.frame(vec![]);
     h
 }
@@ -421,7 +673,7 @@ fn fold_limit(s: &AppState) -> f32 {
 
 /// Centre of the first library entry, of the « look réel » switch and
 /// of the Atelier's « Éditer la forme » button.
-const REAL_LOOK: Pos2 = Pos2::new(1460.0, 668.0);
+
 /// « Ouvrir quand même » of the unsaved-edits modal.
 
 /// A library folder holding the Mandelbulb graph as « Bulbe ».
@@ -440,6 +692,7 @@ fn library_dir(tag: &str) -> std::path::PathBuf {
 
 fn library_harness(dir: &std::path::Path) -> Harness {
     let mut h = Harness::new();
+    h.body = geometry_compatibility;
     h.form = FormPanel::with_library(dir.to_path_buf());
     h.form.mode = form_panel::FormMode::Expert;
     h.state.tab = Tab::Forme;
@@ -575,12 +828,30 @@ fn saving_the_form_writes_it_once_and_asks_for_its_thumbnail() {
 #[test]
 fn the_preview_switch_turns_clay_off_and_on() {
     let mut h = forme_harness();
-    assert!(h.form.clay, "clay by default");
+    assert!(!h.form.clay, "real appearance by default");
+    h.form.clay = true;
+    h.frame(vec![]);
     let before = h.state.scene.clone();
-    click(&mut h, REAL_LOOK);
+    let at = control(&h, egui::Id::new(("choice", "Aperçu", "look réel"))).center();
+    click(&mut h, at);
     assert!(!h.form.clay);
     assert_eq!(h.state.scene, before, "not a scene change");
     assert!(!h.state.can_undo());
+}
+
+#[test]
+fn the_control_preview_offers_specialization_before_the_real_look_switch() {
+    let mut h = forme_harness();
+    h.form.view.can_specialize = true;
+    h.frame(vec![]);
+    h.frame(vec![]);
+    assert!(h.labels.iter().any(|s| s == "Compiler l’aperçu spécialisé"));
+    assert!(!h.labels.iter().any(|s| s == "look réel"));
+    h.form.view.specialized = true;
+    h.frame(vec![]);
+    h.frame(vec![]);
+    assert!(h.labels.iter().any(|s| s == "Revenir au contrôle GPU"));
+    assert!(h.labels.iter().any(|s| s == "look réel"));
 }
 
 #[test]
@@ -719,6 +990,23 @@ fn ctrl_z_with_modifiers_only_on_the_key_event_still_undoes() {
 }
 
 /// The harness on the Forme tab with the Mandelbox graph.
+fn geometry_compatibility(
+    ui: &mut egui::Ui,
+    state: &mut AppState,
+    _: &mut Viewport,
+    gallery: &mut GalleryPanel,
+    form: &mut FormPanel,
+) {
+    // Exercise the retained legacy editor against a legacy document. The unified
+    // production canvas has separate tests in creation::tests.
+    state.scene.creation = None;
+    state.scene.creation_draft = None;
+    coalesce_gestures(ui, state);
+    shortcuts(ui, state);
+    form.show_geometry_compatibility(ui, state);
+    dialogs(ui, state, gallery, form);
+}
+
 fn forme_harness() -> Harness {
     forme_harness_with(|_| {})
 }
@@ -726,12 +1014,16 @@ fn forme_harness() -> Harness {
 /// The same, with the graph adjusted before loading.
 fn forme_harness_with(f: impl FnOnce(&mut syfrack_core::Graph)) -> Harness {
     let mut h = Harness::new();
+    h.body = geometry_compatibility;
     h.form.mode = form_panel::FormMode::Expert;
     let mut scene = h.state.scene.clone();
     let mut g = syfrack_core::Graph::bundled("mandelbox").unwrap();
     f(&mut g);
+    scene.creation = None;
     scene.fractal = syfrack_core::Fractal::Graph(g);
+    let legacy = scene.clone();
     assert!(h.state.load_scene(scene, None));
+    h.state.scene = legacy;
     h.state.tab = Tab::Forme;
     h.frame(vec![]);
     h.frame(vec![]);
@@ -1222,25 +1514,24 @@ fn the_move_on_the_release_frame_counts_and_stays_one_step() {
 }
 
 #[test]
-fn construction_and_graph_navigation_select_without_changing_geometry() {
+fn unified_canvas_selection_keeps_the_scene_and_history() {
     let mut h = Harness::new();
     h.state.tab = Tab::Forme;
+    h.frame(vec![]);
+    h.frame(vec![]);
     let before = h.state.scene.clone();
-    h.frame(vec![]);
-    h.frame(vec![]);
-    assert_eq!(h.form.mode, form_panel::FormMode::Construction);
-    let out = graph(&h)
+    let out = before
+        .creation
+        .as_ref()
+        .unwrap()
         .nodes
         .iter()
-        .find(|n| n.kind == syfrack_core::NodeKind::Output)
+        .find(|n| matches!(n.kind, syfrack_core::CreationKind::Output))
         .unwrap()
         .id;
-    let at = control(&h, egui::Id::new(("construction-node", out))).center();
-    click(&mut h, at);
+    let card = control(&h, egui::Id::new(("creation-node", out)));
+    click(&mut h, card.min + egui::vec2(20.0, 12.0));
     assert_eq!(h.state.form.selected, [out]);
-    let at = control(&h, egui::Id::new(("form-mode", "Graphe expert"))).center();
-    click(&mut h, at);
-    assert_eq!(h.form.mode, form_panel::FormMode::Expert);
     assert_eq!(h.state.scene, before);
     assert!(!h.state.can_undo());
 }
@@ -1286,7 +1577,7 @@ fn explorer_selection_opens_a_scene_and_protects_unsaved_changes() {
     assert_eq!(h.state.scene, before, "confirmation before replacement");
     let at = control(&h, egui::Id::new("confirm-discard-button")).center();
     click(&mut h, at);
-    assert_eq!(h.state.scene, scene);
+    assert_eq!(h.state.scene, scene.render_scene().unwrap());
     assert!(h
         .ctx
         .data(|d| d.get_temp::<FileDialog>(dialog_id()))

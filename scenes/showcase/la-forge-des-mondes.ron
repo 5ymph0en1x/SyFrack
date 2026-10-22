@@ -1,0 +1,632 @@
+(
+    dimension: ThreeD,
+    canvas: (
+        center: (0.0, 0.0),
+        zoom: 1.0,
+        rotation: 0.0,
+    ),
+    seed: 20261020,
+    fractal: Graph((
+        nodes: [
+            (
+                id: 0,
+                kind: Input,
+                name: "Espace de la Forge",
+                pos: (0.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 1,
+                kind: Rotate(
+                    angles: (0.0, 17.0, 0.0),
+                ),
+                name: "Orientation de la dentelle",
+                pos: (240.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 2,
+                kind: Twist(
+                    rate: 0.12,
+                ),
+                name: "Torsion des chambres",
+                pos: (480.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 3,
+                kind: Scale(
+                    factor: 1.0,
+                ),
+                name: "Échelle des chambres",
+                pos: (720.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 4,
+                kind: Tile(
+                    period: (2.0, 2.0, 2.0),
+                ),
+                name: "Réseau des chambres imbriquées",
+                pos: (960.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 5,
+                kind: MengerFold(
+                    scale: 3.0,
+                    offset: (1.0, 1.0, 1.0),
+                ),
+                name: "Repli du récif",
+                pos: (1200.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 6,
+                kind: Trap(
+                    slot: 0,
+                    measure: Norm,
+                    scale: 3.0,
+                    mode: Minimum,
+                ),
+                name: "Mémoire des chambres imbriquées",
+                pos: (0.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 7,
+                kind: Iterate(
+                    iterations: 5,
+                    bailout: 1000000.0,
+                    body: [
+                        5,
+                        6,
+                    ],
+                ),
+                name: "Cinq générations de cavités",
+                pos: (240.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 8,
+                kind: Box(
+                    half: (1.0, 1.0, 1.0),
+                ),
+                name: "Architecture récursive",
+                pos: (480.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 9,
+                kind: Torus(
+                    radius: 2.5,
+                    tube: 0.9,
+                ),
+                name: "Couronne cosmique",
+                pos: (720.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 10,
+                kind: Intersection,
+                name: "Dentelle dans la couronne",
+                pos: (960.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 11,
+                kind: Rotate(
+                    angles: (59.0, 13.0, 38.0),
+                ),
+                name: "Plan orbital",
+                pos: (1200.0, 160.0),
+                enabled: true,
+            ),
+            (
+                id: 12,
+                kind: Torus(
+                    radius: 1.96,
+                    tube: 0.026,
+                ),
+                name: "Orbite de l\'armillaire",
+                pos: (0.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 13,
+                kind: MaterialTag(
+                    index: 1,
+                ),
+                name: "Fil d\'or incandescent",
+                pos: (240.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 14,
+                kind: Union,
+                name: "Assemblage des échelles",
+                pos: (480.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 15,
+                kind: Rotate(
+                    angles: (-46.0, -12.0, -32.0),
+                ),
+                name: "Plan orbital",
+                pos: (720.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 16,
+                kind: Torus(
+                    radius: 1.54,
+                    tube: 0.032,
+                ),
+                name: "Orbite de l\'armillaire",
+                pos: (960.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 17,
+                kind: MaterialTag(
+                    index: 1,
+                ),
+                name: "Fil d\'or incandescent",
+                pos: (1200.0, 320.0),
+                enabled: true,
+            ),
+            (
+                id: 18,
+                kind: Union,
+                name: "Assemblage des échelles",
+                pos: (0.0, 480.0),
+                enabled: true,
+            ),
+            (
+                id: 19,
+                kind: Output,
+                name: "La Forge des Mondes",
+                pos: (240.0, 480.0),
+                enabled: true,
+            ),
+        ],
+        links: [
+            (
+                from: (0, 0),
+                to: (1, 0),
+            ),
+            (
+                from: (1, 0),
+                to: (2, 0),
+            ),
+            (
+                from: (2, 0),
+                to: (3, 0),
+            ),
+            (
+                from: (3, 0),
+                to: (4, 0),
+            ),
+            (
+                from: (4, 0),
+                to: (7, 0),
+            ),
+            (
+                from: (7, 0),
+                to: (8, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (9, 0),
+            ),
+            (
+                from: (8, 0),
+                to: (10, 0),
+            ),
+            (
+                from: (9, 0),
+                to: (10, 1),
+            ),
+            (
+                from: (0, 0),
+                to: (11, 0),
+            ),
+            (
+                from: (11, 0),
+                to: (12, 0),
+            ),
+            (
+                from: (12, 0),
+                to: (13, 0),
+            ),
+            (
+                from: (10, 0),
+                to: (14, 0),
+            ),
+            (
+                from: (13, 0),
+                to: (14, 1),
+            ),
+            (
+                from: (0, 0),
+                to: (15, 0),
+            ),
+            (
+                from: (15, 0),
+                to: (16, 0),
+            ),
+            (
+                from: (16, 0),
+                to: (17, 0),
+            ),
+            (
+                from: (14, 0),
+                to: (18, 0),
+            ),
+            (
+                from: (17, 0),
+                to: (18, 1),
+            ),
+            (
+                from: (18, 0),
+                to: (19, 0),
+            ),
+        ],
+        safety: 0.72,
+        bounding_radius_hint: 4.3,
+    )),
+    camera: (
+        mode: Free(
+            position: (5.0, 7.2, 7.2),
+            target: (0.4, 0.0, 0.0),
+            roll: -18.0,
+        ),
+        focal_mm: 44.0,
+        f_number: 0.0,
+        focus_distance: 10.0,
+    ),
+    lights: [
+        Sun(
+            direction: (-0.4, 0.9, 0.6),
+            color: Kelvin(5200.0),
+            intensity: 4.3,
+            angular_size: 3.5,
+        ),
+        Sun(
+            direction: (0.8, 0.2, -0.5),
+            color: Linear((0.07, 0.38, 1.0)),
+            intensity: 3.0,
+            angular_size: 7.0,
+        ),
+        Tube(
+            start: (0.0, -0.018, 0.0),
+            end: (0.0, 0.018, 0.0),
+            radius: 0.115,
+            color: Kelvin(6300.0),
+            intensity: 28.0,
+        ),
+        Environment(
+            zenith: Linear((0.00002, 0.00005, 0.00015)),
+            horizon: Linear((0.0001, 0.00015, 0.0003)),
+            ground: Linear((0.00003, 0.00002, 0.00004)),
+            intensity: 0.2,
+            rotation: 0.0,
+        ),
+    ],
+    material: (
+        albedo: (0.72, 0.46, 0.19),
+        roughness: 0.27,
+        metallic: 0.74,
+        specular: 0.05,
+        coloring: r#None,
+        texture: None,
+        surface: None,
+        finishes: [
+            (
+                name: "Or des orbites",
+                albedo: (0.9, 0.55, 0.16),
+                roughness: 0.2,
+                metallic: 0.86,
+                specular: 0.05,
+                emission: (0.55, 0.19, 0.018),
+                detail: None,
+            ),
+        ],
+    ),
+    atmosphere: (
+        fog_density: 0.0,
+        fog_color: (1.0, 1.0, 1.0),
+        fog_height: 0.0,
+        fog_falloff: 1.0,
+        anisotropy: 0.0,
+        cavity_darkness: 0.0,
+        seascape: None,
+        ground: None,
+        portal: None,
+        nebula: Some((
+            particles: None,
+            center: (-5.0, -9.0, -12.0),
+            half_size: (26.0, 6.2, 3.5),
+            angle: 25.0,
+            density: 0.065,
+            emission: 0.6,
+            dust: 2.5,
+            scattering: 0.15,
+            anisotropy: 0.35,
+            turbulence: 1.4,
+            detail: 2.3,
+            cool_color: (0.012, 0.08, 0.2),
+            warm_color: (0.65, 0.15, 0.025),
+            core_position: (-7.0, -0.4, 0.0),
+            core_radius: 1.3,
+            core_energy: 3.5,
+            stars: 0.16,
+            seed: 20260,
+            steps: 24,
+        )),
+    ),
+    look: (
+        exposure_ev: 0.35,
+        auto_exposure: None,
+        temperature: 6500.0,
+        tint: 0.0,
+        shadows: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        midtones: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        highlights: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        tonemap: Agx(
+            slope: 1.0,
+            power: 1.1,
+            offset: 0.0,
+        ),
+        saturation: 1.16,
+        vibrance: 0.12,
+        neon_softness: 0.12,
+        vignette: Some((
+            radius: 0.9,
+            softness: 0.65,
+            intensity: 0.23,
+            elliptical: true,
+        )),
+        grain: None,
+        output: Srgb,
+        dither: true,
+    ),
+    phenomena: Some((
+        fields: (
+            nodes: [
+                (
+                    id: 0,
+                    name: "Position",
+                    op: Position,
+                    inputs: [],
+                    pos: (0.0, 0.0),
+                ),
+                (
+                    id: 1,
+                    name: "Onde primordiale",
+                    op: GaussianWave(
+                        center: (-0.22, 0.0, 0.0),
+                        width: 0.88,
+                        wavevector: (11.0, 3.0, -2.5),
+                        frequency: 1.0,
+                    ),
+                    inputs: [
+                        0,
+                    ],
+                    pos: (230.0, 0.0),
+                ),
+                (
+                    id: 2,
+                    name: "Onde conjuguée",
+                    op: GaussianWave(
+                        center: (0.22, 0.0, 0.0),
+                        width: 0.88,
+                        wavevector: (-8.0, 5.0, 3.0),
+                        frequency: 1.35,
+                    ),
+                    inputs: [
+                        0,
+                    ],
+                    pos: (460.0, 0.0),
+                ),
+                (
+                    id: 3,
+                    name: "Interférence cohérente",
+                    op: Add,
+                    inputs: [
+                        1,
+                        2,
+                    ],
+                    pos: (690.0, 0.0),
+                ),
+                (
+                    id: 4,
+                    name: "Densité des franges",
+                    op: Intensity,
+                    inputs: [
+                        3,
+                    ],
+                    pos: (920.0, 0.0),
+                ),
+                (
+                    id: 5,
+                    name: "Phase de la lumière",
+                    op: Phase,
+                    inputs: [
+                        3,
+                    ],
+                    pos: (0.0, 150.0),
+                ),
+                (
+                    id: 6,
+                    name: "Densité du vortex",
+                    op: Snapshot(
+                        simulation: 0,
+                        channel: 2,
+                    ),
+                    inputs: [
+                        0,
+                    ],
+                    pos: (230.0, 150.0),
+                ),
+                (
+                    id: 7,
+                    name: "Énergie du germe",
+                    op: Scalar(
+                        value: 4.0,
+                    ),
+                    inputs: [],
+                    pos: (460.0, 150.0),
+                ),
+                (
+                    id: 8,
+                    name: "Vortex lumineux",
+                    op: Scale,
+                    inputs: [
+                        6,
+                        7,
+                    ],
+                    pos: (690.0, 150.0),
+                ),
+                (
+                    id: 9,
+                    name: "Matière et interférence",
+                    op: Add,
+                    inputs: [
+                        4,
+                        8,
+                    ],
+                    pos: (920.0, 150.0),
+                ),
+                (
+                    id: 10,
+                    name: "Orbites de la couronne",
+                    op: GeometryTrap(
+                        slot: 0,
+                    ),
+                    inputs: [
+                        0,
+                    ],
+                    pos: (0.0, 300.0),
+                ),
+                (
+                    id: 11,
+                    name: "Amplitude chromatique",
+                    op: Scalar(
+                        value: 0.35,
+                    ),
+                    inputs: [],
+                    pos: (230.0, 300.0),
+                ),
+                (
+                    id: 12,
+                    name: "Phase chromatique",
+                    op: Scale,
+                    inputs: [
+                        5,
+                        11,
+                    ],
+                    pos: (460.0, 300.0),
+                ),
+                (
+                    id: 13,
+                    name: "Empreinte du quantique dans la matière",
+                    op: Add,
+                    inputs: [
+                        10,
+                        12,
+                    ],
+                    pos: (690.0, 300.0),
+                ),
+            ],
+        ),
+        domain: (
+            center: (0.0, 0.0, 0.0),
+            half: (4.0, 4.0, 4.0),
+            resolution: (48, 48, 48),
+            memory_budget_mib: 128,
+        ),
+        simulations: [
+            (
+                name: "Germe du monde — vortex de Gross–Pitaevskii",
+                model: GrossPitaevskii(
+                    dispersion: 0.03,
+                    interaction: 0.5,
+                    damping: 0.0,
+                ),
+                steps: 48,
+                dt: 0.01,
+                seed: 20261020,
+                seeds: [
+                    (
+                        center: (0.0, 0.0, 0.0),
+                        radius: 0.95,
+                        amplitude: 1.0,
+                        phase: 0.0,
+                        winding: 1,
+                    ),
+                ],
+                potential: None,
+                source: None,
+                mask: None,
+                frozen: None,
+            ),
+        ],
+        bindings: (
+            color: Some(13),
+            emission: None,
+            density: Some(9),
+            geometry: None,
+            displacement: None,
+            film_thickness: Some(13),
+            geometry_mode: r#None,
+            isovalue: 0.0,
+            displacement_amount: 0.0,
+            emission_gain: 0.19,
+            density_gain: 0.12,
+            palette: (
+                stops: [
+                    (0.007, 0.025, 0.055),
+                    (0.014, 0.18, 0.22),
+                    (0.12, 0.53, 0.47),
+                    (0.86, 0.67, 0.3),
+                    (0.93, 0.28, 0.045),
+                    (0.19, 0.035, 0.1),
+                    (0.025, 0.06, 0.13),
+                ],
+                cyclic: true,
+                frequency: 1.8,
+                phase: 0.16,
+                gamma: 1.0,
+                interpolation: Smooth,
+            ),
+        ),
+        time: 0.37,
+        film: Some((
+            thickness_nm: 340.0,
+            ior: 1.38,
+            substrate_ior: 0.8,
+            substrate_extinction: 2.4,
+            strength: 0.45,
+            thickness_range_nm: 420.0,
+            dispersion_b: 0.003,
+        )),
+        dispersion: None,
+        lens: None,
+        timeline: (
+            tracks: [],
+        ),
+        guides: [],
+        editor: None,
+    )),
+)

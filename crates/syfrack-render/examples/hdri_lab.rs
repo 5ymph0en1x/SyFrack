@@ -1,4 +1,6 @@
 //! A self-contained linear studio panorama and fractal lighting demo.
+//! Arguments: [OUTPUT_DIR] [--panorama-only]. The latter writes the CPU-generated
+//! panorama without creating a GPU device or rendering the comparison images.
 use anyhow::Result;
 use glam::Vec3;
 use std::path::PathBuf;
@@ -39,6 +41,10 @@ fn main() -> Result<()> {
     }
     let asset = dir.join("studio.exr");
     write_exr(&asset, &panorama)?;
+    if std::env::args().nth(2).as_deref() == Some("--panorama-only") {
+        println!("{}", asset.display());
+        return Ok(());
+    }
     let mut scene = Scene::example_for("menger")?;
     if let syfrack_core::CameraMode::Orbit { distance, .. } = &mut scene.camera.mode {
         *distance = 5.0;

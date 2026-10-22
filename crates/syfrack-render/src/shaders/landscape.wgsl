@@ -171,6 +171,7 @@ fn otherworld_surface(p: vec3f, n: vec3f, footprint: f32) -> Surface {
     let q = p - WORLD_OFFSET;
     let rock = finish_fbm(q * 0.8, footprint * 0.8, 1901u);
     var s: Surface;
+    s.film_thickness=-1.0;
     s.n = safe_normalize(n - (rock.xyz - n * dot(rock.xyz, n)) * 0.08);
     s.diffuse = mix(vec3f(0.025, 0.045, 0.07), vec3f(0.18, 0.30, 0.42), rock.w);
     s.f0 = vec3f(0.05); s.alpha = 0.42; s.emission = vec3f(0.0);

@@ -7,34 +7,35 @@ tag, release or upload was created by the preparation process.
    report in `docs/RELEASE_VERIFICATION.md`.
 2. Run the commands in `docs/BUILDING.md` from this folder if you want to repeat
    the checks on another machine. Keep `Cargo.lock` in version control.
-3. Create your GitHub repository, then upload **the contents of this folder**
-   at its root, including `.github/`. `Source checks` runs on pushes and pull
+3. Update your GitHub checkout with **the contents of this folder** at its root,
+   including `.github/`, and review deleted files as well as additions. Keep
+   the checkout's existing `.git/` directory and history. `Source checks` runs on pushes and pull
    requests. Keep `SOURCE_MANIFEST.json` with the source files.
-4. Publish a version tag as described below. The separate `Windows release`
+4. For a new binary release, publish a new version tag as described below. The separate `Windows release`
    workflow builds and attaches downloadable Windows x64 binaries.
-5. Describe the first release as experimental. Hosted checks do not validate
+5. Describe this release as experimental. Hosted checks do not validate
    every graphics device; only Windows x64 binaries are provided.
 
 ## Publish downloadable binaries
 
 Commit and push the complete source tree first. The version in `Cargo.toml`
-must match the tag (for example `0.1.0` and `v0.1.0`). From your Git checkout:
+must match the tag (for example `0.2.0` and `v0.2.0`). From your Git checkout:
 
 ```text
-git tag -a v0.1.0 -m "SyFrack Studio 0.1.0 - experimental release"
-git push origin v0.1.0
+git tag -a v0.2.0 -m "SyFrack Studio 0.2.0 - experimental release"
+git push origin v0.2.0
 ```
 
 Pushing a `v*` tag starts **Actions → Windows release** automatically. It checks
-translations and formatting, runs CPU/headless UI and core integration tests
-with the release profile, builds Studio and CLI, then verifies the portable ZIP.
+translations and formatting, runs CPU/headless UI, core and CLI integration
+tests with the release profile, builds Studio and CLI, then verifies the portable ZIP.
 After a successful build, it creates a **draft** GitHub Release, uploads the ZIP
 and `SHA256SUMS.txt`, then publishes it. Tags such as `v0.2.0-beta.1` create a
 prerelease (set Cargo's version to `0.2.0-beta.1` first).
 
 The download assets are:
 
-- `SyFrack-v0.1.0-windows-x64.zip`: both executables and the required content.
+- `SyFrack-v0.2.0-windows-x64.zip`: both executables and the required content.
 - `SHA256SUMS.txt`: SHA-256 of that ZIP.
 
 Users download these under **Releases → Assets**, extract the entire ZIP and
@@ -66,13 +67,35 @@ change those bytes when checking out the published tree.
 
 The export excludes render/checkpoint folders, build caches, downloaded OIDN
 binaries, local shortcuts, editor/agent state, archives and the original `.git`
-directory. Curated source scenes and the required regression fixtures remain.
+directory. Editable scene sources, including the small study scenes used by
+examples, and the required regression fixtures remain. Documentation includes
+its linked guides, figures and benchmark evidence; binaries use the same closure.
+The three EXR files under `crates/syfrack-render/tests/fixtures/parity/` are
+historical regression inputs. They are explicitly included and exempted from
+the general render-output ignore rule; working EXR renders remain excluded.
+The three scene/reference pairs and synthetic studio environment for
+`guiding_profile` are also included under
+`docs/benchmarks/guiding-cost-2026-10-09/fixtures/`. The native HDR environment
+`scenes/environments/neon-night.exr`, used by the cathedral scene, is another
+explicit source asset. These assets are retained by the ignore rules and verifier.
 The existing workbench and its render files are not moved or deleted.
 
 From the working checkout, `python scripts/package/prepare-source.py` regenerates
 the managed export. It refuses to overwrite a destination file that has been
 changed independently since the previous export. It never uploads anything.
+Unchanged files recorded in the old inventory are removed when they are no
+longer selected. Independently changed or unmanaged files stop synchronization
+before copying or deleting anything. `verify-source.py` validates the complete
+inventory, local documentation links and the absence of build/render artifacts.
 
 If you edit the exported README or images directly, preserve those edits in the
-working source before regenerating. The inventory covers the current JPEG
-showcase and the three Studio screenshots; it does not include itself.
+working source before regenerating. The inventory covers the showcase, current
+Simple/Advanced and render screenshots, and native references used by the capture
+example; it does not include itself. Run the Python checks with
+`PYTHONDONTWRITEBYTECODE=1` and keep `CARGO_TARGET_DIR` outside the source export
+so verification does not add caches to the publication folder.
+
+The 22 October update is version **0.2.0**, recorded in `CHANGELOG.md`.
+Preparing or pushing these source changes does not replace an existing version
+tag or published release. After committing the reviewed tree, publish its new `v0.2.0` tag; preserve
+earlier tags and release assets.

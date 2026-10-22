@@ -5,9 +5,21 @@
 [English](README.md) · [Guide d’utilisation en anglais](docs/USER_GUIDE.md)
 
 SyFrack est un studio expérimental de création et de rendu de fractales écrit
-en Rust. Il propose deux ateliers indépendants : **2D**, pour les motifs du plan
-complexe et les flammes fractales ; **3D**, pour les volumes récursifs, les matières,
-les lumières et les compositions spatiales.
+en Rust. Un seul graphe de création combine formes, motifs, flammes GPU et
+champs naturels. **2D / 3D** change la projection du même document, avec un
+historique, un aperçu et un export communs. Voir le [graphe unifié](docs/graphe-unifie.md).
+
+## Choisir son interface
+
+La barre de navigation propose **Simple / Avancée** à tout moment. Le mode
+**Simple** organise les réglages essentiels : Motif, Couleurs et Cadrage en 2D ;
+Volume, Matière, Lumières et Image en 3D. Le mode **Avancée**, choisi par défaut
+au premier lancement, conserve l’accès direct au graphe complet, à la mosaïque
+et à la galerie.
+
+Les deux interfaces modifient le même document. Le changement conserve la scène,
+la sélection du graphe et l’historique d’annulation ; le choix est mémorisé.
+Le menu **Outils** du mode simple permet de rejoindre la mosaïque ou le graphe.
 
 ![Le Souffle des Titans — rendu natif de SyFrack](docs/images/breath-of-the-titans.jpg)
 
@@ -61,24 +73,39 @@ powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 ## Créer et exporter
 
 En 2D, explorez le motif, les couleurs et le cadrage. En 3D, façonnez le volume,
-réglez sa matière, placez les sources et développez l’image. L’atelier Forme
-donne accès à la construction et au graphe expert.
+réglez sa matière, placez les sources et développez l’image. **Graphe** donne
+accès aux sources, aux connexions et aux outils spécialisés.
 
 **Rendre / Exporter** produit un PNG 16 bits, un EXR linéaire brut et un instantané
 RON du projet. Les réglages personnalisés comprennent les échantillons, le
 nombre de rebonds, la précision géométrique et les limites de calcul. Les rendus
 peuvent être mis en pause puis repris depuis leur checkpoint.
 
+La fenêtre de rendu distingue le format, la qualité et la destination. Elle
+présente les noms exacts des fichiers, garde le lancement et la pause accessibles
+pendant le défilement, et regroupe les paramètres techniques dans les réglages
+personnalisés. L’aperçu terminé reçoit bien les dernières tuiles et le débruitage
+éventuel du PNG.
+
+![La fenêtre de rendu et d’export](docs/images/studio-render-fr.png)
+
 Commencez avec une définition modeste. Les volumes récursifs, les matières
 transmissives et les nombreux rebonds peuvent demander un calcul long.
 
-## Première version publique expérimentale
+## Version expérimentale
 
-Cette version **0.1.0** reste un logiciel en évolution. La compatibilité GPU et
+L'onglet **MOSAÏQUE** permet de [réinterpréter une image avec des fractales et
+palettes locales](docs/mosaique-fractale.md), avec recadrage, réglages de couleur,
+découpage adaptatif et comparaison. L'outil reste disponible dans la CLI.
+Les recettes exportées se reconstruisent sans l'image source.
+
+Cette version **0.2.0** reste un logiciel en évolution. La compatibilité GPU et
 les performances dépendent du matériel. Certains effets volumétriques et le
 guidage de lumière indirecte sont expérimentaux. Un checkpoint dépend aussi de
 la version du moteur : conservez le binaire correspondant pour une reprise
 future. L’EXR brut reste disponible même si le PNG est débruité.
+Le [journal des changements](CHANGELOG.md) décrit les évolutions depuis la
+préparation publique initiale.
 
 Les sources sont sous [licence MIT](LICENSE). La provenance des panoramas HDRI
 et le moteur de débruitage facultatif sont décrits dans

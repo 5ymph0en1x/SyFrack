@@ -10,9 +10,23 @@ SyFrack is an experimental fractal creation studio and renderer written in Rust.
 Compose intricate 2D images, build recursive 3D forms, work with materials and
 light, then export a high-quality still with its editable scene.
 
-The **2D** and **3D** workshops keep separate compositions and undo histories.
-Start with focused artistic controls, then explore the node graph and advanced
-render settings when you need finer control.
+A single typed **creation graph** combines geometry, patterns, GPU flame fields
+and natural simulations. **2D / 3D** selects the projection of the same document,
+with one undo history, shared preview fields and a common export pipeline.
+See the [unified graph workflow](docs/graphe-unifie.md).
+
+## Choose your interface
+
+The command bar offers **Simple / Advanced** at any time. **Simple** groups
+the essential artistic controls: Pattern, Colours and Framing in 2D; Volume,
+Material, Lights and Image in 3D. **Advanced**, the first-launch default,
+keeps direct access to the complete graph, Mosaic and the gallery.
+
+Both interfaces edit the same document. Switching preserves your scene,
+graph selection and undo/redo history; your interface choice is saved locally.
+Simple's **Tools** menu opens Mosaic or the advanced graph when you need it.
+
+![Simple interface — 2D colours](docs/images/studio-2d-en.png)
 
 ## What you can create
 
@@ -30,6 +44,13 @@ render settings when you need finer control.
   English is the first-launch default; your choice is saved locally.
 
 ![SyFrack Studio — English 3D workshop](docs/images/studio-en.png)
+
+The render window separates **image format**, **quality** and **destination**,
+shows the exact output filenames, and keeps launch/pause controls visible.
+Detailed sampling settings remain available under **Custom settings**.
+The completed preview includes the final tiles and optional PNG denoising.
+
+![Render and export workspace](docs/images/studio-render-en.png)
 
 ## Download for Windows
 
@@ -77,7 +98,8 @@ See the [user guide](docs/USER_GUIDE.md) for 2D, 3D, lighting and resume example
 
 ## Experimental status
 
-This is an early public source release, **0.1.0**. The renderer is under active
+This is an experimental **0.2.0** source tree. See the [changelog](CHANGELOG.md)
+for changes since the initial public preparation. The renderer is under active
 development. GPU compatibility, performance and image convergence depend on the
 scene and hardware. Volume transport and indirect-light guiding are experimental;
 some effects use approximations. This is not a claim of unbiased or spectral

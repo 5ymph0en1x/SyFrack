@@ -28,3 +28,4 @@ bytemuck.workspace = true
 glam.workspace = true
 ron.workspace = true
 png.workspace = true
+serde.workspace = true

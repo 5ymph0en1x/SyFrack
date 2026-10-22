@@ -1,0 +1,10 @@
+# Forme 1 · sources nommées ; paramètres après ;
+réglages pas=0.7 rayon=2.5
+
+espace_de_la_sculpture_0 = départ()
+mesure_pour_l_email_et_l_or_2 = mesurer(; canal=0; échelle=1.25; mesure=norme)
+couronnes_a_huit_lobes_3 = bulbe(; puissance=8)
+ajouter_l_origine_4 = ajouter_origine()
+élément_16_generations_de_ramifications_1 = répéter(espace_de_la_sculpture_0; fois=16; seuil=4; étapes=[mesure_pour_l_email_et_l_or_2, couronnes_a_huit_lobes_3, ajouter_l_origine_4])
+clôture_bulbe_5 = surface_bulbe(élément_16_generations_de_ramifications_1)
+chrysalis_6 = montrer(clôture_bulbe_5)

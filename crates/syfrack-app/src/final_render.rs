@@ -1,5 +1,5 @@
-//! The final render: a second `RenderSession` on the shared device, driven by
-//! a background thread. The UI sends `Command`s and polls `Event`s; pausing
+//! Final rendering through `ExportSession`, collected on a
+//! background thread. The UI sends `Command`s and polls `Event`s; pausing
 //! saves the engine's own state directory, so a render paused here resumes in
 //! the CLI (`syfrack resume`) and the other way round.
 
@@ -11,7 +11,7 @@ use std::time::{Duration, Instant};
 use anyhow::{Context, Result};
 use syfrack_color::{develop_and_encode, write_exr, write_png};
 use syfrack_core::{HdrImage, Scene};
-use syfrack_render::{Progress, RenderConfig, RenderSession, Renderer};
+use syfrack_render::{ExportMode, ExportSession, Progress, RenderConfig, Renderer};
 
 /// Time slice of one `step` call; also the reaction time to a command.
 const STEP: Duration = Duration::from_millis(250);
@@ -97,34 +97,34 @@ impl FinalRender {
         cfg.samples_per_dispatch = job.samples_per_dispatch;
         cfg.denoise = job.denoise;
         cfg.guiding = job.guiding;
-        let session =
-            RenderSession::new(renderer.clone(), &scene, &cfg).context("final render session")?;
-        Ok(Self::spawn(renderer, session, job.out_stem))
+        let session = ExportSession::new(renderer.clone(), &scene, &cfg, ExportMode::Auto)
+            .context("final render session")?;
+        Self::spawn(renderer, session, job.out_stem)
     }
 
     pub fn resume(renderer: Renderer, state_dir: PathBuf, out_stem: PathBuf) -> Result<Self> {
         let mut session =
-            RenderSession::resume(renderer.clone(), &state_dir).context("resume final render")?;
+            ExportSession::resume(renderer.clone(), &state_dir).context("resume final render")?;
         session.set_dispatch_budget_ms(800)?;
-        Ok(Self::spawn(renderer, session, out_stem))
+        Self::spawn(renderer, session, out_stem)
     }
 
-    fn spawn(renderer: Renderer, session: RenderSession, out_stem: PathBuf) -> Self {
+    fn spawn(renderer: Renderer, session: ExportSession, out_stem: PathBuf) -> Result<Self> {
         let (ctx, crx) = mpsc::channel();
         let (etx, erx) = mpsc::channel();
         let state_dir = state_dir_for(&out_stem);
         let handle = std::thread::Builder::new()
             .name("syfrack-final-render".into())
             .spawn(move || run_job(renderer, session, out_stem, crx, etx))
-            .expect("spawn render thread");
-        Self {
+            .context("spawn render thread")?;
+        Ok(Self {
             tx: ctx,
             rx: erx,
             handle: Some(handle),
             state_dir,
             last: None,
             done: false,
-        }
+        })
     }
 
     pub fn send(&self, cmd: Command) {
@@ -137,15 +137,23 @@ impl FinalRender {
     pub fn poll(&mut self) -> Vec<Event> {
         let exited = self.handle.as_ref().is_none_or(|h| h.is_finished());
         let events: Vec<Event> = self.rx.try_iter().collect();
+        let terminal = events.iter().any(|event| {
+            matches!(
+                event,
+                Event::Paused(_) | Event::Finished { .. } | Event::Failed(_)
+            )
+        });
         for e in &events {
             if let Event::Progress(p) = e {
                 self.last = Some(p.clone());
             }
         }
-        if exited {
+        if exited || terminal {
             self.done = true;
-            if let Some(h) = self.handle.take() {
-                let _ = h.join();
+            if exited {
+                if let Some(h) = self.handle.take() {
+                    let _ = h.join();
+                }
             }
         }
         events
@@ -189,7 +197,7 @@ impl Drop for FinalRender {
 /// failure message names the last one.
 pub fn run_job(
     renderer: Renderer,
-    session: RenderSession,
+    session: impl Into<ExportSession>,
     out_stem: PathBuf,
     rx: Receiver<Command>,
     tx: Sender<Event>,
@@ -200,12 +208,13 @@ pub fn run_job(
 /// `run_job` with an explicit checkpoint period (tests shorten it).
 pub fn run_job_with(
     _renderer: Renderer,
-    mut session: RenderSession,
+    session: impl Into<ExportSession>,
     out_stem: PathBuf,
     rx: Receiver<Command>,
     tx: Sender<Event>,
     checkpoint_period: Duration,
 ) {
+    let mut session = session.into();
     let state_dir = state_dir_for(&out_stem);
     // A paused state that predates this job is kept on cancel.
     let state_existed = state_dir.exists();
@@ -226,6 +235,7 @@ pub fn run_job_with(
             match rx.try_recv() {
                 Ok(Command::Pause) => match session.save(&state_dir) {
                     Ok(()) => {
+                        session.stop_workers();
                         let _ = tx.send(Event::Paused(state_dir.clone()));
                         return Ok(());
                     }
@@ -239,7 +249,9 @@ pub fn run_job_with(
                     }
                 },
                 Ok(Command::Shutdown) => {
-                    match session.save(&state_dir) {
+                    let saved = session.save(&state_dir);
+                    session.stop_workers();
+                    match saved {
                         Ok(()) => {
                             let _ = tx.send(Event::Paused(state_dir.clone()));
                         }
@@ -302,15 +314,10 @@ pub fn run_job_with(
         let png = with_suffix(&out_stem, "png");
         let ron_path = with_suffix(&out_stem, "ron");
         write_exr(&exr, &output.color).with_context(|| format!("writing {}", exr.display()))?;
-        let filtered;
-        let image = if session.config().denoise
-            && session.scene().dimension == syfrack_core::Dimension::ThreeD
-        {
-            filtered = syfrack_render::denoise::session_output(&session, &output);
-            &filtered
-        } else {
-            &output.color
-        };
+        let filtered = (session.config().denoise
+            && session.scene().dimension == syfrack_core::Dimension::ThreeD)
+            .then(|| syfrack_render::denoise::session_output(&session, &output));
+        let image = filtered.as_ref().unwrap_or(&output.color);
         let encoded = develop_and_encode(image, &scene.look, 16);
         write_png(&png, &encoded, scene.look.output, Some(&ron))
             .with_context(|| format!("writing {}", png.display()))?;
@@ -325,6 +332,12 @@ pub fn run_job_with(
                 e = e
             )));
         }
+        session.stop_workers();
+        // Periodic previews deliberately skip the completed step. Always
+        // publish the exact final PNG source before Finished, including its
+        // last tiles and optional denoising. Move the existing image rather
+        // than cloning a potentially very large render buffer.
+        let _ = tx.send(Event::Preview(filtered.unwrap_or(output.color)));
         let _ = tx.send(Event::Finished {
             exr,
             png,
@@ -336,6 +349,7 @@ pub fn run_job_with(
     if let Err(e) = result {
         // After a device loss this fails too; the checkpoint is what is left.
         let saved = session.save(&state_dir).is_ok();
+        session.stop_workers();
         let note = if saved {
             syfrack_i18n::tr_format!(" (état sauvegardé dans {})", state_dir.display())
         } else if let Some((spp, secs)) = checkpointed {

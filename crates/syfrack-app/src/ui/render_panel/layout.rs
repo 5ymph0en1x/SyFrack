@@ -34,23 +34,24 @@ impl RenderPanel {
                 }
                 ui.spacing_mut().scroll = egui::style::ScrollStyle::solid();
                 self.header(ui, state);
-                ui.add_space(16.0);
+                ui.add_space(20.0);
                 let bottom = if desktop {
                     ui.ctx().content_rect().bottom() - 20.0
                 } else {
                     ui.ctx().content_rect().bottom() - 56.0
                 };
-                let content_height = (bottom - ui.cursor().min.y - 88.0).max(160.0);
+                let content_height = (bottom - ui.cursor().min.y - 92.0).max(120.0);
                 egui::ScrollArea::vertical()
                     .id_salt("render-content")
                     .max_height(content_height)
                     .auto_shrink([false, !desktop])
                     .show(ui, |ui| {
                         let wide = ui.available_width() >= 820.0;
-                        let busy = self.job.is_some();
+                        let busy = self.job.is_some()
+                            || matches!(self.status, Status::Running | Status::Pausing);
                         if wide {
                             ui.horizontal_top(|ui| {
-                                let left = ui.available_width() - 292.0;
+                                let left = ui.available_width() - 320.0;
                                 ui.allocate_ui_with_layout(
                                     Vec2::new(left, 0.0),
                                     Layout::top_down(Align::Min),
@@ -64,7 +65,7 @@ impl RenderPanel {
                                         );
                                     },
                                 );
-                                ui.add_space(8.0);
+                                ui.add_space(12.0);
                                 ui.vertical(|ui| {
                                     ui.set_width(ui.available_width());
                                     self.summary(ui, state, busy);
@@ -77,16 +78,12 @@ impl RenderPanel {
                                 self.settings.dimension == syfrack_core::Dimension::TwoD,
                             );
                             ui.add_space(12.0);
-                            card(ui, |ui| {
-                                ui.add_enabled_ui(!busy, |ui| {
-                                    self.destination_form(ui, state, false)
-                                });
-                            });
+                            self.summary(ui, state, busy);
                         }
                     });
-                ui.add_space(12.0);
+                ui.add_space(16.0);
                 ui.separator();
-                ui.add_space(10.0);
+                ui.add_space(14.0);
                 action = self.footer(ui, &mut hide);
             });
         self.open = open && !hide;
@@ -119,6 +116,13 @@ impl RenderPanel {
                         )
                         .truncate(),
                     );
+                    ui.add_space(4.0);
+                    caption(
+                        ui,
+                        syfrack_i18n::tr!(
+                            "Choisissez le format, la qualité et la destination de votre image."
+                        ),
+                    );
                 },
             );
             ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
@@ -148,7 +152,8 @@ impl RenderPanel {
         card(ui, |ui| {
             section(
                 ui,
-                "Image",
+                "01",
+                syfrack_i18n::tr!("Format de l’image"),
                 syfrack_i18n::tr!("Définition et orientation du fichier final."),
             );
             let width =
@@ -212,6 +217,7 @@ impl RenderPanel {
         card(ui, |ui| {
             section(
                 ui,
+                "02",
                 syfrack_i18n::tr!("Qualité"),
                 syfrack_i18n::tr!("Choisir le niveau de calcul, puis affiner si nécessaire."),
             );
@@ -248,14 +254,7 @@ impl RenderPanel {
                             .clicked() { s.samples = samples; s.bounces = bounces; }
                     }
                 });
-                ui.add_space(8.0);
-                row(ui, syfrack_i18n::tr!("Rebonds de lumière"), |ui| {
-                    let r = ui.add(egui::DragValue::new(&mut s.bounces).range(0..=32).suffix(syfrack_i18n::tr!(" rebonds")))
-                        .on_hover_text(syfrack_i18n::tr!("0 : lumière directe. Les rebonds supplémentaires propagent les reflets et la lumière indirecte, au prix d’un calcul plus long."));
-                    #[cfg(test)]
-                    ui.data_mut(|d| d.insert_temp(egui::Id::new("render-bounces"), r.rect));
-                    let _ = r;
-                });
+                ui.add_space(12.0);
                 caption(ui, syfrack_i18n::tr!("Précision des reliefs"));
                 ui.horizontal(|ui| {
                     for (label, tolerance, steps) in [("Standard", 1.0, 512), (syfrack_i18n::tr!("Fine"), 0.25, 768), (syfrack_i18n::tr!("Très fine"), 0.125, 1024)] {
@@ -289,6 +288,13 @@ impl RenderPanel {
                 if !flat {
                     ui.add_space(8.0);
                     caption(ui, syfrack_i18n::tr!("GÉOMÉTRIE ET LUMIÈRE"));
+                    row(ui, syfrack_i18n::tr!("Rebonds de lumière"), |ui| {
+                        let response = ui.add(egui::DragValue::new(&mut s.bounces).range(0..=32).suffix(syfrack_i18n::tr!(" rebonds")))
+                            .on_hover_text(syfrack_i18n::tr!("0 : lumière directe. Les rebonds supplémentaires propagent les reflets et la lumière indirecte, au prix d’un calcul plus long."));
+                        #[cfg(test)]
+                        ui.data_mut(|d| d.insert_temp(egui::Id::new("render-bounces"), response.rect));
+                        let _ = response;
+                    });
                     row(ui, syfrack_i18n::tr!("Tolérance du tracé"), |ui| {
                         ui.add(egui::DragValue::new(&mut s.pixel_tolerance).range(0.125..=1.0).speed(0.025).max_decimals(3).custom_formatter(|n, _| crate::ui::widgets::format_value(n as f32, 3)).custom_parser(|s| s.replace(',', ".").parse().ok()).suffix(" px"))
                             .on_hover_text(syfrack_i18n::tr!("Une valeur plus faible préserve les petits ajours. 1 px : standard ; 0,25 px : fin ; 0,125 px : très fin."));
@@ -341,34 +347,8 @@ impl RenderPanel {
                     ui.colored_label(theme::ERROR, syfrack_i18n::tr!("La grille dépasse 512 Mio. Réduisez la définition ou le suréchantillonnage pour lancer le rendu."));
                 }
             }
-        });
-        ui.add_space(12.0);
-        card(ui, |ui| {
-            ui.label(
-                RichText::new(syfrack_i18n::tr!("Fichiers produits"))
-                    .size(17.0)
-                    .strong(),
-            );
-            ui.add_space(6.0);
-            ui.columns(3, |columns| {
-                for (column, (title, detail)) in columns.iter_mut().zip([
-                    (
-                        syfrack_i18n::tr!("PNG 16 bits"),
-                        syfrack_i18n::tr!("Image à partager"),
-                    ),
-                    (
-                        syfrack_i18n::tr!("EXR linéaire"),
-                        syfrack_i18n::tr!("Données brutes"),
-                    ),
-                    (
-                        syfrack_i18n::tr!("Scène RON"),
-                        syfrack_i18n::tr!("Projet réutilisable"),
-                    ),
-                ]) {
-                    column.label(RichText::new(title).strong());
-                    caption(column, detail);
-                }
-            });
+            ui.add_space(12.0);
+            ui.separator();
             ui.add_space(8.0);
             if !flat {
                 ui.checkbox(&mut s.denoise, syfrack_i18n::tr!("Débruiter le PNG"));
@@ -382,18 +362,18 @@ impl RenderPanel {
                     },
                 );
             }
-            caption(
-                ui,
-                syfrack_i18n::tr!("L’EXR conserve toujours les données brutes du rendu."),
-            );
         });
         self.size_active = size_hot;
     }
 
     fn destination_form(&mut self, ui: &mut Ui, state: &AppState, sidebar: bool) {
         let s = &mut self.settings;
-        ui.label(RichText::new("Destination").size(17.0).strong());
-        ui.add_space(8.0);
+        section(
+            ui,
+            "03",
+            "Destination",
+            syfrack_i18n::tr!("Choisir où retrouver votre image et sa scène."),
+        );
         caption(ui, syfrack_i18n::tr!("Nom du rendu"));
         ui.add(
             egui::TextEdit::singleline(&mut s.name)
@@ -404,10 +384,23 @@ impl RenderPanel {
         ui.add_space(8.0);
         caption(ui, syfrack_i18n::tr!("Dossier de sortie"));
         let browse = |ui: &mut Ui, s: &Settings| {
-            let response = ui.add_sized(
-                [ui.available_width().min(130.0), 32.0],
-                egui::Button::new(syfrack_i18n::tr!("Parcourir…")),
-            );
+            let response = ui
+                .add_sized(
+                    [
+                        if sidebar {
+                            36.0
+                        } else {
+                            ui.available_width().min(130.0)
+                        },
+                        32.0,
+                    ],
+                    egui::Button::new(if sidebar {
+                        "…"
+                    } else {
+                        syfrack_i18n::tr!("Parcourir…")
+                    }),
+                )
+                .on_hover_text(syfrack_i18n::tr!("Parcourir…"));
             #[cfg(test)]
             ui.data_mut(|d| d.insert_temp(egui::Id::new("render-browse-button"), response.rect));
             if response.clicked() {
@@ -420,13 +413,14 @@ impl RenderPanel {
             }
         };
         if sidebar {
-            ui.add(
-                egui::TextEdit::singleline(&mut s.dir)
-                    .margin(Vec2::new(9.0, 7.0))
-                    .desired_width(f32::INFINITY),
-            )
-            .on_hover_text(&s.dir);
-            browse(ui, s);
+            ui.horizontal(|ui| {
+                ui.add_sized(
+                    [ui.available_width() - 44.0, 32.0],
+                    egui::TextEdit::singleline(&mut s.dir).margin(Vec2::new(9.0, 7.0)),
+                )
+                .on_hover_text(&s.dir);
+                browse(ui, s);
+            });
         } else {
             ui.horizontal(|ui| {
                 ui.add_sized(
@@ -437,48 +431,65 @@ impl RenderPanel {
                 browse(ui, s);
             });
         }
-        ui.add_space(10.0);
-        caption(
-            ui,
-            syfrack_i18n::tr!(
-                "Les trois fichiers portent ce nom et sont enregistrés dans ce dossier."
-            ),
-        );
     }
 
     fn summary(&mut self, ui: &mut Ui, state: &AppState, busy: bool) {
         card(ui, |ui| {
-            ui.label(
-                RichText::new(syfrack_i18n::tr!("Votre export"))
-                    .size(18.0)
-                    .strong(),
-            );
-            ui.add_space(10.0);
-            let s = &self.settings;
-            let width = ui.available_width();
-            let (rect, _) = ui.allocate_exact_size(Vec2::new(width, 100.0), Sense::hover());
-            ui.painter().rect_filled(rect, 4.0, theme::FIELD);
-            let aspect = s.width as f32 / s.height.max(1) as f32;
-            let w = (width - 40.0).min(72.0 * aspect);
-            let frame = egui::Rect::from_center_size(rect.center(), Vec2::new(w, w / aspect));
-            ui.painter().rect_filled(frame, 2.0, theme::SELECTED);
-            ui.painter().rect_stroke(
-                frame,
-                2.0,
-                Stroke::new(1.0, theme::ACCENT),
-                egui::StrokeKind::Inside,
-            );
-            ui.painter().text(
-                rect.center(),
-                egui::Align2::CENTER_CENTER,
-                aspect_label(s.width, s.height),
-                FontId::proportional(14.0),
-                theme::TEXT,
-            );
+            ui.add_enabled_ui(!busy, |ui| self.destination_form(ui, state, true));
+            ui.add_space(12.0);
+            ui.separator();
+            ui.add_space(14.0);
+            ui.label(RichText::new(syfrack_i18n::tr!("Inclus dans l’export")).strong());
             ui.add_space(8.0);
+            let stem = if busy {
+                self.stem.clone().unwrap_or_else(|| self.stem_for(state))
+            } else {
+                self.stem_for(state)
+            };
+            for (suffix, format, detail) in [
+                ("png", "PNG", syfrack_i18n::tr!("Image 16 bits")),
+                ("exr", "EXR", syfrack_i18n::tr!("Données linéaires brutes")),
+                ("ron", "RON", syfrack_i18n::tr!("Scène éditable")),
+            ] {
+                ui.horizontal(|ui| {
+                    egui::Frame::NONE
+                        .fill(theme::FIELD)
+                        .corner_radius(4.0)
+                        .inner_margin(egui::Margin::symmetric(8, 6))
+                        .show(ui, |ui| {
+                            ui.add_sized(
+                                [28.0, 20.0],
+                                egui::Label::new(
+                                    RichText::new(format).small().color(theme::ACCENT),
+                                ),
+                            );
+                        });
+                    ui.vertical(|ui| {
+                        let path = with_suffix(&stem, suffix);
+                        let name = path.file_name().unwrap_or_default().to_string_lossy();
+                        let response = ui
+                            .add(egui::Label::new(RichText::new(name.as_ref()).strong()).truncate())
+                            .on_hover_text(path.display().to_string());
+                        #[cfg(test)]
+                        ui.data_mut(|d| {
+                            d.insert_temp(
+                                egui::Id::new(("render-output-file", suffix)),
+                                response.rect,
+                            )
+                        });
+                        let _ = response;
+                        caption(ui, detail);
+                    });
+                });
+                ui.add_space(6.0);
+            }
+            ui.add_space(8.0);
+            ui.separator();
+            ui.add_space(12.0);
+            let s = &self.settings;
             ui.label(
                 RichText::new(format!("{} × {}", s.width, s.height))
-                    .size(23.0)
+                    .size(22.0)
                     .strong(),
             );
             caption(
@@ -486,17 +497,10 @@ impl RenderPanel {
                 &syfrack_i18n::tr_format!(
                     "{:.2} mégapixels · {}",
                     s.width as f64 * s.height as f64 / 1_000_000.0,
-                    syfrack_i18n::text(if s.width == s.height {
-                        "Carré"
-                    } else if s.width > s.height {
-                        "Paysage"
-                    } else {
-                        "Portrait"
-                    })
+                    aspect_label(s.width, s.height)
                 ),
             );
             ui.add_space(8.0);
-            ui.separator();
             metric(
                 ui,
                 if s.flame.is_some() {
@@ -547,10 +551,6 @@ impl RenderPanel {
                     ),
                 );
             }
-            ui.add_space(8.0);
-            ui.separator();
-            ui.add_space(8.0);
-            ui.add_enabled_ui(!busy, |ui| self.destination_form(ui, state, true));
         });
     }
 
@@ -593,25 +593,28 @@ impl RenderPanel {
         let mut action = Action::None;
         let active = matches!(self.status, Status::Running | Status::Pausing);
         let resume = self.can_resume();
+        let show_summary = ui.available_width() >= 620.0;
         ui.horizontal(|ui| {
-            ui.vertical(|ui| {
-                ui.label(
-                    RichText::new(if active {
-                        syfrack_i18n::tr!("Calcul en arrière-plan")
-                    } else {
-                        syfrack_i18n::tr!("PNG + EXR + scène")
-                    })
-                    .strong(),
-                );
-                caption(
-                    ui,
-                    if active {
-                        syfrack_i18n::tr!("Vous pouvez fermer cette fenêtre.")
-                    } else {
-                        syfrack_i18n::tr!("Tous les fichiers sont enregistrés ensemble.")
-                    },
-                );
-            });
+            if show_summary {
+                ui.vertical(|ui| {
+                    ui.label(
+                        RichText::new(if active {
+                            syfrack_i18n::tr!("Calcul en arrière-plan")
+                        } else {
+                            syfrack_i18n::tr!("Prêt à créer votre image")
+                        })
+                        .strong(),
+                    );
+                    caption(
+                        ui,
+                        if active {
+                            syfrack_i18n::tr!("Vous pouvez fermer cette fenêtre.")
+                        } else {
+                            syfrack_i18n::tr!("PNG 16 bits · EXR · scène éditable")
+                        },
+                    );
+                });
+            }
             ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                 let (label, enabled, next) = if self.status == Status::Pausing {
                     (syfrack_i18n::tr!("Enregistrement…"), false, Action::None)
@@ -634,7 +637,8 @@ impl RenderPanel {
                     enabled,
                     egui::Button::new(RichText::new(label).color(theme::BG))
                         .fill(theme::ACCENT)
-                        .min_size(Vec2::new(166.0, 40.0)),
+                        .corner_radius(7.0)
+                        .min_size(Vec2::new(178.0, 44.0)),
                 );
                 #[cfg(test)]
                 ui.data_mut(|d| d.insert_temp(egui::Id::new("render-start-button"), start.rect));
@@ -684,9 +688,8 @@ impl RenderPanel {
 fn card<R>(ui: &mut Ui, add: impl FnOnce(&mut Ui) -> R) -> R {
     egui::Frame::NONE
         .fill(theme::BG)
-        .stroke(Stroke::new(1.0, theme::SEPARATOR))
-        .corner_radius(6.0)
-        .inner_margin(16)
+        .corner_radius(10.0)
+        .inner_margin(20)
         .show(ui, |ui| {
             ui.set_min_width(ui.available_width());
             ui.spacing_mut().item_spacing.y = 4.0;
@@ -695,10 +698,13 @@ fn card<R>(ui: &mut Ui, add: impl FnOnce(&mut Ui) -> R) -> R {
         .inner
 }
 
-fn section(ui: &mut Ui, title: &str, subtitle: &str) {
-    ui.label(RichText::new(title).size(17.0).strong());
+fn section(ui: &mut Ui, step: &str, title: &str, subtitle: &str) {
+    ui.horizontal(|ui| {
+        ui.label(RichText::new(step).size(12.0).color(theme::ACCENT));
+        ui.label(RichText::new(title).size(18.0).strong());
+    });
     caption(ui, subtitle);
-    ui.add_space(6.0);
+    ui.add_space(12.0);
 }
 
 fn caption(ui: &mut Ui, text: &str) {
@@ -742,7 +748,7 @@ fn preset(
     );
     let response = ui
         .add_sized(
-            [width, 58.0],
+            [width, 64.0],
             egui::Button::new("")
                 .left_text(job)
                 .selected(selected)
@@ -759,7 +765,7 @@ fn preset(
                         theme::SEPARATOR
                     },
                 ))
-                .corner_radius(4.0),
+                .corner_radius(7.0),
         )
         .on_hover_cursor(egui::CursorIcon::PointingHand);
     if ui.is_enabled() && (response.hovered() || response.has_focus()) {

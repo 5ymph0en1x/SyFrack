@@ -17,5 +17,8 @@ rayon.workspace = true
 half = "2.7.1"
 image = { version = "0.25.10", default-features = false, features = ["hdr", "exr"] }
 
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_System_Threading"] }
+
 [dev-dependencies]
 syfrack-color.workspace = true

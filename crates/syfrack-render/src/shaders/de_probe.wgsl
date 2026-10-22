@@ -12,7 +12,7 @@ fn main(@builtin(global_invocation_id) id: vec3u) {
     if (i >= arrayLength(&points)) {
         return;
     }
-    let s = de_sample_exact(points[i].xyz);
+    let s = nature_surface(points[i].xyz,de_sample_exact(points[i].xyz));
     results[i] = vec4f(s.distance, s.traps.x, f32(s.iterations), f32(s.material));
     results_traps[i] = s.traps;
 }

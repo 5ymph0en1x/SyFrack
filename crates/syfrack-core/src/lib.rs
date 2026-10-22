@@ -1,4 +1,5 @@
 pub mod image;
+pub mod mosaic;
 pub mod params;
 pub mod scene;
 

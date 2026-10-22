@@ -3,8 +3,36 @@
 use rayon::prelude::*;
 use syfrack_core::{luminance, HdrImage};
 
+/// Material guides used by the common, full-image export filter.
+pub trait ExportSource {
+    fn scene(&self) -> &syfrack_core::Scene;
+    fn config(&self) -> &crate::RenderConfig;
+    fn export_guides(&self) -> anyhow::Result<(HdrImage, HdrImage)>;
+    fn export_surface_guides(&self) -> anyhow::Result<(HdrImage, HdrImage)>;
+}
+macro_rules! source {
+    ($ty:ty) => {
+        impl ExportSource for $ty {
+            fn scene(&self) -> &syfrack_core::Scene {
+                <$ty>::scene(self)
+            }
+            fn config(&self) -> &crate::RenderConfig {
+                <$ty>::config(self)
+            }
+            fn export_guides(&self) -> anyhow::Result<(HdrImage, HdrImage)> {
+                <$ty>::export_guides(self)
+            }
+            fn export_surface_guides(&self) -> anyhow::Result<(HdrImage, HdrImage)> {
+                <$ty>::export_surface_guides(self)
+            }
+        }
+    };
+}
+source!(crate::RenderSession);
+source!(crate::ExportSession);
+
 /// Preserve filtered material detail using dedicated albedo and bump guides.
-pub fn session_output(session: &crate::RenderSession, output: &crate::RenderOutput) -> HdrImage {
+pub fn session_output(session: &impl ExportSource, output: &crate::RenderOutput) -> HdrImage {
     if session.scene().dimension == syfrack_core::Dimension::TwoD {
         return output.color.clone();
     }

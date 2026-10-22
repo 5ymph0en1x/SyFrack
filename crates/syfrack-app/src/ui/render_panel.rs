@@ -323,7 +323,7 @@ impl RenderPanel {
         }
     }
 
-    /// A final render is running (the interactive preview then slows down).
+    /// A final render is running (the interactive preview is then suspended).
     pub fn is_running(&self) -> bool {
         self.job.as_ref().is_some_and(|j| j.is_running())
     }
@@ -363,7 +363,7 @@ impl RenderPanel {
                 .map(|p| {
                     syfrack_i18n::tr_format!(
                         "Rendu · {} / {} échantillons",
-                        p.samples_min,
+                        format!("{:.1}", p.fraction_complete() * p.target as f64),
                         p.target
                     )
                 })
@@ -652,28 +652,71 @@ impl RenderPanel {
             return;
         };
         ui.add_space(theme::GRID);
-        let frac = p.samples_min as f32 / p.target.max(1) as f32;
-        ui.add(egui::ProgressBar::new(frac.clamp(0.0, 1.0)).desired_width(ui.available_width()));
-        ui.label(
-            RichText::new(syfrack_i18n::tr_format!(
-                "{:.0} % · {} / {} échantillons",
-                frac * 100.0,
-                p.samples_min,
-                p.target
-            ))
-            .small(),
+        let frac = p.fraction_complete();
+        ui.horizontal(|ui| {
+            ui.label(
+                RichText::new(format!("{:.1} %", frac * 100.0))
+                    .size(34.0)
+                    .strong()
+                    .color(theme::ACCENT),
+            );
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                ui.label(
+                    RichText::new(syfrack_i18n::tr_format!(
+                        "{:.1} / {} échantillons en moyenne",
+                        frac * p.target as f64,
+                        p.target
+                    ))
+                    .small()
+                    .color(theme::TEXT_DIM),
+                );
+            });
+        });
+        ui.add_space(6.0);
+        ui.add(
+            egui::ProgressBar::new(frac as f32)
+                .desired_width(ui.available_width())
+                .desired_height(8.0)
+                .fill(theme::ACCENT),
         );
-        let eta = remaining(p.elapsed, p.samples_min, p.target);
-        let stats = syfrack_i18n::tr_format!(
-            "Écoulé : {} · Restant estimé : {}",
-            clock(p.elapsed),
-            if p.samples_min == 0 {
-                "—".to_string()
-            } else {
-                clock(eta)
+        ui.add_space(14.0);
+        ui.columns(2, |columns| {
+            for (column, (label, value)) in columns.iter_mut().zip([
+                (syfrack_i18n::tr!("Temps écoulé"), clock(p.elapsed)),
+                (
+                    syfrack_i18n::tr!("Temps restant estimé"),
+                    p.estimated_remaining()
+                        .map(clock)
+                        .unwrap_or_else(|| "—".into()),
+                ),
+            ]) {
+                column.label(RichText::new(label).small().color(theme::TEXT_DIM));
+                column.label(RichText::new(value).size(18.0).strong());
             }
-        );
-        ui.add(egui::Label::new(RichText::new(stats).color(theme::TEXT_DIM).small()).wrap());
+        });
+        ui.add_space(10.0);
+        if let Some(workers) = &p.export_workers {
+            use syfrack_render::CpuExportStatus;
+            let text = match &workers.cpu {
+                CpuExportStatus::Preparing => {
+                    syfrack_i18n::tr!("GPU actif · préparation du CPU").to_string()
+                }
+                CpuExportStatus::Participating => syfrack_i18n::tr_format!(
+                    "Dalles terminées : CPU {} · GPU {}",
+                    workers.cpu_tiles,
+                    workers.gpu_tiles
+                ),
+                CpuExportStatus::Unavailable(_) => {
+                    syfrack_i18n::tr!("GPU seul · CPU indisponible").to_string()
+                }
+                CpuExportStatus::NotRequested => syfrack_i18n::tr!("GPU seul").to_string(),
+            };
+            let response =
+                ui.add(egui::Label::new(RichText::new(text).color(theme::TEXT_DIM).small()).wrap());
+            if let CpuExportStatus::Unavailable(reason) = &workers.cpu {
+                response.on_hover_text(reason);
+            }
+        }
         ui.add_space(theme::GRID / 2.0);
         egui::CollapsingHeader::new(syfrack_i18n::tr!("Détail du calcul"))
             .id_salt("render-diagnostics")
@@ -693,9 +736,14 @@ impl RenderPanel {
         if let Some(t) = &self.thumb {
             ui.add_space(theme::GRID);
             let size = t.size_vec2();
-            let w = ui.available_width().min(size.x);
-            let scale = w / size.x.max(1.0);
-            ui.add(egui::Image::new((t.id(), size * scale)));
+            let scale = (ui.available_width() / size.x.max(1.0)).min(320.0 / size.y.max(1.0));
+            egui::Frame::NONE
+                .fill(theme::BG)
+                .corner_radius(8.0)
+                .inner_margin(8)
+                .show(ui, |ui| {
+                    ui.add(egui::Image::new((t.id(), size * scale * 0.96)).corner_radius(4.0));
+                });
         }
     }
 
@@ -778,6 +826,7 @@ mod tests {
         cfg.tile_size = 64;
         cfg.samples_per_dispatch = 2;
         let saved = syfrack_render::SessionState {
+            export: None,
             shader_fingerprint: None,
             environment_fingerprint: 0,
             particle_fingerprint: 0,
@@ -891,6 +940,7 @@ mod tests {
         std::fs::create_dir_all(&state).unwrap();
         let write = |done: u32| {
             let st = syfrack_render::SessionState {
+                export: None,
                 shader_fingerprint: None,
                 environment_fingerprint: 0,
                 particle_fingerprint: 0,
@@ -1025,6 +1075,118 @@ mod tests {
             frame_at_size(&ctx, &mut panel, click(false), size),
             Action::Start
         );
+    }
+
+    #[test]
+    fn render_footer_and_file_list_stay_usable_with_technical_settings_open() {
+        for language in syfrack_i18n::Language::ALL {
+            for size in [
+                egui::vec2(760.0, 660.0),
+                egui::vec2(1000.0, 640.0),
+                egui::vec2(1400.0, 900.0),
+            ] {
+                syfrack_i18n::with_language(language, || {
+                    let ctx = egui::Context::default();
+                    theme::apply(&ctx);
+                    let mut panel = RenderPanel::new();
+                    panel.open = true;
+                    panel.settings.name = "my-final-image".into();
+                    panel.settings.bounces = 7;
+                    for _ in 0..4 {
+                        frame_at_size(&ctx, &mut panel, vec![], size);
+                    }
+                    let mut header = Rect::NOTHING;
+                    for _ in 0..16 {
+                        header = ctx
+                            .data(|d| {
+                                d.get_temp::<(egui::ViewportId, Rect)>(egui::Id::new(
+                                    "render-custom-header",
+                                ))
+                            })
+                            .unwrap()
+                            .1;
+                        if header.center().y > 160.0 && header.center().y < size.y - 170.0 {
+                            break;
+                        }
+                        frame_at_size(
+                            &ctx,
+                            &mut panel,
+                            vec![
+                                egui::Event::PointerMoved(Pos2::new(
+                                    header.center().x,
+                                    size.y * 0.5,
+                                )),
+                                egui::Event::MouseWheel {
+                                    unit: egui::MouseWheelUnit::Point,
+                                    delta: egui::vec2(
+                                        0.0,
+                                        if header.center().y < 160.0 {
+                                            100.0
+                                        } else {
+                                            -100.0
+                                        },
+                                    ),
+                                    phase: egui::TouchPhase::Move,
+                                    modifiers: egui::Modifiers::NONE,
+                                },
+                            ],
+                            size,
+                        );
+                        for _ in 0..4 {
+                            frame_at_size(&ctx, &mut panel, vec![], size);
+                        }
+                    }
+                    let click = |pos: Pos2, pressed| {
+                        vec![
+                            egui::Event::PointerMoved(pos),
+                            egui::Event::PointerButton {
+                                pos,
+                                button: egui::PointerButton::Primary,
+                                pressed,
+                                modifiers: egui::Modifiers::NONE,
+                            },
+                        ]
+                    };
+                    frame_at_size(&ctx, &mut panel, click(header.center(), true), size);
+                    frame_at_size(&ctx, &mut panel, click(header.center(), false), size);
+                    for _ in 0..4 {
+                        frame_at_size(&ctx, &mut panel, vec![], size);
+                    }
+                    assert!(
+                        ctx.data(|d| d.get_temp::<Rect>(egui::Id::new("render-bounces")))
+                            .is_some(),
+                        "technical settings really opened"
+                    );
+                    let footer = ctx
+                        .data(|d| d.get_temp::<Rect>(egui::Id::new("render-start-button")))
+                        .unwrap();
+                    assert!(
+                        Rect::from_min_size(Pos2::ZERO, size).contains_rect(footer),
+                        "{language:?} {size:?}: {footer:?}"
+                    );
+                    let files: Vec<_> = ["png", "exr", "ron"]
+                        .iter()
+                        .map(|suffix| {
+                            ctx.data(|d| {
+                                d.get_temp::<Rect>(egui::Id::new(("render-output-file", *suffix)))
+                            })
+                            .unwrap()
+                        })
+                        .collect();
+                    assert!(files.iter().all(|r| r.width() > 20.0));
+                    assert!(files.windows(2).all(|r| r[0].bottom() < r[1].top()));
+                    assert_eq!(
+                        panel.settings.bounces, 7,
+                        "layout changes preserve custom quality"
+                    );
+                    frame_at_size(&ctx, &mut panel, click(footer.center(), true), size);
+                    assert_eq!(
+                        frame_at_size(&ctx, &mut panel, click(footer.center(), false), size),
+                        Action::Start
+                    );
+                });
+            }
+        }
     }
 
     #[test]

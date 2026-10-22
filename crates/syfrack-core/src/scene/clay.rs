@@ -6,7 +6,21 @@ use glam::Vec3;
 /// depth of field and a plain look; the form graph and the camera framing
 /// are kept.
 pub fn clay_scene(scene: &Scene) -> Scene {
+    if scene.dimension == Dimension::TwoD {
+        return scene.clone();
+    }
     let mut s = scene.clone();
+    if let Some(g) = &mut s.creation {
+        let output = g
+            .nodes
+            .iter()
+            .find(|n| matches!(n.kind, CreationKind::Output))
+            .map(|n| n.id);
+        g.links
+            .retain(|l| Some(l.to.0) != output || matches!(l.to.1, 0 | 4 | 6));
+        g.settings.film = None;
+        g.settings.dispersion = None;
+    }
     let finish_count = scene
         .fractal
         .graph()

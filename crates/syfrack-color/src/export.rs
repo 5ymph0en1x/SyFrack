@@ -13,17 +13,19 @@ pub const SCENE_KEYWORD: &str = "syfrack.scene";
 /// Writes associated linear RGBA, as required by OpenEXR compositing.
 /// Zero-alpha additive emission is preserved because it cannot be associated.
 pub fn write_exr(path: impl AsRef<Path>, img: &HdrImage) -> Result<()> {
-    write_rgba_file(
-        path.as_ref(),
-        img.width as usize,
-        img.height as usize,
-        |x, y| {
+    let mut image = Image::from_channels(
+        (img.width as usize, img.height as usize),
+        SpecificChannels::rgba(|Vec2(x, y)| {
             let p = img.get(x as u32, y as u32);
             let a = if p[3] > 0.0 { p[3] } else { 1.0 };
             (p[0] * a, p[1] * a, p[2] * a, p[3])
-        },
-    )
-    .context("write exr")?;
+        }),
+    );
+    // Retain parallel lossless compression, but emit blocks in a canonical
+    // order. Unspecified order writes them as compression threads finish and
+    // produces different file bytes from identical HDR pixels.
+    image.layer_data.encoding.line_order = LineOrder::Increasing;
+    image.write().to_file(path.as_ref()).context("write exr")?;
     Ok(())
 }
 
@@ -158,6 +160,36 @@ mod tests {
                 assert!((a[c] - b[c]).abs() < 1e-6, "{a:?} vs {b:?}");
             }
         }
+    }
+
+    #[test]
+    fn parallel_exr_compression_preserves_file_bytes_across_repeated_exports() {
+        let dir =
+            std::env::temp_dir().join(format!("syfrack-exr-reproducible-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        // Multiple clipped 64x64 blocks expose completion-order differences.
+        let mut img = HdrImage::new(129, 73);
+        for y in 0..img.height {
+            for x in 0..img.width {
+                img.set(
+                    x,
+                    y,
+                    [x as f32 / 17.0, y as f32 / 31.0, (x * y) as f32 / 7.0, 1.0],
+                );
+            }
+        }
+        let path = dir.join("image.exr");
+        write_exr(&path, &img).unwrap();
+        let expected = std::fs::read(&path).unwrap();
+        for _ in 0..8 {
+            write_exr(&path, &img).unwrap();
+            assert!(
+                std::fs::read(&path).unwrap() == expected,
+                "EXR block order changed"
+            );
+        }
+        assert_eq!(read_exr(&path).unwrap(), img);
+        std::fs::remove_dir_all(dir).unwrap();
     }
 
     #[test]

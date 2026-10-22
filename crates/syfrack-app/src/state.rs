@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use syfrack_core::{Fractal, Graph, NodeId, Scene, SceneError};
+use syfrack_core::{Fractal, Graph, NodeId, NodeKind, Scene, SceneError};
 
 use crate::canvas::CanvasView;
 
@@ -29,17 +29,18 @@ impl Banner {
     }
 }
 
-/// The three screens of the title bar.
+/// Workspace screens, outside the scene and its undo history.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Tab {
     #[default]
     Atelier,
     Forme,
+    Mosaic,
     Galerie,
 }
 
 /// Workspace choices stay outside scene files and undo history.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub enum Inspector {
     #[default]
     Scene,
@@ -95,18 +96,11 @@ pub struct FormState {
     pub errors: Vec<(NodeId, String)>,
 }
 
-struct Workspace {
-    scene: Scene,
-    path: Option<PathBuf>,
-    undo: Vec<Scene>,
-    redo: Vec<Scene>,
-    dirty: bool,
-    form: FormState,
-}
-
 /// The edited scene and its history. Every scene change goes through
 /// `edit` or `set_param`: no undo step, no modification.
 pub struct AppState {
+    /// UI view reset marker; projections and ordinary edits keep this value.
+    pub document_generation: u64,
     pub scene: Scene,
     pub path: Option<PathBuf>,
     undo: Vec<Scene>,
@@ -120,18 +114,21 @@ pub struct AppState {
     drag_restore: Option<(bool, Vec<Scene>)>,
     pub banner: Option<Banner>,
     pub tab: Tab,
+    pub interface: crate::interface::InterfaceMode,
     pub inspector: Inspector,
     pub show_gizmos: bool,
     pub image_only: bool,
     pub form: FormState,
-    /// Keep the other workshop's composition when the artist changes dimension.
-    workspaces: [Option<Workspace>; 2],
 }
 
 impl AppState {
     /// The preview is built from `scene` alongside, so it starts clean.
-    pub fn new(scene: Scene, path: Option<PathBuf>) -> Self {
+    pub fn new(mut scene: Scene, path: Option<PathBuf>) -> Self {
+        if scene.unify().is_err() && scene.creation.is_none() {
+            scene.creation_draft = Some(syfrack_core::CreationGraph::from_scene(&scene));
+        }
         Self {
+            document_generation: 0,
             scene,
             path,
             undo: Vec::new(),
@@ -143,82 +140,47 @@ impl AppState {
             drag_restore: None,
             banner: None,
             tab: Tab::default(),
+            interface: crate::interface::InterfaceMode::default(),
             inspector: Inspector::default(),
             show_gizmos: true,
             image_only: false,
             form: FormState::default(),
-            workspaces: [None, None],
         }
     }
 
-    /// Each workshop keeps its own scene, file and undo history during this session.
+    /// Presentation only: retain the document, selection and complete history.
+    pub fn set_interface(&mut self, mode: crate::interface::InterfaceMode) {
+        self.interface = mode;
+        if mode == crate::interface::InterfaceMode::Simple && self.tab == Tab::Forme {
+            self.tab = Tab::Atelier;
+        }
+    }
+
+    /// Change projection of the same scene, graph, file and history.
     pub fn switch_dimension(&mut self, dimension: syfrack_core::Dimension) {
-        use syfrack_core::{Dimension, Tonemap};
+        use syfrack_core::Dimension;
         if self.scene.dimension == dimension {
             return;
         }
-        let index = |d| if d == Dimension::TwoD { 0 } else { 1 };
-        self.end_drag();
-        let next = self.workspaces[index(dimension)].take().unwrap_or_else(|| {
-            let scene = if dimension == Dimension::TwoD {
-                if self
-                    .scene
-                    .material
-                    .texture
-                    .as_ref()
-                    .and_then(|t| t.planar.as_ref())
-                    .is_some()
-                {
-                    let mut s = self.scene.clone();
-                    s.dimension = Dimension::TwoD;
-                    let b = s.camera.basis();
-                    if b.forward.z.abs() > 0.01 {
-                        let distance = -b.origin.z / b.forward.z;
-                        let center = b.origin + b.forward * distance;
-                        s.canvas.center = [center.x, center.y];
-                        s.canvas.zoom = (3.0 / (distance.abs() * b.tan_half_fov).max(0.01))
-                            .clamp(0.01, 10000.0);
-                    }
-                    s.look.tonemap = Tonemap::Direct;
-                    s.look.auto_exposure = None;
-                    s.fractal = syfrack_core::Fractal::Graph(
-                        syfrack_core::Graph::bundled("sphere").unwrap(),
-                    );
-                    s.lights.clear();
-                    s.atmosphere = syfrack_core::Atmosphere::none();
-                    s
-                } else {
-                    Scene::example_2d()
-                }
-            } else {
-                Scene::example_for("mandelbulb").expect("bundled form")
-            };
-            Workspace {
-                scene,
-                path: None,
-                undo: vec![],
-                redo: vec![],
-                dirty: false,
-                form: FormState::default(),
+        let mut trial = self.scene.clone();
+        trial.dimension = dimension;
+        if dimension == Dimension::ThreeD && trial.lights.is_empty() {
+            trial.lights = Scene::example().lights;
+        }
+        match trial.unify() {
+            Ok(()) => {
+                self.end_drag();
+                self.snapshot_for_edit();
+                self.scene = trial;
+                self.preview_dirty = true;
             }
-        });
-        self.workspaces[index(self.scene.dimension)] = Some(Workspace {
-            scene: self.scene.clone(),
-            path: self.path.take(),
-            undo: std::mem::take(&mut self.undo),
-            redo: std::mem::take(&mut self.redo),
-            dirty: self.dirty_since_save,
-            form: self.form.clone(),
-        });
-        self.scene = next.scene;
-        self.path = next.path;
-        self.undo = next.undo;
-        self.redo = next.redo;
-        self.dirty_since_save = next.dirty;
-        self.form = next.form;
-        self.preview_dirty = true;
-        self.tab = Tab::Atelier;
-        self.inspector = Inspector::Scene;
+            Err(e) => {
+                self.banner = Some(Banner::error(format!(
+                    "{}: {e}",
+                    syfrack_i18n::tr!("Relier les sorties nécessaires dans le graphe")
+                )))
+            }
+        }
     }
 
     /// Records the scene before a change; inside a drag only the first change does.
@@ -246,7 +208,26 @@ impl AppState {
     pub fn edit(&mut self, f: impl FnOnce(&mut Scene)) {
         self.snapshot_for_edit();
         let before = render_view(&self.scene);
+        let geometry = self.scene.fractal.clone();
+        let creation = self.scene.creation.clone();
         f(&mut self.scene);
+        if self.scene.creation == creation && self.scene.fractal != geometry {
+            let form = self.scene.fractal.graph().clone();
+            if let Some(g) = &mut self.scene.creation {
+                g.replace_form(&form);
+            }
+        }
+        if self.scene.creation.is_some() {
+            if let Err(e) = self.scene.unify() {
+                // An incomplete geometry tool edit is a draft, just like a wire
+                // edit on the unified canvas. Keep the last valid renderer input.
+                let draft = self.scene.creation.take();
+                self.scene.creation = creation;
+                self.scene.creation_draft = draft;
+                let _ = self.scene.unify();
+                self.banner = Some(Banner::error(e.to_string()));
+            }
+        }
         self.preview_dirty |= render_differs(&before, &self.scene);
     }
 
@@ -270,7 +251,15 @@ impl AppState {
                     .texture
                     .as_ref()
                     .map_or(Ok(()), |t| t.graph.validate()),
+                _ if path.starts_with("phenomena.") => trial.validate_editable(),
                 _ => Ok(()),
+            })
+            .and_then(|_| {
+                if trial.creation.is_some() {
+                    trial.unify()
+                } else {
+                    Ok(())
+                }
             });
         match checked {
             Ok(()) => {
@@ -383,41 +372,28 @@ impl AppState {
         std::mem::take(&mut self.preview_dirty)
     }
 
-    pub fn has_unsaved_workspaces(&self) -> bool {
-        self.dirty_since_save || self.workspaces.iter().flatten().any(|w| w.dirty)
-    }
-
-    pub fn workshop_modified(&self, dimension: syfrack_core::Dimension) -> bool {
-        if self.scene.dimension == dimension {
-            self.dirty_since_save
-        } else {
-            self.workspaces[if dimension == syfrack_core::Dimension::TwoD {
-                0
-            } else {
-                1
-            }]
-            .as_ref()
-            .is_some_and(|w| w.dirty)
-        }
-    }
-
     pub fn is_modified(&self) -> bool {
         self.dirty_since_save
     }
-
+    pub fn has_unsaved_workspaces(&self) -> bool {
+        self.dirty_since_save
+    }
     pub fn load(&mut self, path: &Path) -> bool {
         match Scene::load(path) {
             Ok(scene) => self.load_scene(scene, Some(path.to_path_buf())),
             Err(e) => {
-                self.banner = Some(Banner::error(format!("{} : {e}", path.display())));
+                self.banner = Some(Banner::error(format!("{}: {e}", path.display())));
                 false
             }
         }
     }
+    pub fn workshop_modified(&self, dimension: syfrack_core::Dimension) -> bool {
+        self.scene.dimension == dimension && self.dirty_since_save
+    }
 
     /// Replaces the whole scene (a file, a gallery image): history cleared,
     /// preview marked for rebuild. An invalid scene is refused with a banner.
-    pub fn load_scene(&mut self, scene: Scene, source: Option<PathBuf>) -> bool {
+    pub fn load_scene(&mut self, mut scene: Scene, source: Option<PathBuf>) -> bool {
         let label = source.as_ref().map_or_else(
             || syfrack_i18n::tr!("scène").to_string(),
             |p| p.display().to_string(),
@@ -427,7 +403,10 @@ impl AppState {
             self.banner = Some(Banner::error(format!("{label} : {e}")));
             return false;
         }
-        self.workspaces = [None, None];
+        if scene.unify().is_err() && scene.creation.is_none() {
+            scene.creation_draft = Some(syfrack_core::CreationGraph::from_scene(&scene));
+        }
+        self.document_generation = self.document_generation.wrapping_add(1);
         self.scene = scene;
         self.path = source;
         self.undo.clear();
@@ -480,10 +459,47 @@ impl AppState {
 /// parameter buffer; a name only reaches WGSL comments).
 fn render_view(scene: &Scene) -> Scene {
     let mut s = scene.clone();
+    s.creation_draft = None;
+    if let Some(g) = &mut s.creation {
+        let mut active = g.active_nodes();
+        loop {
+            let before = active.len();
+            for n in &g.nodes {
+                if active.contains(&n.id) {
+                    if let syfrack_core::CreationKind::Form(NodeKind::Iterate { body, .. }) =
+                        &n.kind
+                    {
+                        active.extend(body);
+                    }
+                }
+            }
+            if before == active.len() {
+                break;
+            }
+        }
+        g.nodes.retain(|n| active.contains(&n.id));
+        g.links
+            .retain(|l| active.contains(&l.from.0) && active.contains(&l.to.0));
+        g.nodes.sort_by_key(|n| n.id);
+        g.links.sort_by_key(|l| (l.from, l.to));
+        for n in &mut g.nodes {
+            n.pos = [0.0; 2];
+            n.name.clear();
+        }
+        g.settings.timeline = Default::default();
+    }
     let Fractal::Graph(g) = &mut s.fractal;
     for n in &mut g.nodes {
         n.pos = [0.0; 2];
         n.name.clear();
+    }
+    if let Some(p) = &mut s.phenomena {
+        p.editor = None;
+        p.timeline = Default::default();
+        for n in &mut p.fields.nodes {
+            n.pos = [0.0; 2];
+            n.name.clear();
+        }
     }
     s
 }
@@ -642,13 +658,19 @@ mod tests {
     #[test]
     fn edit_graph_accepts_an_incomplete_graph() {
         let mut st = AppState::new(Scene::example_for("mandelbox").unwrap(), None);
+        let last_valid = st.scene.creation.clone();
         assert!(st.edit_graph(|g| {
             g.links.clear();
             Ok(())
         }));
         assert!(st.can_undo() && st.form.errors.is_empty());
         assert!(st.scene.validate_editable().is_ok());
-        assert!(st.scene.validate().is_err(), "not renderable yet");
+        assert!(
+            st.scene.validate().is_ok(),
+            "the last valid image remains renderable"
+        );
+        assert_eq!(st.scene.creation, last_valid);
+        assert!(st.scene.creation_draft.is_some());
     }
 
     #[test]

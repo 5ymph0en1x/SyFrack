@@ -1,0 +1,47 @@
+{
+  "title": "L’Éclosion de l’infini",
+  "date": "2026-10-16",
+  "renderer": "SyFrack, Quadro K3100M, Vulkan",
+  "renderer_sha256": "3B9FFCA87FD6554340957670453C86E785CC639421F9F25640A003D7150AB718",
+  "scene": "scenes/studies/eclosion-de-linfini-20261016/eclosion-de-linfini.ron",
+  "forme_source": "scenes/studies/eclosion-de-linfini-20261016/eclosion-de-linfini.syf",
+  "generator": "scripts/compose/compose-eclosion.py",
+  "render_launcher": "scripts/render/render-eclosion.ps1",
+  "geometry": {
+    "primary_petals": 5,
+    "inner_petals": 5,
+    "inner_petal_scale": 0.47,
+    "petal_twist": 0.14,
+    "lace_iterations": 9,
+    "heart_mandelbulb_power": 8,
+    "heart_iterations": 12,
+    "secondary_seeds": 5,
+    "suspended_droplets": 6,
+    "graph_nodes": 79,
+    "graph_links": 89,
+    "external_images_or_meshes": false
+  },
+  "completed_render": {
+    "width": 960,
+    "height": 1200,
+    "samples_min": 12,
+    "samples_max": 12,
+    "target_samples": 12,
+    "light_bounces": 1,
+    "tracing_steps": 640,
+    "pixel_tolerance": 0.4,
+    "denoise_png": true,
+    "raw_linear_exr_preserved": true,
+    "elapsed_render_seconds": 1274.9,
+    "png": "renders/studies/eclosion-de-linfini-20261016/eclosion-de-linfini.png",
+    "exr": "renders/studies/eclosion-de-linfini-20261016/eclosion-de-linfini.exr",
+    "scene_snapshot": "renders/studies/eclosion-de-linfini-20261016/eclosion-de-linfini.ron",
+    "log": "renders/studies/eclosion-de-linfini-20261016/eclosion-de-linfini.render.log"
+  },
+  "verification": {
+    "scene_graph_validation": "passed",
+    "forme_source_rebuild_and_validation": "passed",
+    "complete_12_sample_checkpoint": "verified",
+    "final_image_visual_inspection": "passed"
+  }
+}

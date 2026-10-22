@@ -2,6 +2,64 @@ use glam::Vec3;
 use syfrack_core::{Finish, FinishDetail, FinishPattern, Graph, Link, Node, NodeKind, Scene};
 
 #[test]
+fn large_prepared_instance_hierarchy_matches_a_brute_force_union() {
+    use glam::{EulerRot, Quat};
+    use syfrack_core::{graph::eval::PreparedGraph, Placement};
+    let placements: Vec<_> = (0..4097)
+        .map(|i| Placement {
+            position: Vec3::new(
+                (i % 47) as f32 * 1.3 - 30.0,
+                ((i / 47) % 47) as f32 * 1.1 - 20.0,
+                (i / 2209) as f32 * 1.5,
+            ),
+            angles: Vec3::new((i % 359) as f32 - 179.0, 19.0, -13.0),
+            scale: Vec3::new(0.4, 1.1, 0.7),
+        })
+        .collect();
+    let mut g = Graph::new_minimal();
+    let copies = add(
+        &mut g,
+        NodeKind::Instances {
+            placements: placements.clone(),
+            half: Vec3::splat(0.8),
+            margin: 0.1,
+        },
+        &[1],
+    );
+    g.links.retain(|l| l.to != (2, 0));
+    g.links.push(Link {
+        from: (copies, 0),
+        to: (2, 0),
+    });
+    g.validate().unwrap();
+    let prepared = PreparedGraph::new(&g).unwrap();
+    for i in 0..107 {
+        let p = Vec3::new(
+            (i % 17) as f32 * 3.8 - 32.0,
+            (i / 17) as f32 * 5.2 - 20.0,
+            (i % 7) as f32 * 0.4 - 0.9,
+        );
+        let expected = placements
+            .iter()
+            .map(|copy| {
+                let a = copy.angles * (std::f32::consts::PI / 180.0);
+                let q = (Quat::from_euler(EulerRot::XYZ, a.x, a.y, a.z).conjugate()
+                    * (p - copy.position))
+                    / copy.scale;
+                let fence = (q.abs() - Vec3::splat(0.8)) * copy.scale;
+                let bound = fence.max(Vec3::ZERO).length() + fence.max_element().min(0.0);
+                ((q.length() - 1.0) * copy.scale.min_element()).max(bound)
+            })
+            .fold(f32::INFINITY, f32::min);
+        assert!(
+            (prepared.evaluate(p).distance - expected).abs() < 1e-5,
+            "{p}: {} != {expected}",
+            prepared.evaluate(p).distance
+        );
+    }
+}
+
+#[test]
 fn independent_copies_match_transformed_union_and_roundtrip() {
     use glam::{EulerRot, Quat};
     use syfrack_core::Placement;

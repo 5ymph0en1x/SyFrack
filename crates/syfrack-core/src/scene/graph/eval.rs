@@ -18,6 +18,102 @@ pub struct DistState {
     pub traps: [f32; 4],
 }
 
+/// CPU evaluation plan and instance BVHs prepared once for an immutable graph.
+/// Share this object between CPU workers instead of rebuilding plans per pixel.
+pub struct PreparedGraph<'a> {
+    graph: &'a Graph,
+    output: NodeId,
+    plans: HashMap<NodeId, Vec<NodeId>>,
+    instances: HashMap<NodeId, Vec<super::bvh::InstanceBounds>>,
+    trap_scales: [f32; 4],
+    iteration_product: u32,
+}
+
+impl<'a> PreparedGraph<'a> {
+    pub fn new(g: &'a Graph) -> Result<Self, crate::SceneError> {
+        let order = g.topo_order()?;
+        fn needed(g: &Graph, id: NodeId, set: &mut std::collections::HashSet<NodeId>) {
+            if !set.insert(id) {
+                return;
+            }
+            let Some(n) = g.node(id) else {
+                return;
+            };
+            if n.enabled && matches!(n.kind, NodeKind::Instances { .. }) {
+                return;
+            }
+            for port in 0..n.kind.inputs().len() as u32 {
+                if let Some((src, _)) = g.input_of(id, port) {
+                    needed(g, src, set);
+                }
+            }
+        }
+        let output = g
+            .nodes
+            .iter()
+            .find(|n| n.kind == NodeKind::Output)
+            .map(|n| n.id)
+            .unwrap_or(0);
+        let mut targets = vec![output];
+        for node in &g.nodes {
+            if node.enabled && matches!(node.kind, NodeKind::Instances { .. }) {
+                if let Some((child, _)) = g.input_of(node.id, 0) {
+                    targets.push(child);
+                }
+            }
+        }
+        let mut plans = HashMap::new();
+        for target in targets {
+            let mut set = std::collections::HashSet::new();
+            needed(g, target, &mut set);
+            plans.insert(
+                target,
+                order
+                    .iter()
+                    .copied()
+                    .filter(|id| set.contains(id))
+                    .collect::<Vec<_>>(),
+            );
+        }
+        let instances = g
+            .nodes
+            .iter()
+            .filter_map(|n| match &n.kind {
+                NodeKind::Instances {
+                    placements, half, ..
+                } if n.enabled => Some((n.id, super::bvh::build(placements, *half))),
+                _ => None,
+            })
+            .collect();
+        Ok(Self {
+            graph: g,
+            output,
+            plans,
+            instances,
+            trap_scales: g.trap_scales(),
+            iteration_product: g.iteration_product(),
+        })
+    }
+
+    pub fn evaluate(&self, p: Vec3) -> DeSample {
+        let r = self.graph.evaluate_raw(self.output, p, self, 0);
+        let scales = self.trap_scales;
+        let traps = std::array::from_fn(|i| {
+            if r.traps[i].is_finite() {
+                (r.traps[i] / scales[i]).min(1.0)
+            } else {
+                1.0
+            }
+        });
+        DeSample {
+            distance: r.d,
+            material: r.material,
+            traps,
+            iterations: r.iter.min(self.iteration_product),
+        }
+    }
+}
+
 enum Value {
     Point(PointState),
     Dist(DistState),
@@ -561,71 +657,14 @@ impl Graph {
     }
 
     pub fn evaluate(&self, p: Vec3) -> DeSample {
-        let Ok(order) = self.topo_order() else {
-            return DeSample {
+        match PreparedGraph::new(self) {
+            Ok(prepared) => prepared.evaluate(p),
+            Err(_) => DeSample {
                 distance: p.length(),
                 material: 0,
                 traps: [1.0; 4],
                 iterations: 0,
-            };
-        };
-        fn needed(g: &Graph, id: NodeId, set: &mut std::collections::HashSet<NodeId>) {
-            if !set.insert(id) {
-                return;
-            }
-            let Some(n) = g.node(id) else {
-                return;
-            };
-            if n.enabled && matches!(n.kind, NodeKind::Instances { .. }) {
-                return;
-            }
-            for port in 0..n.kind.inputs().len() as u32 {
-                if let Some((src, _)) = g.input_of(id, port) {
-                    needed(g, src, set);
-                }
-            }
-        }
-        let output = self
-            .nodes
-            .iter()
-            .find(|n| n.kind == NodeKind::Output)
-            .map(|n| n.id)
-            .unwrap_or(0);
-        let mut targets = vec![output];
-        for node in &self.nodes {
-            if node.enabled && matches!(node.kind, NodeKind::Instances { .. }) {
-                if let Some((child, _)) = self.input_of(node.id, 0) {
-                    targets.push(child);
-                }
-            }
-        }
-        let mut plans = HashMap::new();
-        for target in targets {
-            let mut set = std::collections::HashSet::new();
-            needed(self, target, &mut set);
-            plans.insert(
-                target,
-                order
-                    .iter()
-                    .copied()
-                    .filter(|id| set.contains(id))
-                    .collect::<Vec<_>>(),
-            );
-        }
-        let r = self.evaluate_raw(output, p, &plans, 0);
-        let scales = self.trap_scales();
-        let traps = std::array::from_fn(|i| {
-            if r.traps[i].is_finite() {
-                (r.traps[i] / scales[i]).min(1.0)
-            } else {
-                1.0
-            }
-        });
-        DeSample {
-            distance: r.d,
-            material: r.material,
-            traps,
-            iterations: r.iter.min(self.iteration_product()),
+            },
         }
     }
 
@@ -633,7 +672,7 @@ impl Graph {
         &self,
         target: NodeId,
         p: Vec3,
-        plans: &HashMap<NodeId, Vec<NodeId>>,
+        prepared: &PreparedGraph<'_>,
         depth: u32,
     ) -> DistState {
         let empty = DistState {
@@ -645,7 +684,7 @@ impl Graph {
         if depth > MAX_DEPTH {
             return empty;
         }
-        let Some(order) = plans.get(&target) else {
+        let Some(order) = prepared.plans.get(&target) else {
             return empty;
         };
         let start = PointState {
@@ -714,35 +753,59 @@ impl Graph {
                         values.insert(id, Value::Dist(empty));
                         continue;
                     };
-                    let mut candidates: Vec<_> = placements
-                        .iter()
-                        .enumerate()
-                        .map(|(index, placement)| {
-                            let a = placement.angles * (std::f32::consts::PI / 180.0);
-                            let rotation = Quat::from_euler(EulerRot::XYZ, a.x, a.y, a.z);
-                            let q =
-                                (rotation.conjugate() * (p - placement.position)) / placement.scale;
-                            let scale = placement.scale.min_element();
-                            let bound = Self::fence(
-                                &NodeKind::Box {
-                                    half: *half * placement.scale,
-                                },
-                                PointState {
-                                    p: q * placement.scale,
-                                    ..start
-                                },
-                            );
-                            (bound, index, q, scale)
-                        })
-                        .collect();
-                    candidates.sort_by(|a, b| a.0.total_cmp(&b.0));
+                    let nodes = &prepared.instances[&id];
                     let mut best = empty;
                     let mut chosen = usize::MAX;
-                    for (bound, index, q, scale) in candidates {
-                        if bound > best.d {
-                            break;
+                    let mut seed = 0;
+                    if !nodes.is_empty() {
+                        while nodes[seed].placement.is_none() {
+                            let left = seed + 1;
+                            let right = nodes[left].escape;
+                            seed = if nodes[left].distance(p) <= nodes[right].distance(p) {
+                                left
+                            } else {
+                                right
+                            };
                         }
-                        let mut d = self.evaluate_raw(child, q, plans, depth + 1);
+                    }
+                    let mut cursor = seed;
+                    let mut seed_pass = true;
+                    while cursor < nodes.len() {
+                        let current = cursor;
+                        let first = seed_pass;
+                        seed_pass = false;
+                        cursor = if first { 0 } else { current + 1 };
+                        let node = &nodes[current];
+                        if node.distance(p) > best.d {
+                            if !first {
+                                cursor = node.escape;
+                            }
+                            continue;
+                        }
+                        if !first && current == seed {
+                            continue;
+                        }
+                        let Some(index) = node.placement else {
+                            continue;
+                        };
+                        let placement = &placements[index];
+                        let a = placement.angles * (std::f32::consts::PI / 180.0);
+                        let rotation = Quat::from_euler(EulerRot::XYZ, a.x, a.y, a.z);
+                        let q = (rotation.conjugate() * (p - placement.position)) / placement.scale;
+                        let scale = placement.scale.min_element();
+                        let bound = Self::fence(
+                            &NodeKind::Box {
+                                half: *half * placement.scale,
+                            },
+                            PointState {
+                                p: q * placement.scale,
+                                ..start
+                            },
+                        );
+                        if bound > best.d {
+                            continue;
+                        }
+                        let mut d = self.evaluate_raw(child, q, prepared, depth + 1);
                         d.d = (d.d * scale).max(bound);
                         if d.d < best.d || (d.d == best.d && index < chosen) {
                             best = d;
@@ -818,6 +881,9 @@ impl Graph {
     }
 
     pub fn estimate_bounding_radius(&self) -> f32 {
+        let Ok(prepared) = PreparedGraph::new(self) else {
+            return self.bounding_radius_hint;
+        };
         let mut dirs = Vec::new();
         for x in -1..=1 {
             for y in -1..=1 {
@@ -834,14 +900,14 @@ impl Graph {
             let mut r = 100.0f32;
             // Already at the surface at the far end: the form is unbounded
             // that way (a ground plane), the direction says nothing of its extent.
-            let far = self.evaluate(d * r).distance;
+            let far = prepared.evaluate(d * r).distance;
             if !far.is_finite() || far <= 0.05 * r {
                 continue;
             }
             bounded = true;
             // Walk inward while the field stays positive and decreasing outward.
             while r > 0.5 {
-                let dist = self.evaluate(d * r).distance;
+                let dist = prepared.evaluate(d * r).distance;
                 if !dist.is_finite() || dist <= 0.05 * r {
                     break;
                 }

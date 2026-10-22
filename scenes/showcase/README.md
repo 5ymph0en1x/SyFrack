@@ -25,6 +25,6 @@ syfrack render scenes/showcase/atlas-guardian-of-infinity.ron --out renders/atla
 
 The large study used a 1920 × 2400 portrait, four bounces, 1024 tracing steps and
 a 0.125-pixel primary geometry tolerance. Its render was intentionally paused
-at 100–101 samples per pixel out of a target of 128. The Studio illustration
-uses that saved native image as a labelled reference; this source tree does
+at 100–101 samples per pixel out of a target of 128. A historical Studio illustration
+used that saved native image as a labelled reference; this source tree does
 not include its checkpoint or claim a completed 128-sample render.

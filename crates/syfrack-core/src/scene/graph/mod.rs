@@ -3,6 +3,7 @@
 //! `graphs/` in `bundled.rs`.
 
 pub mod bundled;
+pub mod bvh;
 pub mod eval;
 pub mod language;
 pub mod validate;
@@ -13,8 +14,10 @@ use serde::{Deserialize, Serialize};
 
 pub type NodeId = u32;
 pub const MAX_NODES: usize = 1536;
-pub const MAX_SCALARS: usize = 8192;
-pub const MAX_PLACEMENTS: usize = 128;
+pub const MAX_SCALARS: usize = 524288;
+pub const MAX_PLACEMENTS: usize = 16384;
+/// Nested instance expansion is bounded independently of fractal iteration depth.
+pub const MAX_INSTANCE_PRODUCT: u32 = 65536;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

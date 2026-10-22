@@ -1,20 +1,23 @@
-use std::sync::Arc;
 use std::time::{Duration, Instant};
+use std::{
+    collections::VecDeque,
+    sync::{Arc, Mutex},
+};
 
 use anyhow::{anyhow, Context, Result};
 use glam::Vec3;
 use syfrack_core::{DeSample, Graph, HdrImage, Scene};
 
 use crate::gpu::GpuContext;
-use crate::graph_wgsl::{
-    compile, compile_texture, fingerprint, scene_fingerprint, Compiled, PARAM_COUNT,
-};
+use crate::graph_wgsl::{compile, compile_texture, fingerprint, scene_fingerprint, Compiled};
 use crate::pipeline_cache::{CompileStatus, CompileTicket, CompiledPipeline, PipelineCache};
 use crate::session::RenderSession;
-use crate::uniforms::Uniforms;
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct RenderConfig {
+    /// Missing in old checkpoints: preserve their monolithic transport.
+    #[serde(default)]
+    pub integrator: ComputeIntegrator,
     pub width: u32,
     pub height: u32,
     pub samples_per_pixel: u32,
@@ -39,6 +42,13 @@ pub struct RenderConfig {
     pub guiding: bool,
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum ComputeIntegrator {
+    #[default]
+    Megakernel,
+    Wavefront,
+}
+
 fn default_pixel_tolerance() -> f32 {
     1.0
 }
@@ -49,6 +59,7 @@ fn default_dispatch_budget_ms() -> u32 {
 impl RenderConfig {
     pub fn new(width: u32, height: u32, samples_per_pixel: u32) -> Self {
         Self {
+            integrator: ComputeIntegrator::Megakernel,
             width,
             height,
             samples_per_pixel,
@@ -127,6 +138,15 @@ impl RenderConfig {
     }
 }
 
+pub(crate) fn separated_volume_layers(scene: &Scene) -> bool {
+    scene.dimension == syfrack_core::Dimension::ThreeD
+        && (scene.atmosphere.fog_density > 0.0
+            || scene
+                .phenomena
+                .as_ref()
+                .is_some_and(|p| p.bindings.density.is_some()))
+}
+
 #[derive(Clone, Debug)]
 pub struct RenderOutput {
     /// Mean radiance per pixel, linear. Alpha is 1.
@@ -164,12 +184,31 @@ pub struct VolumeRadianceComponents {
 }
 
 #[derive(Clone, Debug)]
+pub enum CpuExportStatus {
+    NotRequested,
+    Preparing,
+    Participating,
+    Unavailable(String),
+}
+
+#[derive(Clone, Debug)]
+pub struct ExportWorkers {
+    pub cpu: CpuExportStatus,
+    pub cpu_tiles: usize,
+    pub gpu_tiles: usize,
+}
+
+#[derive(Clone, Debug)]
 pub struct Progress {
     pub tiles: usize,
     pub dispatches: u32,
     pub samples_min: u32,
     pub samples_max: u32,
     pub target: u32,
+    /// Pixel-weighted progress; unlike samples_min it advances as owned tiles finish.
+    pub pixel_samples_done: u64,
+    pub pixel_samples_total: u64,
+    pub export_workers: Option<ExportWorkers>,
     pub elapsed: Duration,
     /// The slowest single dispatch so far in this session, in milliseconds.
     pub max_dispatch_ms: u32,
@@ -179,6 +218,20 @@ pub struct Progress {
     pub tile_grid: (u32, u32),
 }
 
+impl Progress {
+    pub fn fraction_complete(&self) -> f64 {
+        (self.pixel_samples_done as f64 / self.pixel_samples_total.max(1) as f64).clamp(0.0, 1.0)
+    }
+
+    pub fn estimated_remaining(&self) -> Option<Duration> {
+        let fraction = self.fraction_complete();
+        if fraction == 0.0 {
+            return None;
+        }
+        Duration::try_from_secs_f64(self.elapsed.as_secs_f64() * (1.0 - fraction) / fraction).ok()
+    }
+}
+
 /// Longest a single dispatch may take before the device is presumed lost.
 const DISPATCH_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -186,29 +239,84 @@ const DISPATCH_TIMEOUT: Duration = Duration::from_secs(10);
 pub struct Layouts {
     /// Path tracer: 0 uniforms, 1-3 accumulation/depth/aux, 4 form,
     /// 5 texture parameters, 6 panorama radiance/CDF, 7 density texture,
-    /// 8 volume sampler, 9 cached volume lighting.
+    /// 8 volume sampler, 9 cached volume lighting, 16-17 parameter overflow.
     pub bind_group_layout: wgpu::BindGroupLayout,
-    /// Probe: 0 uniforms, 1 points, 2 results, 3 traps, 4 graph parameters.
+    /// Probe: 0 uniforms, 1 points, 2 results, 3 traps, 4/16 graph parameters.
     pub probe_layout: wgpu::BindGroupLayout,
     pub pathtrace: wgpu::PipelineLayout,
     pub probe: wgpu::PipelineLayout,
 }
 
-/// Size of the graph parameter uniform buffer (binding 4).
-pub const GRAPH_PARAMS_BYTES: u64 = (PARAM_COUNT * 4) as u64;
+/// Size of the fast uniform prefix; larger parameter sets use overflow textures.
+pub const GRAPH_PARAMS_BYTES: u64 = (crate::params::UNIFORM_SCALARS * 4) as u64;
 
 #[derive(Clone)]
 pub struct Renderer {
+    pub(crate) control: Arc<Mutex<Option<Arc<crate::control::ControlEngine>>>>,
     pub(crate) ctx: Arc<GpuContext>,
     pub(crate) layouts: Arc<Layouts>,
     cache: Arc<PipelineCache>,
+    cpu_constants: Option<Arc<crate::shader_source::CpuExportConstants>>,
+    cpu_variants: Arc<Mutex<VecDeque<(u16, Arc<PipelineCache>)>>>,
     pub(crate) environment_cache: Arc<crate::environment::EnvironmentCache>,
     pub(crate) particle_cache: Arc<crate::particles::ParticleCache>,
+    pub(crate) phenomena_cache: Arc<crate::phenomena::PhenomenaCache>,
 }
 
 impl Renderer {
     pub fn context(&self) -> &Arc<GpuContext> {
         &self.ctx
+    }
+    /// Persist the exact GPU-prepared sources in the canonical graph. The same
+    /// frozen data is then sampled by control, final rendering and resume.
+    pub fn freeze_creation_sources(&self, scene: &Scene) -> Result<Scene> {
+        self.freeze_creation_sources_controlled(scene, &Default::default())
+    }
+    pub fn freeze_creation_sources_controlled(
+        &self,
+        scene: &Scene,
+        control: &crate::phenomena::PreparationControl,
+    ) -> Result<Scene> {
+        let mut scene = scene.render_scene()?;
+        let Some(prepared) = self.prepare_phenomena_controlled(&scene, control)? else {
+            return Ok(scene);
+        };
+        let g = scene.creation.as_mut().unwrap();
+        let (simulations, flames) = g.resource_nodes()?;
+        for (id, grid) in simulations.into_iter().zip(&prepared.snapshots) {
+            if let syfrack_core::CreationKind::Simulation(s) =
+                &mut g.nodes.iter_mut().find(|n| n.id == id).unwrap().kind
+            {
+                s.frozen = Some(syfrack_core::scene::phenomena::FrozenSnapshot {
+                    resolution: grid.domain.resolution,
+                    values: grid.data.iter().map(|v| v.to_array()).collect(),
+                });
+            }
+        }
+        for (id, grid) in flames.into_iter().zip(&prepared.flames) {
+            if let syfrack_core::CreationKind::Flame(s) =
+                &mut g.nodes.iter_mut().find(|n| n.id == id).unwrap().kind
+            {
+                s.frozen = Some(grid.clone());
+            }
+        }
+        scene.unify()?;
+        Ok(scene)
+    }
+    pub fn prepare_phenomena_controlled(
+        &self,
+        scene: &Scene,
+        control: &crate::phenomena::PreparationControl,
+    ) -> Result<Option<Arc<crate::phenomena::PreparedPhenomena>>> {
+        let scene = scene.render_scene()?;
+        self.phenomena_cache.get_controlled(self, &scene, control)
+    }
+    pub fn prepare_phenomena(
+        &self,
+        scene: &Scene,
+    ) -> Result<Option<Arc<crate::phenomena::PreparedPhenomena>>> {
+        let scene = scene.render_scene()?;
+        self.phenomena_cache.get_gpu(self, &scene)
     }
 
     pub fn layouts(&self) -> &Arc<Layouts> {
@@ -230,6 +338,16 @@ impl Renderer {
             },
             count: None,
         };
+        let parameter_entry = |binding| wgpu::BindGroupLayoutEntry {
+            binding,
+            visibility: wgpu::ShaderStages::COMPUTE,
+            ty: wgpu::BindingType::Texture {
+                sample_type: wgpu::TextureSampleType::Float { filterable: false },
+                view_dimension: wgpu::TextureViewDimension::D2,
+                multisampled: false,
+            },
+            count: None,
+        };
         let rw = wgpu::BufferBindingType::Storage { read_only: false };
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("pathtrace"),
@@ -240,6 +358,8 @@ impl Renderer {
                 buffer_entry(3, rw),
                 buffer_entry(4, wgpu::BufferBindingType::Uniform),
                 buffer_entry(5, wgpu::BufferBindingType::Uniform),
+                parameter_entry(16),
+                parameter_entry(17),
                 buffer_entry(6, wgpu::BufferBindingType::Storage { read_only: true }),
                 buffer_entry(12, rw),
                 buffer_entry(13, rw),
@@ -302,6 +422,7 @@ impl Renderer {
                 buffer_entry(2, rw),
                 buffer_entry(3, rw),
                 buffer_entry(4, wgpu::BufferBindingType::Uniform),
+                parameter_entry(16),
             ],
         });
         let probe = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -313,6 +434,7 @@ impl Renderer {
             return Err(anyhow!("layout validation failed: {err}"));
         }
         Ok(Self {
+            control: Arc::new(Mutex::new(None)),
             ctx,
             layouts: Arc::new(Layouts {
                 bind_group_layout,
@@ -321,9 +443,34 @@ impl Renderer {
                 probe,
             }),
             cache: Arc::new(PipelineCache::default()),
+            cpu_constants: None,
+            cpu_variants: Arc::new(Mutex::new(VecDeque::new())),
             environment_cache: Arc::new(Default::default()),
             particle_cache: Arc::new(Default::default()),
+            phenomena_cache: Arc::new(Default::default()),
         })
+    }
+
+    pub(crate) fn for_cpu_export(&self, scene: &Scene) -> Self {
+        let mut constants = crate::shader_source::CpuExportConstants::from_scene(scene);
+        // Match a software SIMD subgroup instead of serializing a full GPU
+        // workgroup in the CPU JIT. Pixels have no workgroup-shared state.
+        constants.1 = [self.ctx.info.subgroup_min_size.clamp(1, 8), 1];
+        let mut variants = self.cpu_variants.lock().unwrap_or_else(|p| p.into_inner());
+        let cache = variants
+            .iter()
+            .position(|(key, _)| *key == constants.0)
+            .and_then(|i| variants.remove(i))
+            .map(|(_, cache)| cache)
+            .unwrap_or_else(|| Arc::new(PipelineCache::default()));
+        variants.push_back((constants.0, cache.clone()));
+        while variants.len() > 2 {
+            variants.pop_front();
+        }
+        let mut renderer = self.clone();
+        renderer.cache = cache;
+        renderer.cpu_constants = Some(Arc::new(constants));
+        renderer
     }
 
     /// The pipelines of `g`'s topology: from the cache, or compiled now
@@ -342,10 +489,13 @@ impl Renderer {
 
     /// Compiles the form and its optional independent material graph together.
     pub fn pipeline_for_scene(&self, scene: &Scene) -> Result<Arc<CompiledPipeline>> {
+        let resolved = scene.render_scene()?;
+        let scene = &resolved;
         scene.validate().context("scene validation")?;
         if scene.material.texture.is_none()
             && scene.atmosphere.nebula.is_none()
             && !crate::graph_wgsl::scene_has_optics(scene)
+            && crate::graph_wgsl::nature_features(scene) == 0
         {
             return self.pipeline_for(scene.fractal.graph());
         }
@@ -360,13 +510,15 @@ impl Renderer {
             .as_ref()
             .map(|t| compile_texture(&t.graph))
             .transpose()?;
-        let p = Arc::new(CompiledPipeline::build_with_features(
+        let p = Arc::new(CompiledPipeline::build_specialized(
             &self.ctx.device,
             &self.layouts,
             form,
             texture,
             scene.atmosphere.nebula.is_some(),
             crate::graph_wgsl::scene_has_optics(scene),
+            self.cpu_constants.as_deref(),
+            crate::graph_wgsl::nature_features(scene),
         )?);
         self.cache.insert(p.clone());
         Ok(p)
@@ -410,7 +562,13 @@ impl Renderer {
     /// so tests can inject a broken shader.
     #[doc(hidden)]
     pub fn build_and_cache(&self, c: Compiled) -> Result<Arc<CompiledPipeline>> {
-        build_and_cache(&self.ctx.device, &self.layouts, &self.cache, c)
+        build_and_cache(
+            &self.ctx.device,
+            &self.layouts,
+            &self.cache,
+            c,
+            self.cpu_constants.as_deref(),
+        )
     }
 
     /// Starts compiling `g`'s pipelines on a background thread. A cached
@@ -434,6 +592,7 @@ impl Renderer {
             self.cache.clone(),
             g.clone(),
         );
+        let constants = self.cpu_constants.clone();
         std::thread::Builder::new()
             .name("syfrack-compile".into())
             .spawn(move || {
@@ -441,7 +600,9 @@ impl Renderer {
                     .validate()
                     .map_err(anyhow::Error::from)
                     .and_then(|()| compile(&g).map_err(anyhow::Error::from))
-                    .and_then(|c| build_and_cache(&device, &layouts, &cache, c));
+                    .and_then(|c| {
+                        build_and_cache(&device, &layouts, &cache, c, constants.as_deref())
+                    });
                 let _ = tx.send(result);
             })
             .expect("spawn compile thread");
@@ -474,18 +635,8 @@ impl Renderer {
         self.cache.len()
     }
 
-    /// A uniform buffer for binding 4 holding `values`.
-    pub(crate) fn graph_params_buffer(&self, values: &[f32; PARAM_COUNT]) -> wgpu::Buffer {
-        let buf = self.ctx.device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("graph params"),
-            size: GRAPH_PARAMS_BYTES,
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            mapped_at_creation: false,
-        });
-        self.ctx
-            .queue
-            .write_buffer(&buf, 0, bytemuck::cast_slice(values));
-        buf
+    pub(crate) fn graph_params_buffer(&self, values: &[f32]) -> Result<crate::params::Parameters> {
+        crate::params::Parameters::new(&self.ctx.device, &self.ctx.queue, values)
     }
 
     /// Evaluates the GPU distance field at `points` with the scene's fractal,
@@ -493,116 +644,8 @@ impl Renderer {
     /// consistency harness; also handy for probing surfaces.
     pub fn probe_distances(&self, scene: &Scene, points: &[Vec3]) -> Result<Vec<DeSample>> {
         scene.validate().context("scene validation")?;
-        if points.is_empty() {
-            return Ok(vec![]);
-        }
-        let g = scene.fractal.to_graph();
-        let pipeline = self.pipeline_for(&g)?;
-        let device = &self.ctx.device;
-        let oom = device.push_error_scope(wgpu::ErrorFilter::OutOfMemory);
-        let validation = device.push_error_scope(wgpu::ErrorFilter::Validation);
-        let result = self.probe_inner(scene, &g, &pipeline, points);
-        let validation_err = pollster::block_on(validation.pop());
-        let oom_err = pollster::block_on(oom.pop());
-        if let Some(err) = validation_err {
-            return Err(anyhow!("GPU validation error: {err}"));
-        }
-        if let Some(err) = oom_err {
-            return Err(anyhow!("GPU out-of-memory error: {err}"));
-        }
-        result
+        crate::parity::probe_scene(self, scene, points)
     }
-
-    fn probe_inner(
-        &self,
-        scene: &Scene,
-        g: &Graph,
-        pipeline: &CompiledPipeline,
-        points: &[Vec3],
-    ) -> Result<Vec<DeSample>> {
-        let device = &self.ctx.device;
-        let bytes = (points.len() * 16) as u64;
-        let uniforms = Uniforms::from_scene(scene, 1, 1, 1, 1);
-        let uniform_buf = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("probe uniforms"),
-            size: std::mem::size_of::<Uniforms>() as u64,
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            mapped_at_creation: false,
-        });
-        self.ctx
-            .queue
-            .write_buffer(&uniform_buf, 0, bytemuck::bytes_of(&uniforms));
-        let params_buf = self.graph_params_buffer(&pipeline.layout.pack(g));
-        let input: Vec<[f32; 4]> = points.iter().map(|p| [p.x, p.y, p.z, 0.0]).collect();
-        let in_buf = device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("probe points"),
-            size: bytes,
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
-            mapped_at_creation: false,
-        });
-        self.ctx
-            .queue
-            .write_buffer(&in_buf, 0, bytemuck::cast_slice(&input));
-        let output = |label| {
-            device.create_buffer(&wgpu::BufferDescriptor {
-                label: Some(label),
-                size: bytes,
-                usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
-                mapped_at_creation: false,
-            })
-        };
-        let out_buf = output("probe results");
-        let traps_buf = output("probe traps");
-        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("de_probe"),
-            layout: &self.layouts.probe_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: uniform_buf.as_entire_binding(),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: in_buf.as_entire_binding(),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 2,
-                    resource: out_buf.as_entire_binding(),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 3,
-                    resource: traps_buf.as_entire_binding(),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 4,
-                    resource: params_buf.as_entire_binding(),
-                },
-            ],
-        });
-        let mut enc = device.create_command_encoder(&Default::default());
-        {
-            let mut pass = enc.begin_compute_pass(&Default::default());
-            pass.set_pipeline(&pipeline.probe_pipeline);
-            pass.set_bind_group(0, &bind_group, &[]);
-            pass.dispatch_workgroups((points.len() as u32).div_ceil(64), 1, 1);
-        }
-        self.ctx.queue.submit([enc.finish()]);
-        let raw = self.ctx.read_buffer(&out_buf, bytes)?;
-        let raw_traps = self.ctx.read_buffer(&traps_buf, bytes)?;
-        let rows: Vec<[f32; 4]> = bytemuck::pod_collect_to_vec(&raw);
-        let traps: Vec<[f32; 4]> = bytemuck::pod_collect_to_vec(&raw_traps);
-        Ok(rows
-            .iter()
-            .zip(&traps)
-            .map(|(r, t)| DeSample {
-                material: r[3] as u32,
-                distance: r[0],
-                traps: *t,
-                iterations: r[2] as u32,
-            })
-            .collect())
-    }
-
     /// Runs `f` inside OutOfMemory and Validation error scopes; a captured GPU
     /// error becomes an `Err`, unless `f` itself already failed.
     pub(crate) fn with_scopes<T>(&self, f: impl FnOnce() -> Result<T>) -> Result<T> {
@@ -649,6 +692,38 @@ impl Renderer {
         session.readback()
     }
 
+    /// Final export with host assembly and bounded tile buffers. The output
+    /// remains linear HDR; develop it once after the workers have finished.
+    pub fn export(
+        &self,
+        scene: &Scene,
+        cfg: &RenderConfig,
+        mode: crate::ExportMode,
+        progress: &mut dyn FnMut(&Progress),
+    ) -> Result<RenderOutput> {
+        let mut session = crate::ExportSession::new(self.clone(), scene, cfg, mode)?;
+        let start = Instant::now();
+        loop {
+            if cfg
+                .time_budget
+                .is_some_and(|budget| start.elapsed() >= budget)
+            {
+                break;
+            }
+            let slice = cfg
+                .time_budget
+                .map_or(Duration::from_millis(250), |budget| {
+                    Duration::from_millis(250).min(budget.saturating_sub(start.elapsed()))
+                });
+            let done = session.step(slice)?;
+            progress(&session.progress());
+            if done {
+                break;
+            }
+        }
+        session.readback()
+    }
+
     /// Submits one tile dispatch and blocks until the GPU finishes, returning
     /// the wall time so the caller can police the TDR limit.
     pub(crate) fn dispatch(
@@ -658,6 +733,7 @@ impl Renderer {
         w: u32,
         h: u32,
         workgroup: [u32; 2],
+        profile: Option<&crate::execution_profile::ExecutionProfile>,
     ) -> Result<Duration> {
         let mut enc = self.ctx.device.create_command_encoder(&Default::default());
         {
@@ -666,10 +742,14 @@ impl Renderer {
             pass.set_bind_group(0, bind_group, &[]);
             pass.dispatch_workgroups(w.div_ceil(workgroup[0]), h.div_ceil(workgroup[1]), 1);
         }
+        let _activity =
+            profile.map(|p| p.enter(self.ctx.info.device_type == wgpu::DeviceType::Cpu));
         let t0 = Instant::now();
-        self.ctx.queue.submit([enc.finish()]);
+        let submission = self.ctx.queue.submit([enc.finish()]);
         let polled = self.ctx.device.poll(wgpu::PollType::Wait {
-            submission_index: None,
+            // Studio shares this queue with UI/preview submissions. Wait for
+            // this dispatch, rather than unrelated work submitted afterwards.
+            submission_index: Some(submission),
             timeout: Some(DISPATCH_TIMEOUT),
         });
         match polled {
@@ -697,8 +777,11 @@ fn build_and_cache(
     layouts: &Layouts,
     cache: &PipelineCache,
     c: Compiled,
+    constants: Option<&crate::shader_source::CpuExportConstants>,
 ) -> Result<Arc<CompiledPipeline>> {
-    let p = Arc::new(CompiledPipeline::build(device, layouts, c)?);
+    let p = Arc::new(CompiledPipeline::build_specialized(
+        device, layouts, c, None, false, false, constants, 0,
+    )?);
     cache.insert(p.clone());
     Ok(p)
 }

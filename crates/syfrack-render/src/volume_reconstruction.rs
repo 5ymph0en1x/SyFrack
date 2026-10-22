@@ -28,9 +28,11 @@ struct Model {
     peak: f64,
 }
 
-/// Primary lighting uses smaller supports to preserve beam profiles.
+/// Primary lighting contains narrow projector shafts, unlike indirect haze.
+/// Limit support to 2.5% of the short side: a 10% support erased real beams
+/// into a broad fog wash even when the raw line integral resolved them.
 pub fn reconstruct(image: &HdrImage, variance: &[[f32; 3]], transmission: &[f32]) -> HdrImage {
-    reconstruct_lapped(image, variance, transmission, 0.10, 80)
+    reconstruct_lapped(image, variance, transmission, 0.025, 160)
 }
 /// Indirect volume transport has larger dispersion and spatial supports.
 pub fn reconstruct_indirect(
@@ -277,6 +279,42 @@ fn reconstruct_lapped(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn narrow_direct_beam_retains_profile_colour_and_energy() {
+        let (w, h) = (256, 256);
+        let image = HdrImage::from_data(
+            w as u32,
+            h as u32,
+            (0..w * h)
+                .map(|i| {
+                    let x = (i % w) as f32;
+                    let y = (i / w) as f32;
+                    let distance = x - (128.0 + 0.35 * (y - 128.0));
+                    let beam = (-0.5 * (distance / 3.0).powi(2)).exp();
+                    [0.18 * beam, 0.60 * beam, beam, 1.0]
+                })
+                .collect(),
+        );
+        let out = reconstruct(&image, &vec![[0.5; 3]; w * h], &vec![0.8; w * h]);
+        assert!(
+            out.get(128, 128)[2] > 0.70,
+            "a resolved shaft must not dissolve into haze"
+        );
+        assert!(
+            out.get(146, 128)[2] < 0.015,
+            "light must not spread far outside the beam"
+        );
+        let before: f64 = image.data.iter().map(|p| f64::from(p[2])).sum();
+        let after: f64 = out.data.iter().map(|p| f64::from(p[2])).sum();
+        assert!(
+            (after / before - 1.0).abs() < 0.03,
+            "retain integrated beam energy"
+        );
+        for p in &out.data {
+            assert!((p[0] - 0.18 * p[2]).abs() < 1e-6);
+            assert!((p[1] - 0.60 * p[2]).abs() < 1e-6);
+        }
+    }
     #[test]
     fn affine_colour_mixtures_survive_borders_and_optical_discontinuities() {
         let (w, h) = (71, 53);

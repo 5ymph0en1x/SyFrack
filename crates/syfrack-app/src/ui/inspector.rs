@@ -7,6 +7,10 @@ use crate::ui::{panels, theme, workshops};
 pub const WIDTH: f32 = 420.0;
 
 pub fn show(ui: &mut Ui, state: &mut AppState, _library: &[crate::library::LibraryEntry]) {
+    if state.interface == crate::interface::InterfaceMode::Simple {
+        super::simple::show(ui, state);
+        return;
+    }
     ui.add_space(4.0);
     let pages = workshops::pages(state.scene.dimension);
     if !pages.contains(&state.inspector) {

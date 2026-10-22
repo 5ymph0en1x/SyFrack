@@ -30,10 +30,10 @@ class ReleaseTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        self.archive = self.root / 'SyFrack-v0.1.0-windows-x64.zip'
+        self.archive = self.root / 'SyFrack-v0.2.0-windows-x64.zip'
         with zipfile.ZipFile(self.archive, 'w') as bundle:
             bundle.writestr(self.archive.stem + '/BUILD_INFO.json', json.dumps({
-                'tag': 'v0.1.0', 'revision': REVISION, 'target': package.TARGET,
+                'tag': 'v0.2.0', 'revision': REVISION, 'target': package.TARGET,
                 'profile': 'release', 'c_runtime': 'static',
             }))
         self.write_checksum()
@@ -45,12 +45,12 @@ class ReleaseTests(unittest.TestCase):
 
     def publish(self):
         with contextlib.redirect_stdout(io.StringIO()):
-            publisher.publish('v0.1.0', REVISION, self.root, 'owner/SyFrack')
+            publisher.publish('v0.2.0', REVISION, self.root, 'owner/SyFrack')
 
     def test_version_tag_must_match_the_workspace(self):
-        (self.root / 'Cargo.toml').write_text('[workspace.package]\nversion = "0.1.0"\n')
-        self.assertEqual(package.validate_tag('v0.1.0', self.root), '0.1.0')
-        for tag in ['v0.2.0', '../v0.1.0', 'v0.1.0\nrevision=x', '--help']:
+        (self.root / 'Cargo.toml').write_text('[workspace.package]\nversion = "0.2.0"\n')
+        self.assertEqual(package.validate_tag('v0.2.0', self.root), '0.2.0')
+        for tag in ['v0.3.0', '../v0.2.0', 'v0.2.0\nrevision=x', '--help']:
             with self.subTest(tag=tag), self.assertRaises(ValueError):
                 package.validate_tag(tag, self.root)
 
@@ -131,7 +131,7 @@ class ReleaseTests(unittest.TestCase):
         with patch.object(publisher, 'gh', side_effect=[
                 '{"object":{"type":"tag","sha":"tag-object"}}',
                 json.dumps({'object': {'type': 'commit', 'sha': REVISION}})]):
-            self.assertEqual(publisher.remote_revision('owner/SyFrack', 'v0.1.0'), REVISION)
+            self.assertEqual(publisher.remote_revision('owner/SyFrack', 'v0.2.0'), REVISION)
 
 
 if __name__ == '__main__':

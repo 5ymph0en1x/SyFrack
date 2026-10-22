@@ -3,6 +3,7 @@ use super::{
     file_browser::{open_dialog, FileAction},
     render_panel, theme,
 };
+use crate::interface::InterfaceMode;
 use crate::state::{AppState, Tab};
 use egui::{Align, Id, Layout, RichText, Stroke, Ui, Vec2};
 use syfrack_core::Dimension;
@@ -17,7 +18,7 @@ pub(super) fn show(ui: &mut Ui, state: &mut AppState) {
         .show(ui, |ui| {
             ui.spacing_mut().item_spacing.x = 6.0;
             ui.spacing_mut().button_padding = Vec2::new(10.0, 6.0);
-            let wide = ui.available_width() >= 1160.0;
+            let wide = ui.available_width() >= 1500.0;
             ui.horizontal(|ui| {
                 document_actions(ui, state);
                 ui.separator();
@@ -54,17 +55,27 @@ fn document_actions(ui: &mut Ui, state: &mut AppState) {
     ui.add_space(6.0);
     ui.menu_button(syfrack_i18n::tr!("Fichier"), |ui| {
         if ui
-            .button(syfrack_i18n::tr!("Ouvrir…                 Ctrl+O"))
+            .button(if state.tab == Tab::Mosaic {
+                syfrack_i18n::tr!("Ouvrir une image / un projet…")
+            } else {
+                syfrack_i18n::tr!("Ouvrir…                 Ctrl+O")
+            })
             .clicked()
         {
-            open_dialog(ui, state, FileAction::Open);
+            if state.tab == Tab::Mosaic {
+                super::mosaic::choose_image(ui, state);
+            } else {
+                open_dialog(ui, state, FileAction::Open);
+            }
             ui.close();
         }
         if ui
             .button(syfrack_i18n::tr!("Enregistrer             Ctrl+S"))
             .clicked()
         {
-            if state.path.is_some() {
+            if state.tab == Tab::Mosaic {
+                super::mosaic::request_export(ui.ctx());
+            } else if state.path.is_some() {
                 state.save();
             } else {
                 open_dialog(ui, state, FileAction::SaveAs);
@@ -75,15 +86,48 @@ fn document_actions(ui: &mut Ui, state: &mut AppState) {
             .button(syfrack_i18n::tr!("Enregistrer sous…   Ctrl+Maj+S"))
             .clicked()
         {
-            open_dialog(ui, state, FileAction::SaveAs);
+            if state.tab == Tab::Mosaic {
+                super::mosaic::request_export(ui.ctx());
+            } else {
+                open_dialog(ui, state, FileAction::SaveAs);
+            }
             ui.close();
         }
     });
-    if history_button(ui, state.can_undo(), false).clicked() {
-        state.undo();
+    let mosaic = state.tab == Tab::Mosaic;
+    if history_button(
+        ui,
+        if mosaic {
+            super::mosaic::history(ui.ctx(), false, false)
+        } else {
+            state.can_undo()
+        },
+        false,
+    )
+    .clicked()
+    {
+        if mosaic {
+            super::mosaic::history(ui.ctx(), false, true);
+        } else {
+            state.undo();
+        }
     }
-    if history_button(ui, state.can_redo(), true).clicked() {
-        state.redo();
+    if history_button(
+        ui,
+        if mosaic {
+            super::mosaic::history(ui.ctx(), true, false)
+        } else {
+            state.can_redo()
+        },
+        true,
+    )
+    .clicked()
+    {
+        if mosaic {
+            super::mosaic::history(ui.ctx(), true, true);
+        } else {
+            state.redo();
+        }
     }
 }
 
@@ -155,7 +199,7 @@ fn navigation(ui: &mut Ui, state: &mut AppState) {
                                     .frame(state.scene.dimension == dimension),
                             )
                             .on_hover_text(syfrack_i18n::tr_format!(
-                                "Atelier {label} · chaque atelier conserve sa composition",
+                                "Vue {label} · le même graphe et la même scène",
                                 label = label
                             ));
                         #[cfg(test)]
@@ -163,7 +207,27 @@ fn navigation(ui: &mut Ui, state: &mut AppState) {
                             d.insert_temp(Id::new(("dimension", label)), response.rect)
                         });
                         if response.clicked() {
-                            state.switch_dimension(dimension);
+                            if state.tab == Tab::Mosaic {
+                                state.tab = Tab::Atelier;
+                            }
+                            let needs_pattern = state.interface == InterfaceMode::Simple
+                                && dimension == Dimension::TwoD
+                                && state.scene.creation_draft.is_none()
+                                && state.scene.creation.as_ref().is_some_and(|g| {
+                                    g.nodes
+                                        .iter()
+                                        .find(|n| {
+                                            matches!(n.kind, syfrack_core::CreationKind::Output)
+                                        })
+                                        .is_some_and(|n| g.input(n.id, 1).is_none())
+                                });
+                            if needs_pattern {
+                                if let Err(error) = super::creation::add_pattern(state) {
+                                    state.banner = Some(crate::state::Banner::error(error));
+                                }
+                            } else {
+                                state.switch_dimension(dimension);
+                            }
                         }
                     }
                 });
@@ -178,8 +242,13 @@ fn navigation(ui: &mut Ui, state: &mut AppState) {
         ),
         (
             Tab::Forme,
-            syfrack_i18n::tr!("Forme"),
+            syfrack_i18n::tr!("Graphe"),
             syfrack_i18n::tr!("Construire par étapes ou relier les nœuds"),
+        ),
+        (
+            Tab::Mosaic,
+            syfrack_i18n::tr!("MOSAÏQUE"),
+            syfrack_i18n::tr!("Transformer une image en mosaïque de fractales"),
         ),
         (
             Tab::Galerie,
@@ -187,7 +256,9 @@ fn navigation(ui: &mut Ui, state: &mut AppState) {
             syfrack_i18n::tr!("Retrouver les rendus et reprendre les calculs"),
         ),
     ] {
-        if state.scene.dimension == Dimension::TwoD && tab == Tab::Forme {
+        if state.interface == InterfaceMode::Simple
+            && (tab == Tab::Forme || (tab == Tab::Mosaic && state.tab != Tab::Mosaic))
+        {
             continue;
         }
         let selected = state.tab == tab;
@@ -216,6 +287,46 @@ fn navigation(ui: &mut Ui, state: &mut AppState) {
             state.tab = tab;
         }
     }
+    if state.interface == InterfaceMode::Simple {
+        let tools = ui.menu_button(syfrack_i18n::tr!("Outils"), |ui| {
+            let mosaic = ui.button(syfrack_i18n::tr!("MOSAÏQUE"));
+            #[cfg(test)]
+            ui.data_mut(|d| d.insert_temp(Id::new("simple-mosaic"), mosaic.rect));
+            if mosaic.clicked() {
+                state.tab = Tab::Mosaic;
+                ui.close();
+            }
+            let graph = ui.button(syfrack_i18n::tr!("Graphe · interface avancée"));
+            #[cfg(test)]
+            ui.data_mut(|d| d.insert_temp(Id::new("simple-graph"), graph.rect));
+            if graph.clicked() {
+                state.set_interface(InterfaceMode::Advanced);
+                state.tab = Tab::Forme;
+                ui.close();
+            }
+        });
+        #[cfg(test)]
+        ui.data_mut(|d| d.insert_temp(Id::new("simple-tools"), tools.response.rect));
+        let _ = tools;
+    }
+    ui.separator();
+    ui.label(
+        RichText::new(syfrack_i18n::tr!("Interface"))
+            .small()
+            .color(theme::TEXT_DIM),
+    );
+    ui.push_id("interface-mode", |ui| {
+        for mode in InterfaceMode::ALL {
+            let response = ui
+                .selectable_label(state.interface == mode, mode.label())
+                .on_hover_text(mode.description());
+            #[cfg(test)]
+            ui.data_mut(|d| d.insert_temp(Id::new(("interface-mode", mode)), response.rect));
+            if response.clicked() {
+                state.set_interface(mode);
+            }
+        }
+    });
 }
 
 fn document_title(ui: &mut Ui, state: &AppState, width: f32) {
@@ -223,13 +334,17 @@ fn document_title(ui: &mut Ui, state: &AppState, width: f32) {
         Vec2::new(width, 28.0),
         Layout::left_to_right(Align::Center),
         |ui| {
-            let name = state
-                .path
-                .as_ref()
-                .and_then(|p| p.file_stem())
-                .map(|n| n.to_string_lossy().into_owned())
-                .unwrap_or_else(|| syfrack_i18n::tr!("Scène sans nom").into());
-            let modified = state.is_modified();
+            let name = if state.tab == Tab::Mosaic {
+                super::mosaic::title(ui.ctx())
+            } else {
+                state
+                    .path
+                    .as_ref()
+                    .and_then(|p| p.file_stem())
+                    .map(|n| n.to_string_lossy().into_owned())
+                    .unwrap_or_else(|| syfrack_i18n::tr!("Scène sans nom").into())
+            };
+            let modified = state.tab != Tab::Mosaic && state.is_modified();
             let title = ui
                 .scope(|ui| {
                     ui.set_max_width((width - if modified { 66.0 } else { 0.0 }).max(16.0));
@@ -266,16 +381,29 @@ fn actions(ui: &mut Ui, state: &mut AppState) {
     let response = ui
         .add(
             egui::Button::new(
-                RichText::new(syfrack_i18n::tr!("Rendre / Exporter")).color(theme::BG),
+                RichText::new(if state.tab == Tab::Mosaic {
+                    syfrack_i18n::tr!("Exporter la mosaïque…")
+                } else {
+                    syfrack_i18n::tr!("Rendre / Exporter")
+                })
+                .color(theme::BG),
             )
             .fill(theme::ACCENT)
             .min_size(Vec2::new(138.0, 30.0)),
         )
-        .on_hover_text(syfrack_i18n::tr!("Préparer le rendu final · Ctrl+Entrée"));
+        .on_hover_text(if state.tab == Tab::Mosaic {
+            syfrack_i18n::tr!("Exporter la mosaïque…")
+        } else {
+            syfrack_i18n::tr!("Préparer le rendu final · Ctrl+Entrée")
+        });
     #[cfg(test)]
     ui.data_mut(|d| d.insert_temp(Id::new("render-open-button"), response.rect));
     if response.clicked() {
-        ui.data_mut(|d| d.insert_temp(render_panel::toggle_id(), true));
+        if state.tab == Tab::Mosaic {
+            super::mosaic::request_export(ui.ctx());
+        } else {
+            ui.data_mut(|d| d.insert_temp(render_panel::toggle_id(), true));
+        }
     }
     ui.separator();
     let display = ui.menu_button(syfrack_i18n::tr!("Affichage"), |ui| {

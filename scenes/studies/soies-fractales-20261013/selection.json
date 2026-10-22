@@ -1,0 +1,52 @@
+[
+  {
+    "name": "soie-de-feu",
+    "family": "Julia",
+    "julia": [
+      -0.8,
+      0.156
+    ],
+    "center": [
+      0.08,
+      0.02
+    ],
+    "zoom": 5,
+    "angle": 23,
+    "iterations": 192,
+    "stripes": 8,
+    "frequency": 13,
+    "weights": [
+      1,
+      0.08,
+      0.18,
+      0
+    ],
+    "title": "Soie de feu",
+    "source_study": "02-julia-soie"
+  },
+  {
+    "name": "nacre-boreale",
+    "family": "Julia",
+    "julia": [
+      -0.74543,
+      0.11301
+    ],
+    "center": [
+      -0.15,
+      0.05
+    ],
+    "zoom": 2.8,
+    "iterations": 192,
+    "stripes": 17,
+    "frequency": 13,
+    "weights": [
+      0.8,
+      0.15,
+      0.18,
+      0
+    ],
+    "palette": "nacre",
+    "title": "Nacre boréale",
+    "source_study": "20-julia-glace"
+  }
+]

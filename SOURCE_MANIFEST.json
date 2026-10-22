@@ -1,14 +1,14 @@
 {
   "format": 1,
-  "generated_at_utc": "2026-10-15T05:29:41.460000+00:00",
+  "generated_at_utc": "2026-10-22T04:04:54.718537+00:00",
   "purpose": "Local source preparation; no Git initialization, remote or upload",
-  "file_count": 306,
-  "total_bytes": 23068187,
+  "file_count": 665,
+  "total_bytes": 63662741,
   "files": [
     {
       "path": ".gitattributes",
-      "bytes": 288,
-      "sha256": "62a8b521b5dddc09c4aef7ac95c71d67be0bd9a651a309c8e6f71e5913a43479"
+      "bytes": 301,
+      "sha256": "be334e8e54837bd2599ce3aa05486cdd29a4e2285c3dd3b11a430c5cdd94e3a5"
     },
     {
       "path": ".github/ISSUE_TEMPLATE/bug_report.md",
@@ -22,23 +22,23 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "bytes": 1105,
-      "sha256": "f888023850c30a94e8f81a262a3cd860479cdcba9869337d0f12770d2bf186e8"
+      "bytes": 1125,
+      "sha256": "48308e9334459d8e4c1e639edb9725a852c73203c8a7b07cd585086b1a4494af"
     },
     {
       "path": ".github/workflows/release.yml",
-      "bytes": 4287,
-      "sha256": "aba3f040bc4a11a5eef046884fff0feacbc7a281e354a09c9695c0a074177722"
+      "bytes": 4307,
+      "sha256": "a317ee288054e176d4fff89ec7c20666eb4874ae1ed287dec21b30fdafc43627"
     },
     {
       "path": ".gitignore",
-      "bytes": 210,
-      "sha256": "3a5f80164cfeb5c84e3035b0aa6d24bf01fd1651766d749e358e2cb5422ac7e9"
+      "bytes": 355,
+      "sha256": "97113bf9876a53a3883ad10ad1df310f279b469c8e1d070716e85054dbc03102"
     },
     {
       "path": "CHANGELOG.md",
-      "bytes": 816,
-      "sha256": "ad5e69a0c9a3ccd45a1962ea286a5554e5e93af0189b6728aaf1fef91d89dd0c"
+      "bytes": 2676,
+      "sha256": "eeadc7f37bdfdb2831ae1ab880941708ddc177e79f1056709ebaf56fd3602848"
     },
     {
       "path": "CONTRIBUTING.md",
@@ -47,13 +47,13 @@
     },
     {
       "path": "Cargo.lock",
-      "bytes": 98350,
-      "sha256": "572ef03bb0cbaa97abe113206ea22df1f6213591b6ca127cee720d298164baa2"
+      "bytes": 98431,
+      "sha256": "975f7e6a6945fd82a4f4b496a48a1497e2164d2d77b9db3865d6d03178343d29"
     },
     {
       "path": "Cargo.toml",
       "bytes": 1214,
-      "sha256": "70da84ff5fd96cec7ed8fac72b4f188f67bf62388c8c3ebf7aee5a1905357cb3"
+      "sha256": "5038a945635331df33d030900f44f49a320d36a496022323bb4551587161ecc1"
     },
     {
       "path": "LICENSE",
@@ -62,18 +62,18 @@
     },
     {
       "path": "README.fr.md",
-      "bytes": 3835,
-      "sha256": "4824db910114a532ed9fc0e832385a946f8c8848285969eb96e5d783dcd4bdd9"
+      "bytes": 5319,
+      "sha256": "bd427a470a43fed58f6cd87191be58208699071872492493359c29ebeaa40c34"
     },
     {
       "path": "README.md",
-      "bytes": 5315,
-      "sha256": "252b55fe373d097fb819827e93ff18c098f8f69eeeab7c2f456607b301db9602"
+      "bytes": 6469,
+      "sha256": "7dc7d92e3042f394b1c2e9a012bed23784cb5ed3b482a629624a97df5654dfd4"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 2255,
-      "sha256": "2de44c4ac349c34b536e81ce6de438471b6ee9e961ef49f708ffdce3dfdf3650"
+      "bytes": 2506,
+      "sha256": "c7cd7e622e1246529fe101d83fa1e24d9eda93bf79fe9a6d904cc14b1510e2e3"
     },
     {
       "path": "assets/hdri/kloppenheim_06_puresky_2k.hdr",
@@ -117,8 +117,8 @@
     },
     {
       "path": "crates/syfrack-app/Cargo.toml",
-      "bytes": 613,
-      "sha256": "df657abce574fa77e9de6bf31d5027388fb077ea05bfa1abcee40bd684e0a254"
+      "bytes": 636,
+      "sha256": "47ccd5aa5ae101b2db2dce72997d2ddb8c46893d39d43b87974c900d748420cf"
     },
     {
       "path": "crates/syfrack-app/assets/make_symbols.py",
@@ -142,8 +142,8 @@
     },
     {
       "path": "crates/syfrack-app/examples/studio_capture.rs",
-      "bytes": 19017,
-      "sha256": "2c747129dd8ca441adc5344b122c369a47ce58c1cfa60f94aabb21ec3cb31952"
+      "bytes": 23911,
+      "sha256": "d20695ef69fd1dacc5455535592707fe06a6d5b98fc436d690c5c2f71dcc5bc2"
     },
     {
       "path": "crates/syfrack-app/src/canvas.rs",
@@ -167,8 +167,8 @@
     },
     {
       "path": "crates/syfrack-app/src/final_render.rs",
-      "bytes": 13708,
-      "sha256": "4de6ec796a99791ec2a47fff33eb4695727f82ac998dd6c5a64f67155c0d0d31"
+      "bytes": 14560,
+      "sha256": "1f6f1065c027353500a11e290a5c8def222edd20271cb539242d152cf250ef8a"
     },
     {
       "path": "crates/syfrack-app/src/gallery.rs",
@@ -187,13 +187,18 @@
     },
     {
       "path": "crates/syfrack-app/src/input.rs",
-      "bytes": 12747,
-      "sha256": "603b9f2c050fc66ef6e97587c77d53e7c01560c2f9bd2293bf56617479873746"
+      "bytes": 13166,
+      "sha256": "6bffbc31df4d137902e428a6ef85d8a087a9dc0691d1c7d84eb3c33ca3af97f3"
+    },
+    {
+      "path": "crates/syfrack-app/src/interface.rs",
+      "bytes": 2461,
+      "sha256": "4c6de76984936836b6fd21ffcfae8c911794c43b21e3b34ee58be54223b88f97"
     },
     {
       "path": "crates/syfrack-app/src/lib.rs",
-      "bytes": 252,
-      "sha256": "f2a01a8d7850a757d775a2260addbef1a670de011835c55e00a6875beb8bb800"
+      "bytes": 271,
+      "sha256": "6c7d96b2966bad29342e86940f966d61dc96fcc6d35ecc4ac0280088becae3d9"
     },
     {
       "path": "crates/syfrack-app/src/library.rs",
@@ -202,8 +207,8 @@
     },
     {
       "path": "crates/syfrack-app/src/main.rs",
-      "bytes": 25831,
-      "sha256": "596318719844aa3eb077650f4a6650f4d210fb35160b183234bb1c50250a6aa2"
+      "bytes": 28849,
+      "sha256": "805bd99480f0c87f47d1d3fc04b152696804ba013a2885a15728889e9864969f"
     },
     {
       "path": "crates/syfrack-app/src/paths.rs",
@@ -212,8 +217,8 @@
     },
     {
       "path": "crates/syfrack-app/src/preview.rs",
-      "bytes": 31829,
-      "sha256": "6c37b37ef772272e5cfbb6db1c272fa23b7149756fd1b546cdfe000e9676679c"
+      "bytes": 49659,
+      "sha256": "9e1cb47374ed3a5244cb4a00ef44ca6ea005309a66bf2690c6db053d9bc53ec4"
     },
     {
       "path": "crates/syfrack-app/src/shaders/display.wgsl",
@@ -222,18 +227,33 @@
     },
     {
       "path": "crates/syfrack-app/src/state.rs",
-      "bytes": 28654,
-      "sha256": "42b0aa0e66926ae896a847e92d1a8f9d1d37dbf19bbe083fdbde859c507fca9c"
+      "bytes": 29789,
+      "sha256": "b765219052fa14bade4bf4b9a569d429c2cf2be41b5c0903e0d5f488496058c3"
     },
     {
       "path": "crates/syfrack-app/src/ui/chrome.rs",
-      "bytes": 12297,
-      "sha256": "87ebb2829ec9f12bc4124c3e84be25051fe33109089bf4a4205c379a3afb345e"
+      "bytes": 17010,
+      "sha256": "3d7c0d34bdabe3f419c30557b7af51e6c18233e2a32716db898de87496b68f0c"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/creation.rs",
+      "bytes": 54914,
+      "sha256": "3875da5e25d1bf998d0c43c31e269dde5d38feed4716780e54d61e4fee382b34"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/creation/workflow.rs",
+      "bytes": 28974,
+      "sha256": "9f40b1ac8ca543b49972b76975f29d81a00415e59470912d4987ea118c9a0a0a"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/creation/workspace.rs",
+      "bytes": 49791,
+      "sha256": "2e1be29d0dc0c5e1b19a8f48a7223d7b141cd4e972144957f807d5b02adc1f9f"
     },
     {
       "path": "crates/syfrack-app/src/ui/file_browser.rs",
-      "bytes": 39295,
-      "sha256": "4526b53d2b5da18335d2929385f2ccd6d24089f386fb8a10f17eddbddd6a3ef2"
+      "bytes": 41595,
+      "sha256": "d7edc8c959e119381586110c29df38c1eabfded21da45fef1fc57703a5e4d599"
     },
     {
       "path": "crates/syfrack-app/src/ui/floating.rs",
@@ -272,8 +292,8 @@
     },
     {
       "path": "crates/syfrack-app/src/ui/form_panel/mod.rs",
-      "bytes": 25765,
-      "sha256": "26694f6e28de0283a52cbb3aecd6aedca097a0dc054fc93b5e0147a81fe3d902"
+      "bytes": 27583,
+      "sha256": "af4b6793e5b93a8cabef44e6f8b2f7ff9671f46c3adb07ffb9a07c05f0d1f518"
     },
     {
       "path": "crates/syfrack-app/src/ui/form_panel/radius.rs",
@@ -302,13 +322,33 @@
     },
     {
       "path": "crates/syfrack-app/src/ui/inspector.rs",
-      "bytes": 2731,
-      "sha256": "46b0ddcce83355d72ce6069fb59f8c329abbe4a2e7756e24d7cc8241f1233c6f"
+      "bytes": 2861,
+      "sha256": "e661395e464d24b98dfa760588aa7c458eabd774b8f2a6412de2ed6e6bb2b1c8"
     },
     {
       "path": "crates/syfrack-app/src/ui/mod.rs",
-      "bytes": 11260,
-      "sha256": "a6e27f6759f82d7edcd4c2149d67b90a0ea482177a8fc13d14c06245002d6bb8"
+      "bytes": 12332,
+      "sha256": "a089ea66dd8e9c00307e07611c45888933c79787319385f261133f7e6853763c"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/mosaic.rs",
+      "bytes": 45584,
+      "sha256": "dda76b060ab07337998fc531b980afcda8243863872d6bcc32ef4bec1fb6be9f"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/mosaic/priority.rs",
+      "bytes": 6380,
+      "sha256": "9264d72cfea14b3f985f19129a681ec9172b0ac7bea54316e087fbcf63356a40"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/mosaic/tests.rs",
+      "bytes": 6687,
+      "sha256": "acaca360c820c036301e62eaf0b7874130f7eb269074b3b9bd3308e43985c1cf"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/mosaic/worker.rs",
+      "bytes": 11860,
+      "sha256": "7b799975823e08754eedd2c7b4e80955b49a184d7d3311e84d8cb39c7b183b5e"
     },
     {
       "path": "crates/syfrack-app/src/ui/panels/atmosphere.rs",
@@ -337,8 +377,8 @@
     },
     {
       "path": "crates/syfrack-app/src/ui/panels/material.rs",
-      "bytes": 37430,
-      "sha256": "7cd707b59480292e19941759e57387774f8d53b923fb450dc3f310a0d89c7fe4"
+      "bytes": 37805,
+      "sha256": "f59a79f18b57de6da102ee816539c5571457a2880193306dd9886b39f269ddec"
     },
     {
       "path": "crates/syfrack-app/src/ui/panels/mod.rs",
@@ -346,19 +386,29 @@
       "sha256": "d9404387c9ff4586cf95db46ac7c7feb55f59898d804ba168c6b9e8f413be19c"
     },
     {
+      "path": "crates/syfrack-app/src/ui/phenomena.rs",
+      "bytes": 2502,
+      "sha256": "a7f43043dd21085a280c7153dc172cf98522010f95a051060402e4858173b66c"
+    },
+    {
       "path": "crates/syfrack-app/src/ui/render_panel.rs",
-      "bytes": 39340,
-      "sha256": "b124e7a7654b2ceca21f4eac17b09e4e0e6cb923a137320b68c82a82497b544f"
+      "bytes": 46693,
+      "sha256": "db2af917901975b6a253b2d3c64e84a3b875368055561fb449403b04f3872d34"
     },
     {
       "path": "crates/syfrack-app/src/ui/render_panel/layout.rs",
-      "bytes": 33980,
-      "sha256": "3af1c80eab2d44feeba701229ec65edd1d393a142796e9a48964ac0ecf31374b"
+      "bytes": 34565,
+      "sha256": "5a65d0e9c10e2d9b8893d445f372b6ad19571d24f7ed1e647991021c6018b240"
+    },
+    {
+      "path": "crates/syfrack-app/src/ui/simple.rs",
+      "bytes": 14879,
+      "sha256": "fc6b83f7a49e2fdc79c4e9d2c4294cedfa3443f52e6a8d84a379c4c2221e15be"
     },
     {
       "path": "crates/syfrack-app/src/ui/tests.rs",
-      "bytes": 44417,
-      "sha256": "c7406453a0aedfdde48b6d0d439806794a5ac857e5a016d6d88c1d01f454098b"
+      "bytes": 55544,
+      "sha256": "ef69c6e133f022a2ae17db7a225bca579f4228a69fa450feeae185fc6145998b"
     },
     {
       "path": "crates/syfrack-app/src/ui/texture_preview.rs",
@@ -377,18 +427,23 @@
     },
     {
       "path": "crates/syfrack-app/src/ui/widgets.rs",
-      "bytes": 33431,
-      "sha256": "378352296c9e8ff0c17168d18f0d7d951a89bc83bbef67f55e4c38bd550809d7"
+      "bytes": 33459,
+      "sha256": "3473496d6093022ac12c247b490bf42879475fc61dc017faa9ce8a0e06b82de5"
     },
     {
       "path": "crates/syfrack-app/src/ui/workshops.rs",
-      "bytes": 43024,
-      "sha256": "0d7c23ec51b09cfba796868fbbf949f6b2ced669263c97ed9687f1e1f973123a"
+      "bytes": 44789,
+      "sha256": "79b763a3d89bc8d999d232d878cd0bf750c4caabe5f1c4646675757a9ef23146"
     },
     {
       "path": "crates/syfrack-app/src/window.rs",
       "bytes": 4612,
       "sha256": "d402dd0d77e378025e0980d84045fd38ef94f47b133ce881aa7b5d3e62629b56"
+    },
+    {
+      "path": "crates/syfrack-app/tests/gpu_control_preview.rs",
+      "bytes": 4962,
+      "sha256": "eead27f37fc313c760c8e1bd1d1edb982baaeddb623e86a4960bb00f813e7971"
     },
     {
       "path": "crates/syfrack-app/tests/gpu_display.rs",
@@ -397,8 +452,8 @@
     },
     {
       "path": "crates/syfrack-app/tests/gpu_final_render.rs",
-      "bytes": 15035,
-      "sha256": "fd5e2c55d7e961b4a7db7c05bdff0ecd4d00f1d879b326e312b839bb98b3bff8"
+      "bytes": 15932,
+      "sha256": "7b79ddf9cec5b565d5fb764649ca6bdbb44d05e1aa88a4ddf0973ebb92fafce2"
     },
     {
       "path": "crates/syfrack-app/tests/gpu_pick.rs",
@@ -427,18 +482,33 @@
     },
     {
       "path": "crates/syfrack-cli/src/main.rs",
-      "bytes": 25889,
-      "sha256": "afa9deff643f646bce94c0091d7613dcf7eb96c7a07339c7d6cfe90374e54f4b"
+      "bytes": 35561,
+      "sha256": "d16dba8a070c9649730ba6fbc581a6c0082a7e33c4d9a77375536ef0169e9c2c"
+    },
+    {
+      "path": "crates/syfrack-cli/src/mosaic.rs",
+      "bytes": 6472,
+      "sha256": "5bf495fd1cfac6d180931befc40920fdf11c20073133003775977e8211f782d6"
+    },
+    {
+      "path": "crates/syfrack-cli/src/nature.rs",
+      "bytes": 4889,
+      "sha256": "4260a23af7986b3763835778f21cdd6648e21bab6485c2eb0f1c2db0884a7a5b"
+    },
+    {
+      "path": "crates/syfrack-cli/tests/mosaic_cli.rs",
+      "bytes": 2844,
+      "sha256": "48c94eccbf5e2e5f4bc9a80ab039a24c03ebd8f16c5b555cebc575fe40ed1302"
     },
     {
       "path": "crates/syfrack-cli/tests/render_cli.rs",
-      "bytes": 19463,
-      "sha256": "bd53cc5f0aa1ac83766de9b5f054cf6a4fcd820031a4c468df0ae67e9c28df68"
+      "bytes": 20489,
+      "sha256": "fb0d11bb1309d20cfb888d8f0be380d640a729790b9466e9a6da667800c5293b"
     },
     {
       "path": "crates/syfrack-color/Cargo.toml",
-      "bytes": 220,
-      "sha256": "785dd2a9b4173a952e584d6b3ed745fd95eb1af3b39ab4b45f7cf5e3c2fdd421"
+      "bytes": 344,
+      "sha256": "1fba3c7c8eb1f7109088a0af856b1d8615df759525c601db95d4f7afed9f3e7a"
     },
     {
       "path": "crates/syfrack-color/src/balance.rs",
@@ -462,8 +532,8 @@
     },
     {
       "path": "crates/syfrack-color/src/export.rs",
-      "bytes": 11653,
-      "sha256": "aafeb1c79262ee83d9ab90d29dd7b14247687a6502ac8ee2e049bf6db1ece75a"
+      "bytes": 13102,
+      "sha256": "5d8e75837ffeec49898d3c3ca80a6814b3995182c4c7cc1f8315d36d7d28ae96"
     },
     {
       "path": "crates/syfrack-color/src/exposure.rs",
@@ -482,8 +552,8 @@
     },
     {
       "path": "crates/syfrack-color/src/lib.rs",
-      "bytes": 402,
-      "sha256": "29ccb0a36f3cb2a8c04c89689e4852e4f00ee49e64e1fe41d8b30dbac60f3795"
+      "bytes": 418,
+      "sha256": "8fa630b67459df66acf31ca7a7b8a675349a22bad2e1dc1a094040011dca0fc9"
     },
     {
       "path": "crates/syfrack-color/src/neon.rs",
@@ -494,6 +564,11 @@
       "path": "crates/syfrack-color/src/saturation.rs",
       "bytes": 1726,
       "sha256": "624d0d20b08f361be5b0d6f3080953b072e5b4eaef7aee661aaa6599c9b8815a"
+    },
+    {
+      "path": "crates/syfrack-color/src/source.rs",
+      "bytes": 8323,
+      "sha256": "13413e690da6c8c77e926cdf1021ad2594362130a11da8225ef5d58036c6d94d"
     },
     {
       "path": "crates/syfrack-color/src/tonemap.rs",
@@ -522,8 +597,13 @@
     },
     {
       "path": "crates/syfrack-core/src/lib.rs",
-      "bytes": 148,
-      "sha256": "e7eb21210b43abd98be3b7713f47845d7074d31e29527ff6ef193a1c1eb0ea40"
+      "bytes": 164,
+      "sha256": "d067edd8f18811a7cf6aa30dc9106c7566acee88f2c9ecff65f2e32d326821e1"
+    },
+    {
+      "path": "crates/syfrack-core/src/mosaic.rs",
+      "bytes": 4249,
+      "sha256": "d293ea635319d7a3a7f5524d731dc444c5c28de6ae06b5474e7df53e61b53437"
     },
     {
       "path": "crates/syfrack-core/src/params.rs",
@@ -542,8 +622,13 @@
     },
     {
       "path": "crates/syfrack-core/src/scene/clay.rs",
-      "bytes": 4216,
-      "sha256": "55c41f4c7350a44e14b04f96667b8638a0e6ee9bf3f0cc2e199f4aa9a843a4cb"
+      "bytes": 4659,
+      "sha256": "18065b266fe90d16c82fa1a55e2b417641ec84acb14531f4437bdefc1ae58835"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/creation.rs",
+      "bytes": 51026,
+      "sha256": "d884f34c8f0557245e537b5a72cf1fa072fe4854ebeb9ff5032c2e87f97b4b51"
     },
     {
       "path": "crates/syfrack-core/src/scene/flame.rs",
@@ -561,9 +646,14 @@
       "sha256": "3af9713acec1c737992b9d78efa22bdfa5526903b09dbf4c6ed7a9ca2cedf10f"
     },
     {
+      "path": "crates/syfrack-core/src/scene/graph/bvh.rs",
+      "bytes": 5202,
+      "sha256": "5be2a90c268729388a91b61f51150afe0b22fdd9c0ad8923fa619f383c741708"
+    },
+    {
       "path": "crates/syfrack-core/src/scene/graph/eval.rs",
-      "bytes": 38246,
-      "sha256": "e79389a1b3cf90f9a21e041675dd01b0a8f6a17f9fb34bcc2c68aeda0d7e93e9"
+      "bytes": 40587,
+      "sha256": "4bc4388cb568d857bfc3bf788a383a2f86e1bef72ae7b02b44ebec9865ceac5a"
     },
     {
       "path": "crates/syfrack-core/src/scene/graph/language.rs",
@@ -572,13 +662,13 @@
     },
     {
       "path": "crates/syfrack-core/src/scene/graph/mod.rs",
-      "bytes": 27018,
-      "sha256": "14a512bad23de8aecbf1f33fc57f3a075dce6af9fd6b18695d8bd8be111a70e9"
+      "bytes": 27163,
+      "sha256": "5e46f0e5a8899f35508842f507ab33dd7a11d9643aded79fd93b9627eee74cb1"
     },
     {
       "path": "crates/syfrack-core/src/scene/graph/validate.rs",
-      "bytes": 27411,
-      "sha256": "6a297810503f3addd9fcff6844e0d51f428881411cdfb3270a90189f76e058e7"
+      "bytes": 27431,
+      "sha256": "519377f941cb7e3979b14991d71bbf0465404aa7472f13f850190a8fe77eb52f"
     },
     {
       "path": "crates/syfrack-core/src/scene/light.rs",
@@ -597,8 +687,8 @@
     },
     {
       "path": "crates/syfrack-core/src/scene/mod.rs",
-      "bytes": 32959,
-      "sha256": "577f728331b791c093373ee10cfb4cd85077f9188c3cefa891ea93181d94aa02"
+      "bytes": 39546,
+      "sha256": "1b437d3279edb97916c8923b1511d4e984a95cb6f9ab72cb3a504fe9045ca90d"
     },
     {
       "path": "crates/syfrack-core/src/scene/nebula.rs",
@@ -614,6 +704,51 @@
       "path": "crates/syfrack-core/src/scene/palette.rs",
       "bytes": 8457,
       "sha256": "d457a106daa83680868411493b5244828988babc5e7a44494552fa5d0faae135"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/phenomena/exploration.rs",
+      "bytes": 6504,
+      "sha256": "fc4e74e73351f7c798405df6bc82f91017608ad8e1efdcc64eebfa5114c4a61a"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/phenomena/fields.rs",
+      "bytes": 18659,
+      "sha256": "3a41335a97995adf19aa7151b495b6d7d871a8ffe6d36fcb4694a4c6a4435d3d"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/phenomena/mod.rs",
+      "bytes": 5516,
+      "sha256": "53db98ef0c1c568b9d9140c428bc535442bd148e73cff1f4924db9ddb8331c2f"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/phenomena/optics.rs",
+      "bytes": 8382,
+      "sha256": "13e5ee182d55385f4b117fa3fb71ff4b3f0d9926c2b266e3f7ba9ef5d601b4e4"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/phenomena/params.rs",
+      "bytes": 12105,
+      "sha256": "c076172f6833fa9bf60b25fe21544d09bae17c2b71b445c730eaf399d738e395"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/phenomena/presets.rs",
+      "bytes": 14689,
+      "sha256": "97c4f0986e95c230088a5a41f2987e1fc2d4277a77be11814dae25013c0957df"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/phenomena/relativity.rs",
+      "bytes": 8503,
+      "sha256": "4c81a6b16f0b77375f94a5cd3cc2975d217436ab0fa330452e8900c8d7f2df0f"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/phenomena/simulation.rs",
+      "bytes": 9948,
+      "sha256": "d6c2ea10906c53d0ad28bd211484c2c163d3de4a17a8bb87c6abba2cdbb76bf2"
+    },
+    {
+      "path": "crates/syfrack-core/src/scene/phenomena/sources.rs",
+      "bytes": 4156,
+      "sha256": "ba0474073c41bc8ef6e4f84ec4e29be79412f10e3cfa68f153e0a94436dcfe27"
     },
     {
       "path": "crates/syfrack-core/src/scene/planar.rs",
@@ -637,8 +772,13 @@
     },
     {
       "path": "crates/syfrack-core/tests/architecture.rs",
-      "bytes": 12301,
-      "sha256": "01c1a25d9c8c4038999cd9d1b7026b924ded80cf4840383c14622546a421cb99"
+      "bytes": 14292,
+      "sha256": "6f5f21261a67093999cf562387056ca2898d5a7b82b19afe4d54bcd1772874a4"
+    },
+    {
+      "path": "crates/syfrack-core/tests/creation.rs",
+      "bytes": 11734,
+      "sha256": "28e9cc1af27b90a40d839a14a0693f2815d86e43b0a56f7e47f0599504b81129"
     },
     {
       "path": "crates/syfrack-core/tests/fixtures/parity/mandelbox.ron",
@@ -676,6 +816,11 @@
       "sha256": "8a56d69e84398c878b31f6e94fe90bce44719843b4d04e036afe0a272061c1be"
     },
     {
+      "path": "crates/syfrack-core/tests/phenomena.rs",
+      "bytes": 7515,
+      "sha256": "22f5696fae75bd65441059a59caa30340a7d3bf61eb63c8040982b0267dabf92"
+    },
+    {
       "path": "crates/syfrack-core/tests/photometric.rs",
       "bytes": 1098,
       "sha256": "9e8f9d4580a88b60c2f6a5bbd5274db66d7bde64c3a7f6d95dc93549ff0de47d"
@@ -697,8 +842,8 @@
     },
     {
       "path": "crates/syfrack-i18n/messages.tsv",
-      "bytes": 85268,
-      "sha256": "f8335f7d136384233f17f7e877bd046052d2a0d8185e866d3f76b82d02a21c07"
+      "bytes": 119588,
+      "sha256": "f27d9a1824ad295bf1718afa712aab1b4100d0d10386801dda57a41571f0525c"
     },
     {
       "path": "crates/syfrack-i18n/src/lib.rs",
@@ -707,8 +852,8 @@
     },
     {
       "path": "crates/syfrack-render/Cargo.toml",
-      "bytes": 493,
-      "sha256": "5c08944b123e2bba5547322ade6d45c393867bafe227dc5c927d3b653dcf4aa9"
+      "bytes": 627,
+      "sha256": "a889373561ea064eb8f01bc6a3219a7587de7198c0119c69a9b2d51b03d0a1b6"
     },
     {
       "path": "crates/syfrack-render/examples/backend_study.rs",
@@ -719,6 +864,11 @@
       "path": "crates/syfrack-render/examples/complex_lab.rs",
       "bytes": 2931,
       "sha256": "e62cc8ccc5d3a62ff58c003a533432aca465861e5dc23f15a8cdfb015800522e"
+    },
+    {
+      "path": "crates/syfrack-render/examples/control_profile.rs",
+      "bytes": 3141,
+      "sha256": "340b65f6783e0dd007a7c50de6e182801fa1d3a7249bd5837547105478a0cede"
     },
     {
       "path": "crates/syfrack-render/examples/cyberpunk_scene.rs",
@@ -741,9 +891,29 @@
       "sha256": "dbfb47520e3ebede95d5ddbc39d8884a72ea8174872c4f7f6e71d9385e040c60"
     },
     {
+      "path": "crates/syfrack-render/examples/dimension_duet.rs",
+      "bytes": 18546,
+      "sha256": "86f5d215d3de00bf3cdfa644031f67991121d54774ddada396beff321f115407"
+    },
+    {
       "path": "crates/syfrack-render/examples/duet_lab.rs",
       "bytes": 10473,
       "sha256": "77aed10fa380483e372c53bb1e29d094076a3397e32552506805af7830fa8255"
+    },
+    {
+      "path": "crates/syfrack-render/examples/export_profile.rs",
+      "bytes": 3371,
+      "sha256": "6deb4d5a5407a6d1aa08532c108033891e9e45e0cf33e7a62888d4dccd63c746"
+    },
+    {
+      "path": "crates/syfrack-render/examples/forge_des_mondes.rs",
+      "bytes": 12775,
+      "sha256": "c70cfb148123ae58ba3b66f85c32c0ca4fb49e22a301604542ffe242e08e73fa"
+    },
+    {
+      "path": "crates/syfrack-render/examples/fresco_lab.rs",
+      "bytes": 14364,
+      "sha256": "59b0e439b6eea5b8f47ceaebb98530e38be1cc886a0b49a77dea93e52f6e1a10"
     },
     {
       "path": "crates/syfrack-render/examples/guiding_lab.rs",
@@ -757,13 +927,33 @@
     },
     {
       "path": "crates/syfrack-render/examples/hdri_lab.rs",
-      "bytes": 3493,
-      "sha256": "77de8ab13380102a92e9d0ad94b08ce7d557940bac712b9fedf061ffb145c9ff"
+      "bytes": 3796,
+      "sha256": "dde9681c4c183d94da19a44967d0b826e1438fbfdb013313bda91ecd76829dca"
+    },
+    {
+      "path": "crates/syfrack-render/examples/hybrid_quality.rs",
+      "bytes": 4263,
+      "sha256": "c25bd5a0b5b9a20095e77889fe2fc74aa5e3f45776c480823bf61658b51aed12"
     },
     {
       "path": "crates/syfrack-render/examples/lighting_lab.rs",
       "bytes": 3208,
       "sha256": "338b7a96194e7d7eac62547bd68d6bb72b52ee91ca6eb909bcdea65497a0bccc"
+    },
+    {
+      "path": "crates/syfrack-render/examples/mosaic_refinement.rs",
+      "bytes": 4256,
+      "sha256": "893e7d23759ff39eda142b38ad43c01893cb850d10407547199d946eaf0a47d5"
+    },
+    {
+      "path": "crates/syfrack-render/examples/nature_lab.rs",
+      "bytes": 4066,
+      "sha256": "601faefc9443f15b1fc10130b56b8f1a705c6eaa8b2eaac0647e96c61bc05855"
+    },
+    {
+      "path": "crates/syfrack-render/examples/ocean_des_possibles.rs",
+      "bytes": 29549,
+      "sha256": "d8564f40b472ecd74e692042b40f37d10ea2da163fac4bd55ae6d530a1f3e9ba"
     },
     {
       "path": "crates/syfrack-render/examples/ocean_lab.rs",
@@ -776,9 +966,19 @@
       "sha256": "0cf25aff21fc889c805d142e7121eefb6c3fc409bce077d31ba6bcef55441279"
     },
     {
+      "path": "crates/syfrack-render/examples/reconstruct_sequence.rs",
+      "bytes": 2047,
+      "sha256": "75dfde63f7e0144743aa1e776b7e89f18f7388d4e1789d642d0356297037feb9"
+    },
+    {
       "path": "crates/syfrack-render/examples/render_profile.rs",
       "bytes": 5273,
       "sha256": "6792a6dae986973fd2c1cc3ec18ec75c870af4bca85043bd3d4e588f31a27b3a"
+    },
+    {
+      "path": "crates/syfrack-render/examples/scene_sequence.rs",
+      "bytes": 5799,
+      "sha256": "761a761018da47b7b41dc2c2a2584b408aa923ce96902ca9cd92d2a125d61f0b"
     },
     {
       "path": "crates/syfrack-render/examples/volume_denoise_study.rs",
@@ -801,19 +1001,54 @@
       "sha256": "234004e7b6685db0cb29c4a988152927bc03bdab114f2957fcdf2a7e3b302be1"
     },
     {
+      "path": "crates/syfrack-render/examples/wavefront_benchmark.rs",
+      "bytes": 5174,
+      "sha256": "d4b1b33587e22292ded824fa11dac585ed43d29e32e88a673c72a2de43d4c096"
+    },
+    {
       "path": "crates/syfrack-render/examples/workgroup_profile.rs",
       "bytes": 2080,
       "sha256": "8dc41eb0156be0b50962931a4ef0d3ac9524c0d1f2533cf7afbb7d6c3e160e36"
     },
     {
+      "path": "crates/syfrack-render/src/control/mod.rs",
+      "bytes": 22883,
+      "sha256": "9f890587a44f8d187f1d8f0d9a9cb921181fbb0ec9bab306d46a959527e17423"
+    },
+    {
+      "path": "crates/syfrack-render/src/control/program.rs",
+      "bytes": 18953,
+      "sha256": "43f97a58067bc17a7e3ea74d5e154073938906fb107180854878a36e007bca61"
+    },
+    {
       "path": "crates/syfrack-render/src/denoise.rs",
-      "bytes": 21425,
-      "sha256": "fb203bbb7cb268410fcb349b0680fa5e422a64a3fb79f03f31f4b79bd1074396"
+      "bytes": 22404,
+      "sha256": "aae67d8e3aa7bd36523ccb0779cf07717f5a008a77f07d3f1ba11743a5fe888a"
+    },
+    {
+      "path": "crates/syfrack-render/src/det_math.rs",
+      "bytes": 11445,
+      "sha256": "4af3e738796e71fa55bab53b0a9ad0816de59dcaa1e38aacf6d575a293c4bd4c"
     },
     {
       "path": "crates/syfrack-render/src/environment.rs",
       "bytes": 16466,
       "sha256": "130141326b57a160af8be27c2190a04cf2117b7485955995ca61068faee7f439"
+    },
+    {
+      "path": "crates/syfrack-render/src/execution_profile.rs",
+      "bytes": 5177,
+      "sha256": "e02c37eac5b15d5da90c9d9d140108fdcc7d08f7b1a6c71e14e897bcc3322f41"
+    },
+    {
+      "path": "crates/syfrack-render/src/export.rs",
+      "bytes": 61962,
+      "sha256": "1c41a6a5cc121421102c17721d7e8da86e303831b9014dacf79e3b6273368ba4"
+    },
+    {
+      "path": "crates/syfrack-render/src/export_queue.rs",
+      "bytes": 12468,
+      "sha256": "692a52f23b4e45612867b96842a28759ff953b4ac20dffc6c3501fe2ebd61fe1"
     },
     {
       "path": "crates/syfrack-render/src/flame.rs",
@@ -822,13 +1057,13 @@
     },
     {
       "path": "crates/syfrack-render/src/gpu.rs",
-      "bytes": 7935,
-      "sha256": "6b13c9cced2b352b9523ce2bfba9305f37c92c4fdafe1c6b961f37fa36bae8bb"
+      "bytes": 8985,
+      "sha256": "526b103e6028814eb1b2aa1951fd912e920249b9ac8ae09d54467a1f517b371c"
     },
     {
       "path": "crates/syfrack-render/src/graph_wgsl.rs",
-      "bytes": 71040,
-      "sha256": "895ff1539b1beb354ea7b68a660dbf93491335fa2d3a279ecc9441e64faa0f5f"
+      "bytes": 70512,
+      "sha256": "9b9f7078f7639a3c88c16fbaf76ec51045e3aeeaf3b94885204cb4f9c4f7eae0"
     },
     {
       "path": "crates/syfrack-render/src/guiding.rs",
@@ -836,9 +1071,24 @@
       "sha256": "5947e403ab2134c7cce7f7ba091f1a200555c3d759fc4dde1af9c46d9ef0636e"
     },
     {
+      "path": "crates/syfrack-render/src/hybrid_benchmark.rs",
+      "bytes": 13184,
+      "sha256": "93215d06dee39910f2285369bc1a3b3b3f9241287d7929d033d72626a78a2a03"
+    },
+    {
       "path": "crates/syfrack-render/src/lib.rs",
-      "bytes": 668,
-      "sha256": "6ba0659a64d6d90a00587a3242bd91805526a59f0b776ca1d98b11d79d591072"
+      "bytes": 960,
+      "sha256": "a8b319acfcee316b6cfb17b90b525c1073406a53ee8ba62f26dbfd7ad400c3e3"
+    },
+    {
+      "path": "crates/syfrack-render/src/mosaic.rs",
+      "bytes": 25964,
+      "sha256": "930046ec013020bf589ce764e9c059bf645c231348c552ff634c3c22fb83af0b"
+    },
+    {
+      "path": "crates/syfrack-render/src/mosaic/refinement.rs",
+      "bytes": 17731,
+      "sha256": "f97888ccc1507fdac8b2d7ec610ae811485f6310e1d69283fcc7e60b7ed363da"
     },
     {
       "path": "crates/syfrack-render/src/oidn.rs",
@@ -846,39 +1096,109 @@
       "sha256": "4bf27fd6dfc13b0b686aa029d58aedcd135c5dc77396e02228e3eb5705c98a72"
     },
     {
+      "path": "crates/syfrack-render/src/params.rs",
+      "bytes": 3374,
+      "sha256": "8a288d74a833333488a4ffd2af368aa4bc43bce43540f036a9ac1c96573dd0cb"
+    },
+    {
+      "path": "crates/syfrack-render/src/parity.rs",
+      "bytes": 15261,
+      "sha256": "d551b70f8edee1cc14328c38f3ea6aa7da887181302509935e0047224bcce0b9"
+    },
+    {
       "path": "crates/syfrack-render/src/particles.rs",
       "bytes": 90989,
       "sha256": "c05bc08dc848b9a683cf3a9453bfea4bd4d2dfdab6c04d2fb96193895d61cec9"
     },
     {
+      "path": "crates/syfrack-render/src/phenomena/creation.rs",
+      "bytes": 9691,
+      "sha256": "b8f4a50b6eba652e9147165b271fe03801417367ec18ebe40a7bf6a9ee2f26ac"
+    },
+    {
+      "path": "crates/syfrack-render/src/phenomena/fields.rs",
+      "bytes": 14356,
+      "sha256": "53a62573107b30d40779922d115e80f582dc32287f4b696aa1865b6b8f08e80f"
+    },
+    {
+      "path": "crates/syfrack-render/src/phenomena/flame.rs",
+      "bytes": 10470,
+      "sha256": "877c91ff7cb6cbac120429976e8872d14af2edbeea30cf0c0f195367ccd45580"
+    },
+    {
+      "path": "crates/syfrack-render/src/phenomena/gpu.rs",
+      "bytes": 9644,
+      "sha256": "d9dd2945dbfeb5af0f27b32b141383d53b5424e86fb1d63193a7ab41a9818395"
+    },
+    {
+      "path": "crates/syfrack-render/src/phenomena/grid.rs",
+      "bytes": 4190,
+      "sha256": "9ac1a5e046dda3a14045d2b23ce13748d76417dd7337f53fa33c7bc1554a8cba"
+    },
+    {
+      "path": "crates/syfrack-render/src/phenomena/mod.rs",
+      "bytes": 20304,
+      "sha256": "b709a0833d38692c4016d21a5cbf12d8010000b8dee51322d3456fc2dd9c8f6c"
+    },
+    {
+      "path": "crates/syfrack-render/src/phenomena/simulation.rs",
+      "bytes": 23307,
+      "sha256": "0bbda3c27f9ff3967eb43e200ad40629de063878bbf8415e86292ec0c085fcc9"
+    },
+    {
       "path": "crates/syfrack-render/src/pipeline_cache.rs",
-      "bytes": 13107,
-      "sha256": "55aa1c20542dc1fc01876b755f248f903fa09f83ee0351dd19227b10fcb8ba1a"
+      "bytes": 15224,
+      "sha256": "5caf81312806391d1c376dd23a28218c2409a315b16f5ce415a1c9b640e26928"
     },
     {
       "path": "crates/syfrack-render/src/renderer.rs",
-      "bytes": 29161,
-      "sha256": "785ab4bd41e1711669cbf71f278a73ef15aa995965fe53dd4b79e36f2c1395e7"
+      "bytes": 32318,
+      "sha256": "2b3005d39ab2909fed3eed00dd3b6a07155ad9e592dff3e9703c1a380303583f"
     },
     {
       "path": "crates/syfrack-render/src/session.rs",
-      "bytes": 59859,
-      "sha256": "2b80a4c97eb371786290a0247edd03a5e8da06df37778fa3ee408663c49a2396"
+      "bytes": 68987,
+      "sha256": "a3fbfa87770a750c4297496bc82c77367486de6e96cc2cae587fd6b118ca0b19"
+    },
+    {
+      "path": "crates/syfrack-render/src/session/export_slot.rs",
+      "bytes": 17198,
+      "sha256": "872f01a15a59b1cc5317a9f288d018637b7147cbb2126068367fe0695527d3dd"
     },
     {
       "path": "crates/syfrack-render/src/shader_source.rs",
-      "bytes": 6603,
-      "sha256": "bdea5bf0969fc7bf6234342ff83ad3d73bd7125503382773becc17b1252938c5"
+      "bytes": 12930,
+      "sha256": "b7e16526e2da898b39a42bf21818268a167f7645908252410368a699494be256"
     },
     {
       "path": "crates/syfrack-render/src/shaders/common.wgsl",
-      "bytes": 11502,
-      "sha256": "15f32b0f1ad27f79f3009f5814797915bb1eee4e9c89a1015d441e659738a678"
+      "bytes": 12567,
+      "sha256": "c1324f6fbe9dab62563c79f3504c2a1090e51e23c3be217266f42ad2a6ccda8a"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/control.wgsl",
+      "bytes": 18724,
+      "sha256": "31e0cc9e06c227cff19ebe65c3aab8648550ab280132ae43ced022ee9a87a9ae"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/creation.wgsl",
+      "bytes": 6041,
+      "sha256": "12bef245d17fceef2e1114777eceef8688c6bca0de17824e1fd3cee86e644350"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/cubic_polar.wgsl",
+      "bytes": 672,
+      "sha256": "568b3cfae6a5619e0725b46ab6429d38eb87ac14ef819bb785e4c3a03adf202f"
     },
     {
       "path": "crates/syfrack-render/src/shaders/de_probe.wgsl",
-      "bytes": 713,
-      "sha256": "ff417a1fb5e0bd59ca32e3fea4e9c6f59be81d9e577e053b7c5d3a946951d4b9"
+      "bytes": 743,
+      "sha256": "9ceae532a6c8fe0498fad57b2de921eb4264f4f9fd1c3cf16a1a784b94f446af"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/det_math.wgsl",
+      "bytes": 2557,
+      "sha256": "8fe756312715a9631e3bb70d301df3793d9e6f166e6b64152faf679ec545961a"
     },
     {
       "path": "crates/syfrack-render/src/shaders/environment.wgsl",
@@ -887,13 +1207,23 @@
     },
     {
       "path": "crates/syfrack-render/src/shaders/export_guides.wgsl",
-      "bytes": 2880,
-      "sha256": "a1b6e05ed8396abba45ad8652b0d76b5acd243d0550507a6e57ba9806e310c57"
+      "bytes": 2872,
+      "sha256": "3355bc35cf6ac6c2116fae86aaf21d4126ee8524eca470eff56cc079622ccb67"
     },
     {
       "path": "crates/syfrack-render/src/shaders/finish_detail.wgsl",
       "bytes": 8249,
       "sha256": "0cec0e673d138d411ae96af1ae09305283d2cb008e2ce25d87904ef694d90f6b"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/flame_field.wgsl",
+      "bytes": 6962,
+      "sha256": "890a042a6a109175eb55b0509b0a3c751e4ebf61e255538012199e197dd35cce"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/geodesic.wgsl",
+      "bytes": 2831,
+      "sha256": "895ceb59e63f15b7eefc0b588e36a6941c432aaff032c008b5e8aaab7111c911"
     },
     {
       "path": "crates/syfrack-render/src/shaders/guiding.wgsl",
@@ -902,13 +1232,13 @@
     },
     {
       "path": "crates/syfrack-render/src/shaders/landscape.wgsl",
-      "bytes": 8315,
-      "sha256": "537b8974ec18a8a67e0fad0f955b02ff9e7a49b21404b5a3a34acfee52a5c67a"
+      "bytes": 8342,
+      "sha256": "99611ff6aec11b7a07ac485670ea8048e1314937be37e06c543e6dbf51dd722c"
     },
     {
       "path": "crates/syfrack-render/src/shaders/lights.wgsl",
-      "bytes": 13544,
-      "sha256": "af03302304462036e46d4abfb34d4d50f70878930b0fec781a64a0afdfa0ab16"
+      "bytes": 15892,
+      "sha256": "8cf55ce8323d56e9f6e004f65e3d9ae8817c86c3dd189f8b605935aa7c35b7da"
     },
     {
       "path": "crates/syfrack-render/src/shaders/nebula.wgsl",
@@ -917,18 +1247,33 @@
     },
     {
       "path": "crates/syfrack-render/src/shaders/ocean.wgsl",
-      "bytes": 10672,
-      "sha256": "801f7db7a54615232ad1cddd98d36d222b808e2f47a89733c84fde2d3c82cc4e"
+      "bytes": 12084,
+      "sha256": "87a58dd34f17b6d180644feaf8b52e0dc558f01600182b964f18919ee3a0a551"
     },
     {
       "path": "crates/syfrack-render/src/shaders/optics.wgsl",
-      "bytes": 2471,
-      "sha256": "13a4dc3a7b0fcf064aeb549f0be6dba1f493983472d54420359529d029a6e45e"
+      "bytes": 3283,
+      "sha256": "4c171243232cbde693daeb50ba199b81341e7e8a20ba403e99ce47fe712a1939"
     },
     {
       "path": "crates/syfrack-render/src/shaders/pathtrace.wgsl",
-      "bytes": 55636,
-      "sha256": "eed7f55763b74f589a73af8a6d2c0498f01f2804e0336be8452168b36ce44f4f"
+      "bytes": 57988,
+      "sha256": "7f389e0694e5b05d6947c599b7c2e3e24da6e950f4e2e0018587b0646e26a72d"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/pattern.wgsl",
+      "bytes": 2434,
+      "sha256": "27a72dde4f8139471ac7cc7572ff2e2a8d140df401ddeacfd45e00605ad1fb0a"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/phenomena.wgsl",
+      "bytes": 8504,
+      "sha256": "9b4e12ebd5a6a2436e3e4e1238e9d7597db33883f6c7b95b75a3a2fb6e3c3acd"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/phenomena_compute.wgsl",
+      "bytes": 2789,
+      "sha256": "1d9c43b5c59941b0d856612608f5ecdbc4d40bdb63e71aff71d880d1f0181ef9"
     },
     {
       "path": "crates/syfrack-render/src/shaders/planar.wgsl",
@@ -952,23 +1297,48 @@
     },
     {
       "path": "crates/syfrack-render/src/shaders/texture.wgsl",
-      "bytes": 5025,
-      "sha256": "8528d18a0831a5452000290368a9338fad5f7ed2be56aeaf31f0e4d92df75853"
+      "bytes": 3067,
+      "sha256": "0ee68c1ae6639bfb7b9765feef84eac64805cf944ca2e3bd17f80c50882a8fab"
+    },
+    {
+      "path": "crates/syfrack-render/src/shaders/wavefront.wgsl",
+      "bytes": 12702,
+      "sha256": "3c3c239d010aa515849fa19eb63306d4f741ba47b6a4fa4fd23104e548fcfed3"
     },
     {
       "path": "crates/syfrack-render/src/tiles.rs",
-      "bytes": 13784,
-      "sha256": "c82be6bfacc994559b1b19a4b020c8d73a716483242676ecae554e4dbffcbdb2"
+      "bytes": 14528,
+      "sha256": "075c945aca204dcf0616fa8f971b66ef70e3cfbebf59af90cefa6d772bf489dd"
     },
     {
       "path": "crates/syfrack-render/src/uniforms.rs",
-      "bytes": 34589,
-      "sha256": "13922afc95b23d7782906790d6001fc4997107ba16b0074a009ae1d2b1ee3d5a"
+      "bytes": 37446,
+      "sha256": "f0bbcb6ef406ec504ce25dacd3fc5e8d2aa57d9099ce9132ac97b78729476e32"
     },
     {
       "path": "crates/syfrack-render/src/volume_reconstruction.rs",
-      "bytes": 15440,
-      "sha256": "79f3d3c6955c9bceb4cb4d31be1d102da6843bf5327e248105bb2c08dd06e4f3"
+      "bytes": 16952,
+      "sha256": "aad9e2460487bdb9d8687a15045165971bd2078d57418179123fdc9595b26aec"
+    },
+    {
+      "path": "crates/syfrack-render/src/wavefront.rs",
+      "bytes": 18292,
+      "sha256": "c35fdf43e1d9e33f482c9657400e3d3ef66067861c9661160778f12626b4902e"
+    },
+    {
+      "path": "crates/syfrack-render/tests/fixtures/parity/mandelbox.exr",
+      "bytes": 3266893,
+      "sha256": "ce71f7c227f2dd45b46e08bca4e5b3287aedf550ae238ec47edc2617c0629d8e"
+    },
+    {
+      "path": "crates/syfrack-render/tests/fixtures/parity/mandelbulb.exr",
+      "bytes": 3267216,
+      "sha256": "1a29e216b6edc7e391bf9864301a538524cc0f56b8a490d5e074683e00166419"
+    },
+    {
+      "path": "crates/syfrack-render/tests/fixtures/parity/menger.exr",
+      "bytes": 3267259,
+      "sha256": "cd4d8a39c51e3f91c66f974d0f979e73bc603ab519f48a566b4fdce146bdb988"
     },
     {
       "path": "crates/syfrack-render/tests/gpu_architecture.rs",
@@ -981,6 +1351,16 @@
       "sha256": "63a0557d4032d74878793d8d843be8ddc3b028f4e013b1b75410dc43e517a961"
     },
     {
+      "path": "crates/syfrack-render/tests/gpu_control.rs",
+      "bytes": 17808,
+      "sha256": "553829562e936baef8dde69d3106ba30a1ab22b77e90ee46f2c281ec29fd4eb1"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_creation.rs",
+      "bytes": 13801,
+      "sha256": "3fe0741d8c83a61ccbcc26f6c9629d8ecb430f12832b8e63c704226054b75494"
+    },
+    {
       "path": "crates/syfrack-render/tests/gpu_de.rs",
       "bytes": 19484,
       "sha256": "c278f2ba7465cb18df44c434c9c6847c685d4a99bf2259521ba3f7ae72460c7a"
@@ -989,6 +1369,11 @@
       "path": "crates/syfrack-render/tests/gpu_environment.rs",
       "bytes": 12512,
       "sha256": "91b63ac141660456abf8c7cc2c3c3186028938b5c7fd32c43b81700a8d5e05e4"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_export.rs",
+      "bytes": 19797,
+      "sha256": "404cd488a1716920fc05a59f4b88fb53d073054b1c7a5c1665654d7a0d9856ba"
     },
     {
       "path": "crates/syfrack-render/tests/gpu_flame.rs",
@@ -1026,6 +1411,11 @@
       "sha256": "aeeed52d3eba7ece597ef28955b185b9b854a61316546e69a4d8b3afdcc38f60"
     },
     {
+      "path": "crates/syfrack-render/tests/gpu_ocean_filtering.rs",
+      "bytes": 5289,
+      "sha256": "a22b7796e725ec824299f02139715689f5c3356edff356f10fe29a385a1cc75e"
+    },
+    {
       "path": "crates/syfrack-render/tests/gpu_optics.rs",
       "bytes": 3605,
       "sha256": "0f8e05b11f59ad18a0646fc53384a366aa17a1468616e4434fd3af3d39997bf2"
@@ -1034,6 +1424,16 @@
       "path": "crates/syfrack-render/tests/gpu_palettes.rs",
       "bytes": 4517,
       "sha256": "eecbaff00667f15465a45f53c575d5326b88ca091503bb3bf3d484fb06c94ae7"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_parity.rs",
+      "bytes": 890,
+      "sha256": "218d3172ac0bb74e0c4796e11af6441611eb190bb8822b212ed520c866cda6c3"
+    },
+    {
+      "path": "crates/syfrack-render/tests/gpu_phenomena.rs",
+      "bytes": 13092,
+      "sha256": "ce7c83b34e0471fafe0b3bd3dfb9b666d5a47a387ee7257212a0dbe5015b1930"
     },
     {
       "path": "crates/syfrack-render/tests/gpu_photometric.rs",
@@ -1052,8 +1452,8 @@
     },
     {
       "path": "crates/syfrack-render/tests/gpu_render.rs",
-      "bytes": 54144,
-      "sha256": "ed28ae05fc501b60e2fcaf238c3d548c4f8a562abc502f3ae06fd712a0d731d5"
+      "bytes": 54381,
+      "sha256": "692d461dd2597c8357f47c49ea36dc05e498fa18cbe252f7c5c1485dcfb536d9"
     },
     {
       "path": "crates/syfrack-render/tests/gpu_volume_reconstruction.rs",
@@ -1067,33 +1467,163 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "bytes": 2511,
-      "sha256": "d8eff746995650d2550557a01cb9b4eb943f8d5ea651d3161b8c07375194c983"
+      "bytes": 24571,
+      "sha256": "b523a023aa2dad7d1f504959e43d12490540475a732c1883cf73c663fb38c2eb"
     },
     {
       "path": "docs/BUILDING.md",
-      "bytes": 4621,
-      "sha256": "06325b14f9bc1861146562fe359858ff4fcd7973888e6f2d993104e319edd030"
+      "bytes": 6528,
+      "sha256": "86d4ece19fb16a217186eedc4b6030c465ef02f7d2ac4cc7898f7525bc8e44bd"
+    },
+    {
+      "path": "docs/DETERMINISM.md",
+      "bytes": 9544,
+      "sha256": "0835f45c1950a1ea96b4c6bf6c728bc0b11814288a06822d97c196c63482d8e5"
     },
     {
       "path": "docs/LOCALIZATION.md",
-      "bytes": 2602,
-      "sha256": "8c66edf8cbbbecf5833840ba6c4d1c9dc75e24fd511e416099efbfdb068fec04"
+      "bytes": 2823,
+      "sha256": "a7468a645026f74ac0363dd0ad535a18eee8f963ff588d51d39cb334c108b9da"
     },
     {
       "path": "docs/PUBLISHING.md",
-      "bytes": 4321,
-      "sha256": "0f7e00a42477baa58abb03ffd419cd6ec11fe2b77bf055c9f5505164e6e3b340"
+      "bytes": 6015,
+      "sha256": "6ef6f543b9118d2d7073d0f877f2c820aa6acaf1c7beccc3a4a5ec64cddeac24"
     },
     {
       "path": "docs/RELEASE_VERIFICATION.md",
-      "bytes": 4208,
-      "sha256": "ab5516bb43b9d07cd6f04e5f82832beb97f735313602bec674829ce50400ebab"
+      "bytes": 5440,
+      "sha256": "36de4230456f0310e378411c2a640699b36b4b2bb5b0fa0519e4ec3a94e4915f"
     },
     {
       "path": "docs/USER_GUIDE.md",
-      "bytes": 5860,
-      "sha256": "b5b8b47e7218b201b8fcd59c18999effcaef766a5cc4936c2f90a19f404f309b"
+      "bytes": 15806,
+      "sha256": "69553ce64062913b4c4a0254720a213bf68e2a92459ebd22dee94e155022429a"
+    },
+    {
+      "path": "docs/atelier-nodal.md",
+      "bytes": 7419,
+      "sha256": "45d9c69b44b7c944abb10d815d72b5efc7af0fc1b02a5c39b1180faaae2e32bc"
+    },
+    {
+      "path": "docs/benchmarks/guiding-cost-2026-10-09/fixtures/close/reference.exr",
+      "bytes": 272855,
+      "sha256": "4416e0aa68160177bd09fb50aeabfa5bddeecf9b2865d4b7a81f174774af3ecd"
+    },
+    {
+      "path": "docs/benchmarks/guiding-cost-2026-10-09/fixtures/close/scene.ron",
+      "bytes": 4174,
+      "sha256": "b8d0f6c8f169e54ce8dd779fa5a67e96ced5f126b98700cb47b299bb65bf6764"
+    },
+    {
+      "path": "docs/benchmarks/guiding-cost-2026-10-09/fixtures/menger/reference.exr",
+      "bytes": 272855,
+      "sha256": "0375d61c8acf00d539f04b7d626cb8c24c403869ee6ae8c8e309a3be9a421a1b"
+    },
+    {
+      "path": "docs/benchmarks/guiding-cost-2026-10-09/fixtures/menger/scene.ron",
+      "bytes": 3443,
+      "sha256": "53bb2a0c0f68920b9100d3c5a75c02fbf6a2ca2422c5510df88d2b6670ef2f8a"
+    },
+    {
+      "path": "docs/benchmarks/guiding-cost-2026-10-09/fixtures/menger/studio.exr",
+      "bytes": 1855665,
+      "sha256": "88100fe36d2ec3126ab8f0db0fa291bc5b5ec45f154442b46756fee0d1011181"
+    },
+    {
+      "path": "docs/benchmarks/guiding-cost-2026-10-09/fixtures/room/reference.exr",
+      "bytes": 272851,
+      "sha256": "801bcda67683476545ad16c0d5c49f2918e474b69f51c37a459410957e5db0fe"
+    },
+    {
+      "path": "docs/benchmarks/guiding-cost-2026-10-09/fixtures/room/scene.ron",
+      "bytes": 4173,
+      "sha256": "c387739879d28f02a4406e875c6894331b50c44e2ee987ad80e9112e278a3318"
+    },
+    {
+      "path": "docs/benchmarks/hybrid-20261018/README.md",
+      "bytes": 6154,
+      "sha256": "139c1f9c46601595de9be568fbbe57227fe4989b38a811fdef912d0d1d0a7795"
+    },
+    {
+      "path": "docs/benchmarks/hybrid-20261018/baseline-192.ron",
+      "bytes": 8187,
+      "sha256": "04ee4ed58b99529ca10f3f18ecac27f1cbb1d642c080b0f26ff9f5813850011b"
+    },
+    {
+      "path": "docs/benchmarks/hybrid-20261018/batched-384.ron",
+      "bytes": 12146,
+      "sha256": "ddbe128139657dc3c8a94e99c56a0dafaa4dda649fd4c279392ae646c649538d"
+    },
+    {
+      "path": "docs/benchmarks/hybrid-20261018/mandelbox.ron",
+      "bytes": 5095,
+      "sha256": "2a7bd1f5d33510d776f634565b7162460a3704605aff4047f70f9ead7c9ef68a"
+    },
+    {
+      "path": "docs/benchmarks/hybrid-20261018/overlap-384.ron",
+      "bytes": 10490,
+      "sha256": "5e392c2b09fc5256b0835808b787d6b037da659ec3ea9bf1833081a1b0db405e"
+    },
+    {
+      "path": "docs/benchmarks/hybrid-20261018/priority-384.ron",
+      "bytes": 12146,
+      "sha256": "112df0c3084f6b2afbd0caecd2e038ebb4dd4aff4eee70f1c68d24273054dd30"
+    },
+    {
+      "path": "docs/benchmarks/hybrid-20261018/tail-192.ron",
+      "bytes": 8763,
+      "sha256": "a01442979b1fce4f54cb9a989f8d686b7db4b5d2be5327472e0cf7b5476c979e"
+    },
+    {
+      "path": "docs/benchmarks/orfevrerie-20261018/README.md",
+      "bytes": 10948,
+      "sha256": "03df10af538694111fc7cc5a119d75e45a990830b4832164584418d1f115ddde"
+    },
+    {
+      "path": "docs/benchmarks/orfevrerie-20261018/baseline.log",
+      "bytes": 3101,
+      "sha256": "fb2a333efed56038bd8999a10513c580d768395299687fbaf831a1808df204a1"
+    },
+    {
+      "path": "docs/benchmarks/orfevrerie-20261018/candidate-fresh-2.ron",
+      "bytes": 7274,
+      "sha256": "621cf1a04a10b3e321c4f126d86b33afa146bcc7f51a90e2badd0a2a7689c984"
+    },
+    {
+      "path": "docs/benchmarks/orfevrerie-20261018/candidate-fresh-3.ron",
+      "bytes": 7287,
+      "sha256": "ddfca3ecef76ba085ee8f5c8dd4387d435b5d225f70fa3b90969fbb4a977c2c7"
+    },
+    {
+      "path": "docs/benchmarks/orfevrerie-20261018/candidate-three-runs.ron",
+      "bytes": 9825,
+      "sha256": "90dd5569e194f0927d0a1a98a1d3baac7c197ceef4c1ab017eec3071e89551a9"
+    },
+    {
+      "path": "docs/benchmarks/orfevrerie-20261018/hybrid-4spp-failed.ron",
+      "bytes": 11229,
+      "sha256": "9ae0c5f3618b63c5888d27635b2c43bd8adf1a0af3268e582ff4d7a6593b3a0f"
+    },
+    {
+      "path": "docs/benchmarks/orfevrerie-20261018/wavefront-three-runs.ron",
+      "bytes": 14628,
+      "sha256": "c3b3346eb1f3ac8a038bd5b7535f64453b043858d91749b3ddd2f78940c7574c"
+    },
+    {
+      "path": "docs/fractales-complexes-et-recherche-esthetique.md",
+      "bytes": 6566,
+      "sha256": "ff96340928e96c114961a163c8bda4aa753f4233168c04803b67867cdea2059f"
+    },
+    {
+      "path": "docs/graphe-unifie.md",
+      "bytes": 4669,
+      "sha256": "ef62f7f597da1666385c9cf16899bb3e5122e2a7a167d72a5ee7e29f76fc25b2"
+    },
+    {
+      "path": "docs/images/README.md",
+      "bytes": 1348,
+      "sha256": "c0f8c957115aa0e0a71e9382a8b0d2bdd55540e227a73f901ef6cde2ae49e792"
     },
     {
       "path": "docs/images/breath-of-the-titans.jpg",
@@ -1101,19 +1631,69 @@
       "sha256": "32258ddd30a2518be287dac44e8e93b09be4c74de8c791116f173a2b4f45169e"
     },
     {
+      "path": "docs/images/breath-of-the-titans.png",
+      "bytes": 2471450,
+      "sha256": "a0f6f15bdb6ef3ec63620eb9116d9ceef884c8a4da65189136721477ffca5f3e"
+    },
+    {
+      "path": "docs/images/palais-rose-sur-mer.png",
+      "bytes": 10076413,
+      "sha256": "ad1a1a236b3a821fd0b414ea955bb67e5fee5ced1498edeb643a095d6a2cb303"
+    },
+    {
+      "path": "docs/images/studio-20-atelier-nodal-compact.png",
+      "bytes": 195257,
+      "sha256": "695002f775a5558c3762f45dfbd657ccc072667cb84db94f272148ee065594b1"
+    },
+    {
+      "path": "docs/images/studio-20-atelier-nodal.png",
+      "bytes": 301366,
+      "sha256": "e45d56def92350ea452051808b09c94fe373bb681995b66008e689a793cd9aaa"
+    },
+    {
       "path": "docs/images/studio-2d-en.png",
-      "bytes": 1662457,
-      "sha256": "58b469a88c6ef999919cac5c60a82c136e6f7fc846487c3e70995c26f00a2769"
+      "bytes": 1634067,
+      "sha256": "acc3942b11f1a1841e54097a5b6e0f18c99978bfe9b660dae3cd7b5d713b2731"
     },
     {
       "path": "docs/images/studio-en.png",
-      "bytes": 842602,
-      "sha256": "e337b29148f42590c30a0ed5d5f0ce13ad5cd15765af219a1c7a5780f37f38c7"
+      "bytes": 1346421,
+      "sha256": "a53f8660389cdd7d6371fe8718a3e236e86b1f4b3466476576533e3184df5b5e"
     },
     {
       "path": "docs/images/studio-fr.png",
-      "bytes": 847280,
-      "sha256": "e8acfe82684b1fac1b128f9d47c3efb128b3522255fc629ff5cb727e17654c74"
+      "bytes": 1350187,
+      "sha256": "6118e36ff33a364fa625556b37dad072485553835f51c6fa60418355b363bde2"
+    },
+    {
+      "path": "docs/images/studio-render-en.png",
+      "bytes": 146095,
+      "sha256": "c4d26ee0ba3947252dc77580c62332eac7df6f24c01863432a62598717760174"
+    },
+    {
+      "path": "docs/images/studio-render-fr.png",
+      "bytes": 147633,
+      "sha256": "dfd7ffedb8eb5f2c422330b1d4dd0b20b75b706a566e0c42fd5034e5e121aa8f"
+    },
+    {
+      "path": "docs/mosaique-fractale.md",
+      "bytes": 9383,
+      "sha256": "eb935582fc5d90444b2b30c2789214502e3524ee49a2d07bef3c726aac86d2ea"
+    },
+    {
+      "path": "docs/nature-cosmos.md",
+      "bytes": 12938,
+      "sha256": "0d938cfdc4903a6fdccc338114e8484fcc6484dede5caa1d0facc109166ba40d"
+    },
+    {
+      "path": "docs/ocean-surface.md",
+      "bytes": 6318,
+      "sha256": "09608d1f572589863258452078289382b40ebdb339f09debd06a2dca97db2054"
+    },
+    {
+      "path": "docs/palettes-et-orbites.md",
+      "bytes": 3847,
+      "sha256": "d1abf9a557242b3b6f258fa136d51de275f924008a09c8b3c9babc990cc33959"
     },
     {
       "path": "graphs/boite-bulbe.png",
@@ -1232,8 +1812,8 @@
     },
     {
       "path": "scenes/README.md",
-      "bytes": 1067,
-      "sha256": "b8495fddfc75af5da26d525b9041c70868fd91a536d7297cb9f9e3c2c2d13a93"
+      "bytes": 1429,
+      "sha256": "a6b315b9e7d2cd4a67fe9a7f1d05d30476affeb5f96018f7465871e4ea36f79f"
     },
     {
       "path": "scenes/couronne.ron",
@@ -1251,6 +1831,16 @@
       "sha256": "724cc19a3fdb9ba1f56736e732d2b2af51ef2ce46936de2a609993768e7b34e4"
     },
     {
+      "path": "scenes/echo.ron",
+      "bytes": 14578,
+      "sha256": "7c44116f7c2462f02870567ff76b2c26dd39e705fb7b4165b49219c6549f412a"
+    },
+    {
+      "path": "scenes/eclosion-brume.ron",
+      "bytes": 39340,
+      "sha256": "97257c657fc8c2ab59828274d65ad94a9e011b7398c46582810b8c90f2e878a1"
+    },
+    {
       "path": "scenes/environments/azurite.ron",
       "bytes": 5783,
       "sha256": "a4d7cc954184939d7cc2f963498761a3a508e03222d7568e8c5001b8c91f1ea5"
@@ -1266,6 +1856,11 @@
       "sha256": "438ee97772786ffe9903ec4bbd702fcafd5ea512bd793d6eab11232059788bdc"
     },
     {
+      "path": "scenes/environments/elysium-shore.layout.json",
+      "bytes": 34971,
+      "sha256": "7f7ddd0a704d6049519379166491c991c9abe140a1185c2d8636eb4ff895e7f8"
+    },
+    {
       "path": "scenes/environments/elysium-shore.ron",
       "bytes": 135399,
       "sha256": "0928b4eb17ed6c58f7166e68e69e9a83142923370b7f1aeebbdfdc9ce72547ed"
@@ -1274,6 +1869,11 @@
       "path": "scenes/environments/elysium-shore.syf",
       "bytes": 97294,
       "sha256": "65ef5fb9871b3bb739cd38ab2c40f9bce7328d0396482a9391827eab976ce09c"
+    },
+    {
+      "path": "scenes/environments/elysium.layout.json",
+      "bytes": 34971,
+      "sha256": "7f7ddd0a704d6049519379166491c991c9abe140a1185c2d8636eb4ff895e7f8"
     },
     {
       "path": "scenes/environments/elysium.ron",
@@ -1329,6 +1929,11 @@
       "path": "scenes/environments/nef-des-titans.syf",
       "bytes": 26905,
       "sha256": "3e06504192e6f714410409f950b762f19b9b4384324e4dfe4b1aa3a45d86f857"
+    },
+    {
+      "path": "scenes/environments/neon-night.exr",
+      "bytes": 7414074,
+      "sha256": "f004c3832b9c983113014cc65f5970414cc54a7254bf694422d06675a02e91a1"
     },
     {
       "path": "scenes/environments/ocean-surface.ron",
@@ -1451,6 +2056,21 @@
       "sha256": "ec4c08174f137902484af6d5ef1ae1041db14305f12428fcad1088ea35085a51"
     },
     {
+      "path": "scenes/my-scene.ron",
+      "bytes": 13633,
+      "sha256": "0f7d4b391a0fe11a0d038a31219bba29eb76dcdb4727311386bd73d25ac0d1d5"
+    },
+    {
+      "path": "scenes/noclue-soie-dopale.ron",
+      "bytes": 13827,
+      "sha256": "aa3cc13ebdc16298ef9776e19d216506d5d89570b35d59dbf49e19878a1518ac"
+    },
+    {
+      "path": "scenes/noclue.ron",
+      "bytes": 13633,
+      "sha256": "0f7d4b391a0fe11a0d038a31219bba29eb76dcdb4727311386bd73d25ac0d1d5"
+    },
+    {
       "path": "scenes/orfevrerie.ron",
       "bytes": 5931,
       "sha256": "f8ea3953db9ad12e0d3f4f18d89ab0951e9b309780d77b3f266806516d2ccd5e"
@@ -1472,8 +2092,8 @@
     },
     {
       "path": "scenes/showcase/README.md",
-      "bytes": 1345,
-      "sha256": "4d855fea726b798224c60a88c883320332a4785f6ecf7a5f97338c517733b6ea"
+      "bytes": 1354,
+      "sha256": "db2bc45fd9430617a489d72689b855d652582817183e156e73506469cef7a9b6"
     },
     {
       "path": "scenes/showcase/atlas-guardian-of-infinity.ron",
@@ -1486,14 +2106,1169 @@
       "sha256": "04266e576b100e482f90d20a2d6fa940eaf884bbe802aca3c4b5bc46d90e99db"
     },
     {
+      "path": "scenes/showcase/chrysalide-cubique/chrysalide-cubique-2d.ron",
+      "bytes": 8272,
+      "sha256": "1f7f898a53ba23c1a2fade5e8c3183d619bd2fe85cf005ba20a46453beafdece"
+    },
+    {
+      "path": "scenes/showcase/chrysalide-cubique/chrysalide-cubique-3d.ron",
+      "bytes": 11634,
+      "sha256": "0403dd45cd27242ee1a115d47da028a98e7fa2e6ed1be20010c9e9134ec8568a"
+    },
+    {
+      "path": "scenes/showcase/la-cathedrale-des-marees-neons.ron",
+      "bytes": 18354,
+      "sha256": "f51ef2d538ad90f3d588fa009793388e416f359ca8069e7325e719ae1956104c"
+    },
+    {
+      "path": "scenes/showcase/la-forge-des-mondes.ron",
+      "bytes": 17278,
+      "sha256": "f3bc4bcd541f8fc314971d03e20e6428b9aa15e88d2a5c51b4f0436342a1ae0d"
+    },
+    {
+      "path": "scenes/showcase/la-memoire-des-cathedrales.ron",
+      "bytes": 5950,
+      "sha256": "a1f21198feb31649f00c56dbc05c77c28b9213e6a2b923e9a916f4072fa315fd"
+    },
+    {
+      "path": "scenes/showcase/le-passage-genese.ron",
+      "bytes": 33694,
+      "sha256": "75841ef0faed50061921c978e99aad35e411e00c10a5797a34b1c5add7c3e018"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/dispersion.ron",
+      "bytes": 4702,
+      "sha256": "08ed335eef38b7c87dc1a567c731f3e5099ed254de811425db2ec2f2258771ea"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/interference.ron",
+      "bytes": 6288,
+      "sha256": "ab3ba7424567241c325d03afbc2986a84927ee9b9a70d41833f270bd43655318"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/iridescence.ron",
+      "bytes": 6492,
+      "sha256": "9d975a263cb083bdf9cf3f1568cb5652480f3c77466fb0e213eebb6d77d8bbbd"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/kerr.ron",
+      "bytes": 5912,
+      "sha256": "33276be766eda78ce4139243f21dbd7fd095a1046101b4a540ff23cab118aabf"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/lightning.ron",
+      "bytes": 6668,
+      "sha256": "f33fa54d09c4be4de6d405ceb85a7bc22a6b60063b40da33c3ca6a77c1fd38d8"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/morphogenesis.ron",
+      "bytes": 7111,
+      "sha256": "c93636063c68cc5e6fb80117bae8fa634975de257c2bcff1bccf8b7ad0a15413"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/quaternion.ron",
+      "bytes": 6896,
+      "sha256": "1c2fcdf07b5a2fcdd09cbb1b3c9df787f73b8055f92dc7d2ca7a333a6378cc4a"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/resonance.ron",
+      "bytes": 7029,
+      "sha256": "af6bd142e0c192e40e2a3e54ad203c9289f37aa6207752159018e28ee9246697"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/schottky.ron",
+      "bytes": 6331,
+      "sha256": "da00cd1ea02174ae0723b1034e32ccbfeaaf67694ab25713a280cc05050553a3"
+    },
+    {
+      "path": "scenes/showcase/nature-cosmos/vortex.ron",
+      "bytes": 6040,
+      "sha256": "713fb88bec3db6f9a43810e8b87ecb4fe6531d9714a45df9114b007e1ef4fd79"
+    },
+    {
+      "path": "scenes/showcase/ocean-champagne-et-abysses.ron",
+      "bytes": 2630848,
+      "sha256": "e13d9983965c803ee8ed2af35de49fd36065b03d22a4bdc52ab1f1beef0824ef"
+    },
+    {
+      "path": "scenes/studies/auralis.ron",
+      "bytes": 51929,
+      "sha256": "f4f025f3ba0a3b2139cef7ec1a717d7540d53d062d900b172f1c602f24d43a2d"
+    },
+    {
+      "path": "scenes/studies/auralis.syf",
+      "bytes": 26051,
+      "sha256": "6e82c65498fcb9d84ad1abd243033e606c97655d7276029a0e7007ceaf8cbbc8"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/apotheose-etude-2.ron",
+      "bytes": 18355,
+      "sha256": "c70bb83f0721f6fdaa6620d8c6cf78684d0fad3302496d757148eba0fb3d58ef"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/apotheose-etude-3.ron",
+      "bytes": 18349,
+      "sha256": "33f2c74394896597e47b76cd551d5211016402bda0f12abb776d61913d71480a"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/apotheose-etude-4.ron",
+      "bytes": 18351,
+      "sha256": "7775438523f6e4cb9cdbabd159a6055c8de04725b3d57ddd989a6f523234aaab"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/apotheose-etude-5.ron",
+      "bytes": 18351,
+      "sha256": "16cac203aa2ac1ee6f47d78484192c761781ad07dbd4ef74b06125e9d21941de"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/apotheose-etude-6.ron",
+      "bytes": 18354,
+      "sha256": "c88cf0ee591439be8401f222708895dfa98f73782e0ef90a91c2776265929ca4"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/apotheose-etude.ron",
+      "bytes": 18221,
+      "sha256": "4ef681d435ffa2f3e0d05a55820a9f46e5fa090f6ff36a2013b71943c9215569"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/etude-1.ron",
+      "bytes": 21811,
+      "sha256": "2bdbbc9f8a47991c67062b9c7b0ba6d6d0d3921e474587f92d086c5eb34ff133"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/etude-2.ron",
+      "bytes": 21812,
+      "sha256": "969dc665f0506bb45109a01e9c27315213d1d7bb44bee0a414821712f608ff02"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/etude-3.ron",
+      "bytes": 19131,
+      "sha256": "f17937ada0b2cfc63479d3e3de6812b4bb5816fb1403ca0221640246b6a5db51"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/etude-4.ron",
+      "bytes": 19649,
+      "sha256": "e2f43aa12bba30653ec9b2ba73c02dd7da2a5f77afe4e88b6ab956bfcfbd5957"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/etude-neons.ron",
+      "bytes": 29273,
+      "sha256": "c0c0811d88d17a3ba3b042bff84e7af341a4df71a1969ff00c959b09bbd41a1c"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/etude-nocturne.ron",
+      "bytes": 19650,
+      "sha256": "84b344fd3d94749570c819f26c0ea407be07302a988693447c5b2990a094400e"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/majestate-1.ron",
+      "bytes": 18073,
+      "sha256": "856c3432e84d50371074089c3b6419511b6ffeec8945678f596d27553dc7aad7"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/majestate-2.ron",
+      "bytes": 18064,
+      "sha256": "ffd53ea95f7b6742493c008ea59c9031f8ba5ea6383037fd1121f4cb41157789"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/majeste-v1.ron",
+      "bytes": 18062,
+      "sha256": "4df33e5e574dcb5043b5f6a9e81b781a46ff7ef5b92c9da809eb338e685ce9c0"
+    },
+    {
+      "path": "scenes/studies/cathedrale-des-marees-20261020/nuits-electriques-ancienne-composition.ron",
+      "bytes": 29293,
+      "sha256": "38dc3e98897326dcee9b2dc7f3cfd7e3bbd75ebe3f077be5cdbec9e4c488e869"
+    },
+    {
+      "path": "scenes/studies/chrysalis.ron",
+      "bytes": 3800,
+      "sha256": "ad2a6e0d4f35fa8e5933f8a6a7088565b09860cd37afda2d80ac34f4c835b8d9"
+    },
+    {
+      "path": "scenes/studies/chrysalis.syf",
+      "bytes": 593,
+      "sha256": "71d89670128e8ad617d3035e37884fd6ca292d1206d5c6198e9f1d2f027ea778"
+    },
+    {
+      "path": "scenes/studies/complex-crops-20261013/21-nova-brocart.ron",
+      "bytes": 2613,
+      "sha256": "a3b4d4074b50d3cd388767ab8d34bd5634c5303d1716851d34641142b60df132"
+    },
+    {
+      "path": "scenes/studies/complex-crops-20261013/22-newton-filigrane.ron",
+      "bytes": 2591,
+      "sha256": "0c6ee9446cfffd79bfed38b9734ded95b2f6a8e7d78710b99417217bf41459c2"
+    },
+    {
+      "path": "scenes/studies/complex-crops-20261013/studies.json",
+      "bytes": 763,
+      "sha256": "d7f9b269dc44a4280fb2a2a6c11b4dc396183ce074a1fe62f024497794ccc1fe"
+    },
+    {
+      "path": "scenes/studies/complex-refinements-20261013/02-julia-soie.ron",
+      "bytes": 2595,
+      "sha256": "22449fcfb40b84dc4ab01538fede539884cd4797889a26f20f925e2cb0e4c57c"
+    },
+    {
+      "path": "scenes/studies/complex-refinements-20261013/17-julia-sillage.ron",
+      "bytes": 2599,
+      "sha256": "af666cbb46c55c24ac4a3801317186c5fa07582026890d3032ca3014c730d42a"
+    },
+    {
+      "path": "scenes/studies/complex-refinements-20261013/18-nova-baroque.ron",
+      "bytes": 2596,
+      "sha256": "87d6fdc7579840fb68ddbc214277cea7846b3c9e220a07d82a5ec0829a5bf5e5"
+    },
+    {
+      "path": "scenes/studies/complex-refinements-20261013/19-newton-couture.ron",
+      "bytes": 2575,
+      "sha256": "c1a2b9569d12563d71a60dc22345dd099ad8cf813fa5913a25abfca528d6a762"
+    },
+    {
+      "path": "scenes/studies/complex-refinements-20261013/20-julia-glace.ron",
+      "bytes": 2566,
+      "sha256": "89643445e784a31918cc059f8fbc4879774397d02b6b26267c4b5b1963cf149f"
+    },
+    {
+      "path": "scenes/studies/complex-refinements-20261013/studies.json",
+      "bytes": 1860,
+      "sha256": "66b430e24559788487db4b52e4072d03a21f1f3abf481e4651a02d4fba216bba"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/01-julia-azur.ron",
+      "bytes": 2565,
+      "sha256": "d5c467c2f55aaababcc031180374bf1871f8d042a3571a84863683ac0ba66aef"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/02-julia-soie.ron",
+      "bytes": 2595,
+      "sha256": "22449fcfb40b84dc4ab01538fede539884cd4797889a26f20f925e2cb0e4c57c"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/03-mandelbrot-volutes.ron",
+      "bytes": 2620,
+      "sha256": "1fb479ed3a0a2cc1c57974053b920215aa80ea3d800a5a402e547952b8c21995"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/04-mandelbrot-or.ron",
+      "bytes": 2575,
+      "sha256": "8bea62eea2554922d630978945ad246eceaf1c91d40948b14e947160f1d8403a"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/05-burning-ship-soie.ron",
+      "bytes": 2580,
+      "sha256": "bb1795e388a61cb2b72554a027d409a4101eef23546a17722ea22bb242f0f549"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/06-burning-ship-cuivre.ron",
+      "bytes": 2583,
+      "sha256": "1672e90b9dfe30efc69e65d2312f4e0f853b16c5c35b8b097015afbbfcd07e5a"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/07-newton-petales.ron",
+      "bytes": 2606,
+      "sha256": "b73f3193afef69e8f2e216655b73fddc4965ef5bc1292252790353f6afc105e7"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/08-newton-spirales.ron",
+      "bytes": 2580,
+      "sha256": "7dae06cdb01316c352c6bb2cfc86a77ad5885b3419f0ddffd7fd3ea05579b548"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/09-nova-velours.ron",
+      "bytes": 2599,
+      "sha256": "c7822a32f8e394591f2285366e83fc0b5460d760f332e63ed5ad4a6250e41d27"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/10-nova-tissage.ron",
+      "bytes": 2568,
+      "sha256": "298923b08fee3769cb4ef2a3bb46921936f238046ffec06aad2f863f74698571"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/11-phoenix-argent.ron",
+      "bytes": 2563,
+      "sha256": "d598d64c883210d8a4cda786ef5073c6668cdb0712136f56d2fc2b18879c4059"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/12-phoenix-dragon.ron",
+      "bytes": 2607,
+      "sha256": "f901527e7e61e46e1f4535639605643d4c9ec6c3f4735f405858d973444c4324"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/13-nova-moire.ron",
+      "bytes": 2597,
+      "sha256": "25b553965f33053051ce20a64f25bf872bfd4375dbfdf8ad93110f8e09d4ff29"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/14-julia-spirale.ron",
+      "bytes": 2598,
+      "sha256": "2466d78ebb390e6399fc3da70aa8b4715c30e7022d36c8fdac6ac748273d37e2"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/15-newton-corolle.ron",
+      "bytes": 2576,
+      "sha256": "60284fa3f75770dead2f984e345b9aa80c2c10d10a8cadabbd3f1f48eb42d623"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/16-nova-nacre.ron",
+      "bytes": 2561,
+      "sha256": "bb79f6e7cade6e96d6de53575fcabffc7fecc03e056a67ed0e5f8d65f0491d59"
+    },
+    {
+      "path": "scenes/studies/complex-salon-20261013/studies.json",
+      "bytes": 5165,
+      "sha256": "0ba9218cdca92486da7c0f654b845036fe15ccb06a2bcc30430e5b393644603a"
+    },
+    {
+      "path": "scenes/studies/conque-dor.ron",
+      "bytes": 24235,
+      "sha256": "3172589be5bf49cf51c962118143aaf9725690a52b310e17ce610825d02da141"
+    },
+    {
+      "path": "scenes/studies/conque-dor.syf",
+      "bytes": 20453,
+      "sha256": "d2a4c20127fad5b68a2d6cfd6d2f25c35f3ffd8395ada55834eedd225a71acfa"
+    },
+    {
+      "path": "scenes/studies/controle-zero-20261013/controle-zero-creation.ron",
+      "bytes": 28422,
+      "sha256": "ce864ada6a46ef5e6637a31709dfb14044ee163e53671d0ba5ecb80952c53984"
+    },
+    {
+      "path": "scenes/studies/controle-zero-20261013/controle-zero-final.ron",
+      "bytes": 28422,
+      "sha256": "16d358be914e56fc1a5ff7d7efdbc2eaa86663024eb2a5cb1096f8d0b7c8fef6"
+    },
+    {
+      "path": "scenes/studies/controle-zero-20261013/controle-zero.ron",
+      "bytes": 28421,
+      "sha256": "43a8bf96fbbc5231f25491fddc57d2353003bf2d615e1f367bddd09c66fe4702"
+    },
+    {
+      "path": "scenes/studies/controle-zero-20261013/etude-02.ron",
+      "bytes": 28422,
+      "sha256": "7d176e4d58642586be883ed9f7ba55ded1365fa3294a422a377bbb16d094320b"
+    },
+    {
+      "path": "scenes/studies/controle-zero-ii-20261013/controle-zero-ii-final.ron",
+      "bytes": 29821,
+      "sha256": "0d9424f259331d5caa5189c5c1a4c019486c7406f0c3097b59a5a95c4b2d2549"
+    },
+    {
+      "path": "scenes/studies/controle-zero-ii-20261013/controle-zero-ii.ron",
+      "bytes": 29609,
+      "sha256": "5633cffb9c395519c7085e73e17b5657a97bdd583b0178481e1ffe0b26391522"
+    },
+    {
+      "path": "scenes/studies/dentelle-infinie.ron",
+      "bytes": 8271,
+      "sha256": "bbebc4107f6ecf684c23181d69890a6b9c0851dd31974900b56e8c4a2b92a4cd"
+    },
+    {
+      "path": "scenes/studies/dentelle-infinie.syf",
+      "bytes": 4638,
+      "sha256": "d61a844062494dc35b597ec0a25bb0f54ad935d5a4d2ebc6b8fc1c8f44e3e5e7"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-refinements/cathedrale-01.ron",
+      "bytes": 7215,
+      "sha256": "163bd4bae4a1c5278db7807d2c49ed73ec63bf4f090657bf7cd2a2196ad740c4"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-refinements/cathedrale-02.ron",
+      "bytes": 7215,
+      "sha256": "e075c1e17ab66279d7325981eba387bc1fa5c79c9a38ffcf1ee1ba1ec0700e40"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-refinements/cathedrale-03.ron",
+      "bytes": 7215,
+      "sha256": "d346e2c7af43a385f0e240a8dd8e136af619054de8392e4db47065c8086afde6"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-refinements/cathedrale-04.ron",
+      "bytes": 7218,
+      "sha256": "18da9c0e1500b7670e94be6e25466fea53fdcc3e69c49926f1f57c119b1c2057"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-refinements/cathedrale-05.ron",
+      "bytes": 7218,
+      "sha256": "cc4ade61d4af30c7f009448aa4256631eb0fc26282e3582c95688ad9222bfc4a"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-refinements/cathedrale-06.ron",
+      "bytes": 7224,
+      "sha256": "001e73a99973050557004d4e3e763a9153755d0055857eef517d31e3c66baf6f"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-refinements/cathedrale-07.ron",
+      "bytes": 7233,
+      "sha256": "859dda193b87f8c3215e0a38b2a5f17d71f49d95decf9b0db8026ec76057ce24"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-refinements/cathedrale-08.ron",
+      "bytes": 7218,
+      "sha256": "5f6f1202f156ab23a27081b7b9ef4f397162030e2a063a3038dd4c8fd6cfadba"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-sculptures/nef-01.ron",
+      "bytes": 8514,
+      "sha256": "e4bd7aa124de6ef6435f6ad80dc1321bdece3252ae83b0c0b23b4e495f977fef"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-sculptures/nef-02.ron",
+      "bytes": 7302,
+      "sha256": "1ab68805c24a2e4812e1c86e2018b0d46b57bd90f4ce6f43ff8ff2f44905fac6"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture-sculptures/nef-03.ron",
+      "bytes": 7925,
+      "sha256": "007f80da35616582d29591eaea32363dc7185a743938df9a91e1fda3ceafc56d"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture/architecture-01.ron",
+      "bytes": 7255,
+      "sha256": "1362b05e0284be34ab63e225ec9686c9fee2691ef1e67e194703e3985a398da7"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture/architecture-02.ron",
+      "bytes": 7254,
+      "sha256": "3092da1cf4193f7cd50e01bb1cad72ff27fbd72943cdbf3c6940a5f9ebf88b26"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture/architecture-03.ron",
+      "bytes": 7254,
+      "sha256": "30aaa0b014431c4287460edc45a04c44185f8a861b91cb933646bb540ec4b6e1"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture/architecture-04.ron",
+      "bytes": 7254,
+      "sha256": "2c8e093dfb8ca4c2df1aa0f190bf25c196a64e7b4439381441421524f441405f"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture/architecture-05.ron",
+      "bytes": 7255,
+      "sha256": "d0059ab211c10e9bb347f1de34149f29aa2ac91cfffcc7f1bb797c1bc3981692"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture/architecture-06.ron",
+      "bytes": 7256,
+      "sha256": "d4fe5599d9209e673e457b7a99cabd234869556e97438383139ce67f145c81a3"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture/architecture-07.ron",
+      "bytes": 7255,
+      "sha256": "650b95dbd556c281f00373ed23ddff4fc4bb16df51b15f4ab96437bfff15afb7"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/architecture/architecture-08.ron",
+      "bytes": 7256,
+      "sha256": "39d71cbd557609aff4dc79425632a41eed0b7024555c84f849cc4a886bd83e74"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame-refinements/incandescence-01.ron",
+      "bytes": 6735,
+      "sha256": "b751029f56f27b79170ea0d5885920b99b26fd8401dfaac04665f825d80650e1"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame-refinements/incandescence-02.ron",
+      "bytes": 6717,
+      "sha256": "47c707aa0e61bc5233d41aee637dba9f57fdaf767afb4876cd65b9e5711bc935"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame-refinements/incandescence-03.ron",
+      "bytes": 6742,
+      "sha256": "edf84c523de316867603df80d1e1b40bf7629aec8044455f25532f787728c158"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame-refinements/incandescence-04.ron",
+      "bytes": 6749,
+      "sha256": "603ed2dddb221f72d6adc3ed72aabc78c4fea9c29c158164c62436019d640f9c"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame-refinements/incandescence-05.ron",
+      "bytes": 6735,
+      "sha256": "a871356cece26b17bf376c85fc700d1c87d051c20950f912c0ae328b64cac638"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame-refinements/incandescence-06.ron",
+      "bytes": 6712,
+      "sha256": "ee148365572c5b3249180c5ff55a419a69c2f792cffc9294dcf2d5247d3421c2"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame/flame-01.ron",
+      "bytes": 6540,
+      "sha256": "74340eb2f98657d33c910a074befa610850b077b8cec598ab2c744e9067fe9b1"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame/flame-02.ron",
+      "bytes": 6538,
+      "sha256": "af883cf747872a523a8155e9656f919f5f881a2977e74ad8a32ac1f0d371c345"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame/flame-03.ron",
+      "bytes": 6539,
+      "sha256": "b3e08745bb305ac4bd0f272672673252baae843ab350db293e3ac1846de0f341"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame/flame-04.ron",
+      "bytes": 6537,
+      "sha256": "c290ebe423c717fa26b3a65be53690e90d431602694a3d2bd5b0289350483ad0"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame/flame-05.ron",
+      "bytes": 6557,
+      "sha256": "18c65d49a0ac9ffbfd4dae6b6d35df5ab60a92e5e06c3817b0a04182726ffd7b"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame/flame-06.ron",
+      "bytes": 6561,
+      "sha256": "0485c69268376d80f4e203a8481fc43cc5dcab44a8c366400c085d62446446fd"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame/flame-07.ron",
+      "bytes": 6569,
+      "sha256": "f7c1d5df5ed3e65e0897e07a4f478e45506ff33ba79d1ca12dfdf49b3203c5d1"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/flame/flame-08.ron",
+      "bytes": 6565,
+      "sha256": "42a9247593e80b0184351eda73c693761ed8436ca485664f469f2ba9341dedf8"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/la-couronne-des-cendres.ron",
+      "bytes": 6742,
+      "sha256": "edf84c523de316867603df80d1e1b40bf7629aec8044455f25532f787728c158"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/la-nef-des-infinis-resolved.ron",
+      "bytes": 7379,
+      "sha256": "137a48cc4e3b9c69d7e7e9314b5968dac4eaaafca0e129e0c5b367c73b725a97"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/la-nef-des-infinis.ron",
+      "bytes": 7309,
+      "sha256": "c4380f136be02cf94da2dc247d93acad5578ca04975880c1a3821c8df03c2ebf"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/resolved-vaults/voute-01.ron",
+      "bytes": 7233,
+      "sha256": "a0bad2531d0e7fb2670c0861d64a4df3bfb2f47d63581a18dbe4e2d46489fdb3"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/resolved-vaults/voute-02.ron",
+      "bytes": 7379,
+      "sha256": "137a48cc4e3b9c69d7e7e9314b5968dac4eaaafca0e129e0c5b367c73b725a97"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/resolved-vaults/voute-03.ron",
+      "bytes": 7380,
+      "sha256": "d0a941f8dccdf3d094f332f9f9c014d15f0196248f0d4767d7ce0a589a6c5897"
+    },
+    {
+      "path": "scenes/studies/duet-20261014/resolved-vaults/voute-04.ron",
+      "bytes": 7380,
+      "sha256": "3c25c9ff497ee74239cc807aa811ff682f1188ab4df91ee6d9af1467045e1e43"
+    },
+    {
+      "path": "scenes/studies/eclosion-brume-20261016/composition.json",
+      "bytes": 4942,
+      "sha256": "64b760a1fd87e6ddae8bf740acea16229ed1f918afd49acba1e6b1760c3b2f39"
+    },
+    {
+      "path": "scenes/studies/eclosion-brume-20261016/eclosion-brume.ron",
+      "bytes": 17472,
+      "sha256": "b3f82ce55991569e271dcaa9f933fac9110b33e4951df96487be0eed5411c133"
+    },
+    {
+      "path": "scenes/studies/eclosion-brume-20261016/eclosion-brume.syf",
+      "bytes": 10719,
+      "sha256": "560a134b0b4667bb29394f763f96e47718f76ccb2e6374d793a4dd4109657979"
+    },
+    {
+      "path": "scenes/studies/eclosion-brume-20261016/verification-projet-final.ron",
+      "bytes": 39340,
+      "sha256": "8f5d6b2cfb829a32f7ae6ad01d68aa9ab8ca1f6241d57017a84e4f1ef03da3bb"
+    },
+    {
+      "path": "scenes/studies/eclosion-de-linfini-20261016/composition.json",
+      "bytes": 1722,
+      "sha256": "8da4b033932a0d2361b11c3a5b8e50a0adfa90e5b08a3343e4070611d67833ba"
+    },
+    {
+      "path": "scenes/studies/eclosion-de-linfini-20261016/eclosion-de-linfini.ron",
+      "bytes": 15744,
+      "sha256": "e3f9d89bdaffaacb24220824b7f6a7585db5ebce8fab8482bb95c863faaee63e"
+    },
+    {
+      "path": "scenes/studies/eclosion-de-linfini-20261016/eclosion-de-linfini.syf",
+      "bytes": 9061,
+      "sha256": "c53cedb66046cf2add23ad1d096c2ba967629adb169fe418d289831d889c30ce"
+    },
+    {
+      "path": "scenes/studies/eclosion-lucioles-20261016/composition.json",
+      "bytes": 3775,
+      "sha256": "125dddc65760e4089848b188f0f0aa31fdca19f27395b22864ee021828d760a8"
+    },
+    {
+      "path": "scenes/studies/eclosion-lucioles-20261016/eclosion-lucioles.ron",
+      "bytes": 17030,
+      "sha256": "ba6c6f322f72da78477aa853314a3200ec5233aeba0f11d11191cf8e292ae047"
+    },
+    {
+      "path": "scenes/studies/eclosion-lucioles-20261016/eclosion-lucioles.syf",
+      "bytes": 10370,
+      "sha256": "4b73dc26d524e81e5c30d008789cd911fdcf55915b6768cb2f1fc48fa6af0cea"
+    },
+    {
+      "path": "scenes/studies/eclosion-lucioles-20261016/verification-projet-final.ron",
+      "bytes": 38097,
+      "sha256": "370ad4df47aae98f5557452c83ed8fc6ac0dbf58006b44253f02050683da7129"
+    },
+    {
+      "path": "scenes/studies/eclosion-phosphore-20261016/composition.json",
+      "bytes": 2676,
+      "sha256": "ac173dbaaa6e07964de623e0ccd9ee0b7a543a01c5a64dd652bf459b7cc5f4c3"
+    },
+    {
+      "path": "scenes/studies/eclosion-phosphore-20261016/eclosion-phosphore.ron",
+      "bytes": 13952,
+      "sha256": "6a847731c9daa3477f71c2ea1ef9452bf9298e90e0fe7c635ad9026c46e0de70"
+    },
+    {
+      "path": "scenes/studies/eclosion-phosphore-20261016/eclosion-phosphore.syf",
+      "bytes": 7918,
+      "sha256": "04ae1a7cbea6408c552085942c382c97d85e46df6547e34ab9ecc7bbbcd67230"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-curls/ascension-01.ron",
+      "bytes": 5242,
+      "sha256": "debc92c3164948603ec315dd8df680fc9d3f85871810b386d56339ef7302e92a"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-curls/ascension-02.ron",
+      "bytes": 5267,
+      "sha256": "b053fd95cb146d6bb152219a8b8aa7e15c5863cbe7c3bf691f989a9f3cc2e4b7"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-curls/ascension-03.ron",
+      "bytes": 5271,
+      "sha256": "4efb05216f1b0c62d5bf9d135af90d1e1b1fb070ade2090c472b966318542dc2"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-curls/ascension-04.ron",
+      "bytes": 5245,
+      "sha256": "7e19741ab516190bd3df4abb5ef100888673eba53f8bc9ae8cf24fe72359e888"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-curls/ascension-05.ron",
+      "bytes": 5259,
+      "sha256": "d6b47a5c540503427d6f9f033cfd46f694bb608b7144f89cdb1a405fc7ab3bd5"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-curls/ascension-06.ron",
+      "bytes": 5276,
+      "sha256": "b28ff529f7ded45447437dc8e74dd011b0e4585ddc52313602c9de570fc81ca6"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-01.ron",
+      "bytes": 2658,
+      "sha256": "4e993e2089ce18a17c99842766a34ab27104672eff5b5b4a91934b0937bd44bb"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-02.ron",
+      "bytes": 2656,
+      "sha256": "c7fb40ce745d1e2174d8fbdb96f64f2a2fb2342d37ea5a32dd832ab5a02fc5b1"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-03.ron",
+      "bytes": 2656,
+      "sha256": "0ef1b79b7c3c79eac735268258d4f105b56048f1175dcc67d3322418eec7f26f"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-04.ron",
+      "bytes": 2649,
+      "sha256": "0d07d0d014236e20c1cc8b9b59d359a80f8b39e095313b18bf510a07ea907a94"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-05.ron",
+      "bytes": 2654,
+      "sha256": "ba2e3537ed35cbec9f710715865c44e8dba1b2a9619c73d23992a499b50b6f35"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-06.ron",
+      "bytes": 2652,
+      "sha256": "c152d8b06449c753ec594345a7264b4c888be5f3b4c7992a86a08e112e5a1bfc"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-07.ron",
+      "bytes": 2651,
+      "sha256": "37fea96e8b3a318291f2ea89c7976b6cf2b406e716b94bd8f6ac2711cebfbf32"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-08.ron",
+      "bytes": 2651,
+      "sha256": "75fb5929c81be1fa2f03816c7ed2ef9e729c3f7e15a8c7d2935b100a47324ea3"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-09.ron",
+      "bytes": 2657,
+      "sha256": "001cfc73a98da4a3a52c31f772af29d02559d526186421b5c3bdee2f578354bf"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-fields/2d-fields-10.ron",
+      "bytes": 2656,
+      "sha256": "02aeee35e8528b5dd15e4a9e31f796998c8e565183eb432cb44e8e88340818e2"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-sharp/cristal-01.ron",
+      "bytes": 5443,
+      "sha256": "d4c657e9a52aaaa89ca352eae1a0b01ab858875e16a062c29ce9b3a96bf2600c"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-sharp/cristal-02.ron",
+      "bytes": 5563,
+      "sha256": "ebe8df98d63883c9e23563c5c06e21b90ce021f908c931aef535a09c9caea4c1"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-sharp/cristal-03.ron",
+      "bytes": 5719,
+      "sha256": "d159a83422655b59938c5b11ccb472509637c67788268645a3d563b9dd44586d"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-sharp/cristal-04.ron",
+      "bytes": 5867,
+      "sha256": "9d6ecebb3988dd76e662319eea931d0e29a3304f61c634e19ec2643917197b28"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-sharp/cristal-05.ron",
+      "bytes": 4598,
+      "sha256": "bb35fcbf582446fba1a5f03435f56aba6e7a71c9ae227ec485093bfcd8206405"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-sharp/cristal-06.ron",
+      "bytes": 4634,
+      "sha256": "8fb7eae9934f7c22f71fe06236444c8498cbadf528c460b36d38055eaa20fcaa"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-sharp/cristal-07.ron",
+      "bytes": 5096,
+      "sha256": "431e801f1a7c56e591b937f4d70463491f3b99934f8a3e37063fd700b6f59609"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-sharp/cristal-08.ron",
+      "bytes": 5252,
+      "sha256": "7f1564a19f4fbd7f3fea9d5de78301c8d2d5eddbd611ad7a4f2cea975da1c264"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-spirals/2d-spirals-01.ron",
+      "bytes": 2647,
+      "sha256": "8b39e34f9015f90e65ef0f3234b9cd045f7b1fa5b831cc20ecf41e841b76cb8e"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-spirals/2d-spirals-02.ron",
+      "bytes": 2650,
+      "sha256": "3ac21e5681cdef18d1ac0c983573838992b906bc2144656c65d0e82876f58c72"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-spirals/2d-spirals-03.ron",
+      "bytes": 2647,
+      "sha256": "10ac3e4c7675082d5f06a9a0bff21163159b952deb4bdb41a5136e43ebe2e0a8"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d-spirals/2d-spirals-04.ron",
+      "bytes": 2647,
+      "sha256": "a3eed6a740e710ac1809fde4fcfa97a2c3483f76b0ae9f044a614bfa14096773"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d/2d-01.ron",
+      "bytes": 5253,
+      "sha256": "38da5213fc7eff2e557ab1e4cc3e73e3efc5c656791c49a38c27b92860d29397"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d/2d-02.ron",
+      "bytes": 5266,
+      "sha256": "18a70211eb5d83ea9bde34025dc0038eb2eb6cdbb81901d0f1b1c291cd80de8c"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d/2d-03.ron",
+      "bytes": 5266,
+      "sha256": "213f67646a6846080c83193b4c31d05e1535ac4da20cb49f9a4e954adcccaeb0"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d/2d-04.ron",
+      "bytes": 5256,
+      "sha256": "3a1065bde69a42a8074d018b4989d9f161a9347f3f51a1fbcfa710897c7a1803"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d/2d-05.ron",
+      "bytes": 5235,
+      "sha256": "06acaf8aed30bda64203b31947d18270c645b158476f4018b56e0f00996a3a5a"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d/2d-06.ron",
+      "bytes": 5246,
+      "sha256": "dbcf4ae7e6be3ba01c58bb69f06e3f29b4ebb7157891c3d9694fcc8827a11231"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d/2d-07.ron",
+      "bytes": 5232,
+      "sha256": "8a1dd0ce0de88e9a66dc1290f357253f70bbf29315194928913d5ea08ac28f8c"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/2d/2d-08.ron",
+      "bytes": 5248,
+      "sha256": "e8846a16352f5eb1997223de77e864b920eb77269490d63eb64c380f3ad4903b"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-atlas/3d-atlas-01.ron",
+      "bytes": 10126,
+      "sha256": "2150ce2f57d54dca58fec428340694fa25e471f6710ad8de80eb96fda886a251"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-atlas/3d-atlas-02.ron",
+      "bytes": 10125,
+      "sha256": "7fa4911b8a8f2bed0929a1fb828c141504d13033192ab3a54dbda93175af2f82"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-atlas/3d-atlas-03.ron",
+      "bytes": 10127,
+      "sha256": "320b3e1d487fcb9207c744756d46c493e4a6b0ea65dc143308485ded0d886fa5"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-atlas/3d-atlas-04.ron",
+      "bytes": 10126,
+      "sha256": "93d5773c8e741f440c6b265a9f7ef0e97cf0b65b9b66064ff021b1a79529127d"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-inverted/porte-01.ron",
+      "bytes": 14744,
+      "sha256": "73708f76ce49808947bf2a6aa6363e105f88b9d9dc08562bf78151d4fc54db58"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-inverted/porte-02.ron",
+      "bytes": 14744,
+      "sha256": "7c74bbe12ff90622cb405fb496358a571404b03e82a1dd2147027bf711cd4370"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-inverted/porte-03.ron",
+      "bytes": 14744,
+      "sha256": "aaffbbfe90e76e13523f1d01abe208a527f24ced2ef89ece8df48beecd60f39b"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-inverted/porte-04.ron",
+      "bytes": 14745,
+      "sha256": "e16c940da30728903da0e19af69ce27d4741c8b2bf9b8771da0c8d1178729706"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-julia/3d-julia-01.ron",
+      "bytes": 4580,
+      "sha256": "2651cd2db07feea2a1f78b746fcb404340083f8c4c883e1c024a6c174d29f3d8"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-julia/3d-julia-02.ron",
+      "bytes": 4580,
+      "sha256": "3286b469b13ff1d63b118d9b818177b0ca23434424cb51e09c63de80c419a9aa"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-julia/3d-julia-03.ron",
+      "bytes": 4579,
+      "sha256": "d8c197e84cfb373a1adc4876fb5f4188435704a380f6c19a5591088e2144646d"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-julia/3d-julia-04.ron",
+      "bytes": 4579,
+      "sha256": "011983989d3b160b2f6616856cd6c8b66888af1de7833a5e633dc1f9cb663ec2"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-julia/3d-julia-05.ron",
+      "bytes": 4580,
+      "sha256": "687cfdbbf168c6179a3863b7e6710a05ac714072c7392e426f31accf240b7f5d"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-julia/3d-julia-06.ron",
+      "bytes": 4580,
+      "sha256": "7feef3edfc1d2d19fa057367a75897dbd8a662380d4e39555f7f59c9c78aca75"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-sanctuary-bounded/3d-sanctuary-bounded-01.ron",
+      "bytes": 12650,
+      "sha256": "f6a80a47a94a7117f28cb53b7c3d109d86a8db1297c4f8deb0743ab61e9a5be7"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-sanctuary/3d-sanctuary-01.ron",
+      "bytes": 12012,
+      "sha256": "b715c2492e640439962da2911b06c60573a98b0fc2b71eaaf40d0c34d7755adc"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-titans/3d-titans-01.ron",
+      "bytes": 10054,
+      "sha256": "a944c3f6ef54345f07292e8a6c3b01a556f6c8234ceccdaffdaefaa72e6ba1e8"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-titans/3d-titans-02.ron",
+      "bytes": 10054,
+      "sha256": "385145a20ba24d8cf1b97d6e1111e9c5f6dd997d39dca9ad48475522b30bf34a"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-titans/3d-titans-03.ron",
+      "bytes": 10054,
+      "sha256": "1bfaed422507c633bae031b250603ac3c6667991b6436d8c5d1117b1ff91f4fb"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-titans/3d-titans-04.ron",
+      "bytes": 10054,
+      "sha256": "676e0d3b411a8793daf9b761821307607321bc74c9073530e1e30737d308f06e"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-volumes/3d-volumes-01.ron",
+      "bytes": 4191,
+      "sha256": "1dc2efe7e4441a68cdc2c05301d0e7de4c31864e755b295e8be339f53c2020f5"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-volumes/3d-volumes-02.ron",
+      "bytes": 4190,
+      "sha256": "2d3563cec1d85c008f70b6254aadbff590b0c3d6048d61a398b7afc27cad3b9f"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-volumes/3d-volumes-03.ron",
+      "bytes": 4191,
+      "sha256": "ea3b08614f38de31f4fd050fb4ef5aa3cb8405109656cfbb5d968a745ca70db7"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-volumes/3d-volumes-04.ron",
+      "bytes": 4189,
+      "sha256": "d56b57e764932f22e77bc9d87aeb53f282295d787343422e251292c9f60750ad"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-volumes/3d-volumes-05.ron",
+      "bytes": 4190,
+      "sha256": "ae4a211a0cca861b4024553fcd75e475d1ef21bf5d18afe4331af8c2fc926643"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d-volumes/3d-volumes-06.ron",
+      "bytes": 4189,
+      "sha256": "675f95035aae47da006d6f50748f51aa69b41167fab9eefe0fc6ec38674d1c6e"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d/3d-01.ron",
+      "bytes": 14298,
+      "sha256": "8526b7f09cb78b920436620c0603fc990a2da7af9b0997d1798821a377927329"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d/3d-02.ron",
+      "bytes": 14298,
+      "sha256": "dcd974716b5db5e7be3ed21a3d7794e065d0171ea32a8596380c277cfbef4225"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d/3d-03.ron",
+      "bytes": 14298,
+      "sha256": "30129a0a378d3cf25bc4b69eb9901e73e78b4c59947ec2e752d11ecc55d1ad8c"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/3d/3d-04.ron",
+      "bytes": 14299,
+      "sha256": "5e6ee70db9d3fce3acc8916a38730125618596a8252d366ba4e2aa7f3abea591"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/atlas-gardien-infini-3d.ron",
+      "bytes": 12658,
+      "sha256": "2d04b72b6bce6a99576ba5c4ee2b5292d2be74df87954758e132e3cf512db6f9"
+    },
+    {
+      "path": "scenes/studies/epic-20261014/le-souffle-des-titans-2d.ron",
+      "bytes": 2666,
+      "sha256": "04266e576b100e482f90d20a2d6fa940eaf884bbe802aca3c4b5bc46d90e99db"
+    },
+    {
+      "path": "scenes/studies/la-zone-20261013/la-zone.ron",
+      "bytes": 52216,
+      "sha256": "dc2dbc9bf1b96fb5a83e6fcc341284edaa72962c45943b118f1cb821198379ac"
+    },
+    {
+      "path": "scenes/studies/la-zone-20261014/la-zone-obey.ron",
+      "bytes": 51142,
+      "sha256": "d34fddc3d0ea21b8d27594b383cd4f60cc1757869a0f6574d6bd2be54ae8e4e5"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/00-original.ron",
+      "bytes": 13633,
+      "sha256": "0f7d4b391a0fe11a0d038a31219bba29eb76dcdb4727311386bd73d25ac0d1d5"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/01-sans-surexposition.ron",
+      "bytes": 13545,
+      "sha256": "02533b4fc29b15f1cd362ec9a33f5c24bdd4e08885daa914420bc2caa3f6d6f5"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/02-motif-seul.ron",
+      "bytes": 13544,
+      "sha256": "f44b5bfc38065d158b2bd08699c2b631338c56f804738c79c584dd47e167a162"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/03-cuivre-flamme.ron",
+      "bytes": 13729,
+      "sha256": "05836774554c8860fd975b87267aa9939915e4e1f72a8cd94bda38110b6657ec"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/04-cuivre-motif.ron",
+      "bytes": 13729,
+      "sha256": "bf97cf33f62e99792464174ae99773a12307b4391bfde20664cf1581c9e5e32f"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/05-opale.ron",
+      "bytes": 13963,
+      "sha256": "d8cebf8a76f83ffd6481b36341049a1432e40933ad46c86d4f54df1b1ed2d5d5"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/06-abysses-cuivre.ron",
+      "bytes": 13964,
+      "sha256": "7e37fdd1162bc5d895be38e0c1535e43c8d4f4cae08fd35eb2add0674fe4e29c"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/07-soie-argentee.ron",
+      "bytes": 13962,
+      "sha256": "217c4ec8c3e4de5854006c21713eac46b78f774e8e872b2ef1eccff660738e7d"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/08-soie-dopale-final.ron",
+      "bytes": 13831,
+      "sha256": "544b452801913d4c4d1eba560716cc3d1eb4e070dd5ddfdbbdf2351d4b75b4c4"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/09-centre-reduit.ron",
+      "bytes": 13826,
+      "sha256": "971c60f58680763b1da42d10af631f482e2039d1ba8af86910d321f8984a1322"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/10-volutes-12.ron",
+      "bytes": 13827,
+      "sha256": "c4131450890be1f4bfdd942d48813be0e19b12a18c2ad9a104066a60f5060d51"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/11-volutes-16.ron",
+      "bytes": 13827,
+      "sha256": "aa3cc13ebdc16298ef9776e19d216506d5d89570b35d59dbf49e19878a1518ac"
+    },
+    {
+      "path": "scenes/studies/noclue-reprise-20261020/12-dentelle.ron",
+      "bytes": 13827,
+      "sha256": "4b874c042a982c1697a2e741e1ccca25471e10a9c114ae6bbf0d05a84197c1af"
+    },
+    {
+      "path": "scenes/studies/nocturne.ron",
+      "bytes": 4015,
+      "sha256": "ac9278b1d7d34df3432a9c226d16853a49ddd296175c6f8c6345f9165a5c6767"
+    },
+    {
+      "path": "scenes/studies/nocturne.syf",
+      "bytes": 723,
+      "sha256": "c4914c4eeb7461c6487eda0b4d5eb835d74c59b0dbb2becadf24f8c02ddb77c3"
+    },
+    {
+      "path": "scenes/studies/soies-fractales-20261013/nacre-boreale.ron",
+      "bytes": 2565,
+      "sha256": "c2c87b11b18cc9b0b285c71b8a2c4be5d5d6d68888683419ba5cf719927a1509"
+    },
+    {
+      "path": "scenes/studies/soies-fractales-20261013/selection.json",
+      "bytes": 776,
+      "sha256": "9f628ad531f1e69213c25b2ef481cd1c6c636370f748ba33477260cfe1285aba"
+    },
+    {
+      "path": "scenes/studies/soies-fractales-20261013/soie-de-feu.ron",
+      "bytes": 2593,
+      "sha256": "793d064d6a64b2ddc58d0e2e44197c67d440ac756c07c468de5146430704334b"
+    },
+    {
+      "path": "scenes/studies/soies-neon-20261013/nacre-boreale-neon.ron",
+      "bytes": 2829,
+      "sha256": "a2180d54e663674ee214fcfc5ebeccb3f3809d01f0dd0e9258e6a4cfe90cb74e"
+    },
+    {
+      "path": "scenes/studies/soies-neon-20261013/selection.json",
+      "bytes": 1220,
+      "sha256": "69da5c2017f6d726e652b45e356b134525e52d6c13f6232f782a5840ee771655"
+    },
+    {
+      "path": "scenes/studies/soies-neon-20261013/soie-de-feu-neon.ron",
+      "bytes": 2832,
+      "sha256": "7941080fc125da885f53a2e133d7cf9c8b5bf5bef0ca02389f668f8688fef0b4"
+    },
+    {
+      "path": "scenes/studies/soies-neon-doux-20261013/nacre-boreale-neon-doux.ron",
+      "bytes": 2852,
+      "sha256": "568f5a4327915e529daf90c61ffe2d9bf9c82e5e2043bbbfc8922dd1a2c12d59"
+    },
+    {
+      "path": "scenes/studies/soies-neon-doux-20261013/selection.json",
+      "bytes": 1282,
+      "sha256": "ca6e5852b27203a0d890c709dccfc01077febff99b835227a2a93f7f501306f5"
+    },
+    {
+      "path": "scenes/studies/soies-neon-doux-20261013/soie-de-feu-neon-doux.ron",
+      "bytes": 2855,
+      "sha256": "e201b6c496480ed43c0cf2051417c8e06fd3265ce1f1d9a3d35d74ec66ad5f9d"
+    },
+    {
+      "path": "scenes/studies/thalassa.ron",
+      "bytes": 28029,
+      "sha256": "f140f1ae3b43feeff9694b82925ff6ecd537111466a2a2c221871cb3835f5ed7"
+    },
+    {
+      "path": "scenes/studies/volutes-chromatiques.math.json",
+      "bytes": 417,
+      "sha256": "611a3ea9cdbc7bf95c66c5b5573078ee575b8955928df31509cf7757f6d88de0"
+    },
+    {
+      "path": "scenes/studies/volutes-chromatiques.ron",
+      "bytes": 4338,
+      "sha256": "2cbca44d061d9ba22991c4af3ef1c7d8c66975b47caf19c9934e93b05ad23d70"
+    },
+    {
+      "path": "scenes/studies/workshop-preview-20261013/corail.ron",
+      "bytes": 4321,
+      "sha256": "f75c254c3577b08d8694cdd87e433b89c861a7117bba0d3e2a8ba659a9b7dc5d"
+    },
+    {
+      "path": "scripts/build-laptop.ps1",
+      "bytes": 3766,
+      "sha256": "9d73c50366b3795904a57ca51eedcf09281ed3ce0fce7604c0771ef1761f6d4e"
+    },
+    {
       "path": "scripts/build.ps1",
       "bytes": 616,
       "sha256": "753d38be5e3be0d11614ad4c792c4d32a80b4719a670d20dd061b83fcfb64593"
     },
     {
+      "path": "scripts/compose/compose-complex-studies.py",
+      "bytes": 7489,
+      "sha256": "2261107ee7739a9063df1b88c72cd70d42bf6a52b5b392815328374cca65eaed"
+    },
+    {
+      "path": "scripts/compose/compose-elysium.py",
+      "bytes": 26721,
+      "sha256": "1c96a7c985d15ca0fcbad7d8125709a47db151741ebbb19bf4350a3195745366"
+    },
+    {
+      "path": "scripts/compose/compose-fractal-gallery.py",
+      "bytes": 7996,
+      "sha256": "c83513eab01f854fd1497719f264825ef875f96ea0c8f481d1a34d261a4a4500"
+    },
+    {
+      "path": "scripts/compose/compose-soies-fractales.py",
+      "bytes": 1171,
+      "sha256": "80268dd59138eb06c0a76058c2165f7f96a82a645fe4b1817ef86cbf4b761036"
+    },
+    {
+      "path": "scripts/compose/compose-volutes-chromatiques.py",
+      "bytes": 7219,
+      "sha256": "cc6ed052c7f6c4cc0d20c623fb26107da972ca12dfc89266fcdd86f094a7f351"
+    },
+    {
       "path": "scripts/i18n/audit.py",
-      "bytes": 4136,
-      "sha256": "3d2f93d1c17f7148433935ed33957f66f1f08c583fed950bcea618688c9b883d"
+      "bytes": 5006,
+      "sha256": "80dadbfc30304f0256a6f03b96d997beaf3f54814fd53043eef8656812f82dcb"
     },
     {
       "path": "scripts/i18n/rust_strings.py",
@@ -1512,8 +3287,8 @@
     },
     {
       "path": "scripts/package/prepare-source.py",
-      "bytes": 7219,
-      "sha256": "97021504c41153176332a5d99d7af619d3ccc208976e784e6543b45a32d8de97"
+      "bytes": 8537,
+      "sha256": "c6a7f07b90f58e2a83e52900114e840229d5bf09294d41c73b282e94c5c2a17a"
     },
     {
       "path": "scripts/package/publish-release.py",
@@ -1521,19 +3296,39 @@
       "sha256": "c2064caa9a444be2477a2ca60a23a34f2b0a3d379646fe7dad8fc3ca2dfa3441"
     },
     {
+      "path": "scripts/package/source_layout.py",
+      "bytes": 2123,
+      "sha256": "8fecdcc5187f7e5334f29f029ca60429fc4c775489172932eb0c677422baa451"
+    },
+    {
       "path": "scripts/package/test_release.py",
       "bytes": 6451,
-      "sha256": "9d9751e9a7b8ffc6cf00df9a8514628feadb5847645bcab17ade70c8252ab3b4"
+      "sha256": "c8f345eb04cb91ce0dd4ccbc01ab2a4a4179de0ad5dc95d751c14b576222dcad"
+    },
+    {
+      "path": "scripts/package/test_source.py",
+      "bytes": 4792,
+      "sha256": "a7af64b0f54d584a9ab24d2317c2aab77e3c5302c7c0dee291c3b27305ebf2e3"
     },
     {
       "path": "scripts/package/verify-source.py",
-      "bytes": 1876,
-      "sha256": "48db5ae5f246ab8522686dca7a17d1e4fc5a3cda6f204090af87b251844f5c40"
+      "bytes": 2929,
+      "sha256": "2f5404ef56bc53f8dc33d01dea22b500553ddc139b2a82a473e7fed331c6ef06"
     },
     {
       "path": "scripts/package/windows-release.py",
-      "bytes": 14369,
-      "sha256": "b06a0ea875100c5d1aa723416f985a7a8cb712890c2d58e79208405d270cf554"
+      "bytes": 14436,
+      "sha256": "55b29a29ef4b1844328f577193615dc761daaecce2de1555871f44aad5ecb5e4"
+    },
+    {
+      "path": "scripts/render/render-soies-fractales.ps1",
+      "bytes": 694,
+      "sha256": "97023c24c715c435ffe655feafd23c78d0cd19b6eaafc49c00f5c732d0d6ad33"
+    },
+    {
+      "path": "scripts/with-vulkan-cpu.ps1",
+      "bytes": 6646,
+      "sha256": "b868a763b30087568a498fbd0d9219740a16ae0ce3661a7ba1504ed479437419"
     }
   ]
 }

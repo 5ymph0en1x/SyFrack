@@ -1166,6 +1166,8 @@ dependencies = [
  "num-traits",
  "png",
  "tiff",
+ "zune-core",
+ "zune-jpeg",
 ]
 
 [[package]]
@@ -2554,7 +2556,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "syfrack-app"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "bytemuck",
@@ -2565,6 +2567,7 @@ dependencies = [
  "png",
  "pollster",
  "ron",
+ "serde",
  "syfrack-color",
  "syfrack-core",
  "syfrack-i18n",
@@ -2575,7 +2578,7 @@ dependencies = [
 
 [[package]]
 name = "syfrack-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -2589,17 +2592,19 @@ dependencies = [
 
 [[package]]
 name = "syfrack-color"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "exr",
+ "image",
  "png",
+ "serde",
  "syfrack-core",
 ]
 
 [[package]]
 name = "syfrack-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "glam",
  "ron",
@@ -2610,11 +2615,11 @@ dependencies = [
 
 [[package]]
 name = "syfrack-i18n"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "syfrack-render"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "bytemuck",
@@ -2628,6 +2633,7 @@ dependencies = [
  "syfrack-color",
  "syfrack-core",
  "wgpu",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

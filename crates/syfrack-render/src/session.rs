@@ -11,6 +11,9 @@ use crate::renderer::{Progress, RenderConfig, RenderOutput, Renderer};
 use crate::tiles::{Tile, TileGrid};
 use crate::uniforms::Uniforms;
 
+mod export_slot;
+pub(crate) use export_slot::{ExportSlot, TileResult};
+
 // Spatial growth gets half the slow-dispatch budget. Four conservative old
 // tile times overestimate the benefit of occupying more GPU workgroups, while
 // still leaving a factor-of-two margin before the automatic reduction.
@@ -28,7 +31,7 @@ fn initial_tile(scene: &Scene, requested: u32) -> u32 {
     requested.min(limit)
 }
 const STATE_FILE: &str = "state.ron";
-const STATE_FILES: [&str; 9] = [
+const STATE_FILES: [&str; 10] = [
     STATE_FILE,
     "accum.bin",
     "depth.bin",
@@ -38,6 +41,7 @@ const STATE_FILES: [&str; 9] = [
     "volume-moments.bin",
     "surface.bin",
     "volume-components.bin",
+    "export.bin",
 ];
 
 /// Refuses a directory that holds anything other than state files.
@@ -64,6 +68,10 @@ pub fn check_replaceable(dir: &Path) -> Result<()> {
 /// saved as raw little-endian f32 files next to this.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SessionState {
+    /// Present only for host-assembled tiled exports. Their pixel payload is
+    /// normalized linear data, and must never be restored as GPU sample sums.
+    #[serde(default)]
+    pub export: Option<crate::export::ExportCheckpoint>,
     /// Absent in legacy checkpoints, which remain readable for gallery/info.
     #[serde(default)]
     pub shader_fingerprint: Option<u64>,
@@ -112,11 +120,12 @@ pub struct RenderSession {
     uniform_buf: wgpu::Buffer,
     /// The compiled distance estimator of the scene's graph topology.
     pipeline: Arc<CompiledPipeline>,
+    wavefront: Option<crate::wavefront::Wavefront>,
     guiding_pipelines: Option<Arc<crate::pipeline_cache::GuidingPipelines>>,
-    /// Graph parameter values (binding 4), laid out by `pipeline.layout`.
-    params_buf: wgpu::Buffer,
-    /// Independent material graph values (binding 5).
-    texture_params_buf: wgpu::Buffer,
+    /// Graph parameter values (bindings 4/16), laid out by `pipeline.layout`.
+    params_buf: crate::params::Parameters,
+    /// Independent material graph values (bindings 5/17).
+    texture_params_buf: crate::params::Parameters,
     environment: Arc<crate::environment::PreparedEnvironment>,
     particles: Arc<crate::particles::PreparedParticles>,
     accum: wgpu::Buffer,
@@ -143,6 +152,7 @@ pub struct RenderSession {
     dispatches: u32,
     elapsed: Duration,
     max_dispatch: Duration,
+    execution_profile: Option<Arc<crate::execution_profile::ExecutionProfile>>,
     guiding_updates: u32,
     guiding_active_cells: usize,
     guiding_spatial_leaves: usize,
@@ -153,12 +163,40 @@ pub struct RenderSession {
 
 impl RenderSession {
     pub fn new(renderer: Renderer, scene: &Scene, cfg: &RenderConfig) -> Result<Self> {
+        Self::build(renderer, scene, cfg, None)
+    }
+
+    /// Adopt a pipeline compiled by this renderer without consulting the bounded LRU.
+    /// A background compilation can outlive its cache entry; adoption must not
+    /// synchronously compile that shader again on the interactive thread.
+    pub fn from_pipeline(
+        renderer: Renderer,
+        scene: &Scene,
+        cfg: &RenderConfig,
+        pipeline: Arc<CompiledPipeline>,
+    ) -> Result<Self> {
+        let resolved = scene.render_scene()?;
+        let scene = &resolved;
+        anyhow::ensure!(
+            pipeline.fingerprint == crate::graph_wgsl::scene_fingerprint(scene),
+            "compiled pipeline does not match scene topology"
+        );
+        Self::build(renderer, scene, cfg, Some(pipeline))
+    }
+
+    fn build(
+        renderer: Renderer,
+        scene: &Scene,
+        cfg: &RenderConfig,
+        compiled: Option<Arc<CompiledPipeline>>,
+    ) -> Result<Self> {
         scene.validate().context("scene validation")?;
-        let mut scene = scene.clone();
+        let mut scene = scene.render_scene()?;
         scene.resolve_asset_paths(Path::new("."))?;
         let scene = &scene;
         let environment = renderer.environment_for(scene)?;
         let particles = renderer.particles_for(scene)?;
+        let phenomena = renderer.prepare_phenomena(scene)?;
         let device = &renderer.ctx.device;
         cfg.validate(&device.limits())
             .context("render configuration")?;
@@ -184,7 +222,10 @@ impl RenderSession {
         }
         environment.apply(&mut uniforms);
         let graph = scene.fractal.to_graph();
-        let pipeline = renderer.pipeline_for_scene(scene)?;
+        let pipeline = match compiled {
+            Some(pipeline) => pipeline,
+            None => renderer.pipeline_for_scene(scene)?,
+        };
         let guiding_pipelines = if cfg.guiding {
             Some(pipeline.guiding_pipelines(device, &renderer.layouts)?)
         } else {
@@ -219,12 +260,19 @@ impl RenderSession {
                     mapped_at_creation: false,
                 })
             };
-            let params_buf = renderer.graph_params_buffer(&pipeline.layout.pack(&graph));
+            let mut values = pipeline.layout.pack(&graph);
+            crate::phenomena::append_parameters(
+                scene,
+                phenomena.as_deref(),
+                &mut values,
+                &mut uniforms,
+            )?;
+            let params_buf = renderer.graph_params_buffer(&values)?;
             let texture_values = match (&pipeline.texture_layout, &scene.material.texture) {
                 (Some(layout), Some(texture)) => layout.pack(&texture.graph),
-                _ => [0.0; crate::graph_wgsl::PARAM_COUNT],
+                _ => vec![0.0; 4],
             };
-            let texture_params_buf = renderer.graph_params_buffer(&texture_values);
+            let texture_params_buf = renderer.graph_params_buffer(&texture_values)?;
             let accum = storage("accum", pixels * 16);
             let depth = storage(
                 "depth + guiding",
@@ -285,11 +333,19 @@ impl RenderSession {
                     },
                     wgpu::BindGroupEntry {
                         binding: 4,
-                        resource: params_buf.as_entire_binding(),
+                        resource: params_buf.binding(),
                     },
                     wgpu::BindGroupEntry {
                         binding: 5,
-                        resource: texture_params_buf.as_entire_binding(),
+                        resource: texture_params_buf.binding(),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 16,
+                        resource: params_buf.overflow_binding(),
+                    },
+                    wgpu::BindGroupEntry {
+                        binding: 17,
+                        resource: texture_params_buf.overflow_binding(),
                     },
                     wgpu::BindGroupEntry {
                         binding: 6,
@@ -333,6 +389,80 @@ impl RenderSession {
                 bind_group,
             ))
         })?;
+        let wavefront = if cfg.integrator == crate::ComputeIntegrator::Wavefront
+            && scene.dimension == syfrack_core::Dimension::ThreeD
+        {
+            anyhow::ensure!(!cfg.guiding, "wavefront global guiding is not implemented");
+            Some(renderer.with_scopes(|| {
+                crate::wavefront::Wavefront::new(
+                    &renderer,
+                    &pipeline,
+                    pixels,
+                    cfg.max_bounces
+                        + if crate::graph_wgsl::scene_has_optics(scene) {
+                            34
+                        } else {
+                            1
+                        },
+                    &[
+                        wgpu::BindGroupEntry {
+                            binding: 0,
+                            resource: uniform_buf.as_entire_binding(),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 2,
+                            resource: depth.as_entire_binding(),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 4,
+                            resource: params_buf.binding(),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 5,
+                            resource: texture_params_buf.binding(),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 16,
+                            resource: params_buf.overflow_binding(),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 17,
+                            resource: texture_params_buf.overflow_binding(),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 6,
+                            resource: environment.buffer.as_entire_binding(),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 7,
+                            resource: wgpu::BindingResource::TextureView(&particles.view),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 8,
+                            resource: wgpu::BindingResource::Sampler(&particles.sampler),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 9,
+                            resource: wgpu::BindingResource::TextureView(&particles.lighting),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 10,
+                            resource: wgpu::BindingResource::TextureView(
+                                &particles.microstructure.view,
+                            ),
+                        },
+                        wgpu::BindGroupEntry {
+                            binding: 11,
+                            resource: wgpu::BindingResource::Sampler(
+                                &particles.microstructure.sampler,
+                            ),
+                        },
+                    ],
+                )
+            })?)
+        } else {
+            None
+        };
         let mut session = Self {
             flame_work: None,
             flame: if scene.canvas.flame.is_some() {
@@ -351,6 +481,7 @@ impl RenderSession {
             uniforms,
             uniform_buf,
             pipeline,
+            wavefront,
             guiding_pipelines,
             params_buf,
             texture_params_buf,
@@ -365,7 +496,15 @@ impl RenderSession {
             volume_components,
             volume_components_enabled,
             bind_group,
-            grid: TileGrid::new(cfg.width, cfg.height, initial_tile(scene, cfg.tile_size)),
+            grid: TileGrid::new(
+                cfg.width,
+                cfg.height,
+                if cfg.integrator == crate::ComputeIntegrator::Wavefront {
+                    cfg.tile_size.min(64)
+                } else {
+                    initial_tile(scene, cfg.tile_size)
+                },
+            ),
             spd: 1,
             want_halve: false,
             worst: 0.0,
@@ -375,6 +514,7 @@ impl RenderSession {
             dispatches: 0,
             elapsed: Duration::ZERO,
             max_dispatch: Duration::ZERO,
+            execution_profile: None,
             guiding_updates: 0,
             guiding_active_cells: 0,
             guiding_spatial_leaves: 0,
@@ -505,6 +645,12 @@ impl RenderSession {
         &self.cfg
     }
 
+    fn transport_identity(&self) -> u64 {
+        self.wavefront
+            .as_ref()
+            .map_or(self.pipeline.shader_fingerprint, |w| w.fingerprint())
+    }
+
     /// Change only scheduling, including after resuming a saved image.
     pub fn set_dispatch_budget_ms(&mut self, milliseconds: u32) -> Result<()> {
         let mut cfg = self.cfg.clone();
@@ -528,6 +674,11 @@ impl RenderSession {
             samples_min: self.grid.min_done(),
             samples_max: self.grid.max_done(),
             target: self.cfg.samples_per_pixel,
+            pixel_samples_done: self.grid.pixel_samples_done(),
+            export_workers: None,
+            pixel_samples_total: u64::from(self.cfg.width)
+                * u64::from(self.cfg.height)
+                * u64::from(self.cfg.samples_per_pixel),
             elapsed: self.elapsed,
             max_dispatch_ms: self.max_dispatch.as_millis() as u32,
             tiles_done: self.grid.progress_cells(),
@@ -587,8 +738,22 @@ impl RenderSession {
                     }
                 }
             }
-            self.uniforms
-                .set_tile(tile.x, tile.y, tile.w, tile.h, tile.done, n);
+            let origin = if self.uniforms.flags & 8 != 0 {
+                [
+                    self.uniforms.guiding_record_round,
+                    self.uniforms.guiding_training_end,
+                ]
+            } else {
+                [0, 0]
+            };
+            self.uniforms.set_tile(
+                tile.x + origin[0],
+                tile.y + origin[1],
+                tile.w,
+                tile.h,
+                tile.done,
+                n,
+            );
             let ctx = &self.renderer.ctx;
             let dispatch_start = Instant::now();
             ctx.queue
@@ -609,13 +774,33 @@ impl RenderSession {
                 } else {
                     &self.pipeline.pipeline
                 };
-                self.renderer.dispatch(
-                    pipeline,
-                    &self.bind_group,
-                    tile.w,
-                    tile.h,
-                    self.pipeline.workgroup,
-                )
+                if let Some(wavefront) = &self.wavefront {
+                    let _activity = self.execution_profile.as_deref().map(|p| p.enter(false));
+                    wavefront.dispatch(
+                        &self.renderer,
+                        tile.w,
+                        tile.h,
+                        n,
+                        [
+                            &self.accum,
+                            &self.aux,
+                            &self.volume,
+                            &self.volume_moments,
+                            &self.surface,
+                            &self.volume_components,
+                        ],
+                        self.volume_components_enabled,
+                    )
+                } else {
+                    self.renderer.dispatch(
+                        pipeline,
+                        &self.bind_group,
+                        tile.w,
+                        tile.h,
+                        self.pipeline.workgroup,
+                        self.execution_profile.as_deref(),
+                    )
+                }
             })?;
             ctx.check()?;
             let dispatch_wall = dispatch_start.elapsed();
@@ -694,15 +879,44 @@ impl RenderSession {
     pub fn readback(&self) -> Result<RenderOutput> {
         let ctx = &self.renderer.ctx;
         ctx.check()?;
-        let pixels = (self.cfg.width as u64) * (self.cfg.height as u64);
-        let (raw, raw_depth, raw_aux) = self.renderer.with_scopes(|| {
-            Ok((
-                ctx.read_buffer(&self.accum, pixels * 16)?,
-                ctx.read_buffer(&self.depth, pixels * 4)?,
-                ctx.read_buffer(&self.aux, pixels * 16)?,
-            ))
+        let pixels = self.cfg.width as u64 * self.cfg.height as u64;
+        let layers = crate::renderer::separated_volume_layers(&self.scene);
+        let raw: Vec<Vec<u8>> = self.renderer.with_scopes(|| {
+            [
+                &self.accum,
+                &self.depth,
+                &self.aux,
+                &self.volume,
+                &self.volume_moments,
+                &self.surface,
+                &self.volume_components,
+            ]
+            .into_iter()
+            .enumerate()
+            .map(|(i, buffer)| {
+                if i >= 3 && !layers {
+                    return Ok(Vec::new());
+                }
+                let bytes = if i == 1 {
+                    pixels * 4
+                } else if i == 6 {
+                    if self.volume_components_enabled {
+                        pixels * 48
+                    } else {
+                        48
+                    }
+                } else {
+                    pixels * 16
+                };
+                ctx.read_buffer(buffer, bytes)
+            })
+            .collect()
         })?;
-        let sums: Vec<[f32; 4]> = bytemuck::pod_collect_to_vec(&raw);
+        self.decode_readback(&raw.iter().map(Vec::as_slice).collect::<Vec<_>>())
+    }
+
+    fn decode_readback(&self, raw: &[&[u8]]) -> Result<RenderOutput> {
+        let sums: Vec<[f32; 4]> = bytemuck::pod_collect_to_vec(raw[0]);
         let data = sums
             .iter()
             .map(|p| {
@@ -710,24 +924,8 @@ impl RenderSession {
                 [p[0] / n, p[1] / n, p[2] / n, 1.0]
             })
             .collect();
-        let layers = if self.scene.dimension == syfrack_core::Dimension::ThreeD
-            && self.scene.atmosphere.fog_density > 0.0
-        {
-            let raw_layers = self.renderer.with_scopes(|| {
-                Ok([
-                    ctx.read_buffer(&self.volume, pixels * 16)?,
-                    ctx.read_buffer(&self.volume_moments, pixels * 16)?,
-                    ctx.read_buffer(&self.surface, pixels * 16)?,
-                    ctx.read_buffer(
-                        &self.volume_components,
-                        if self.volume_components_enabled {
-                            pixels * 48
-                        } else {
-                            48
-                        },
-                    )?,
-                ])
-            })?;
+        let layers = if crate::renderer::separated_volume_layers(&self.scene) {
+            let raw_layers = &raw[3..];
             let volume: Vec<[f32; 4]> = bytemuck::pod_collect_to_vec(&raw_layers[0]);
             let moments: Vec<[f32; 4]> = bytemuck::pod_collect_to_vec(&raw_layers[1]);
             let surface: Vec<[f32; 4]> = bytemuck::pod_collect_to_vec(&raw_layers[2]);
@@ -797,8 +995,8 @@ impl RenderSession {
         Ok(RenderOutput {
             color: HdrImage::from_data(self.cfg.width, self.cfg.height, data),
             layers,
-            depth: bytemuck::pod_collect_to_vec(&raw_depth),
-            normals: bytemuck::pod_collect_to_vec(&raw_aux),
+            depth: bytemuck::pod_collect_to_vec(raw[1]),
+            normals: bytemuck::pod_collect_to_vec(raw[2]),
             samples_min: self.grid.min_done(),
             samples_max: self.grid.max_done(),
             elapsed: self.elapsed,
@@ -856,8 +1054,10 @@ impl RenderSession {
                 (13, self.volume_moments.as_entire_binding()),
                 (14, self.surface.as_entire_binding()),
                 (15, self.volume_components.as_entire_binding()),
-                (4, self.params_buf.as_entire_binding()),
-                (5, self.texture_params_buf.as_entire_binding()),
+                (4, self.params_buf.binding()),
+                (5, self.texture_params_buf.binding()),
+                (16, self.params_buf.overflow_binding()),
+                (17, self.texture_params_buf.overflow_binding()),
                 (6, self.environment.buffer.as_entire_binding()),
                 (7, wgpu::BindingResource::TextureView(&self.particles.view)),
                 (8, wgpu::BindingResource::Sampler(&self.particles.sampler)),
@@ -895,7 +1095,7 @@ impl RenderSession {
                     ctx.queue
                         .write_buffer(&self.uniform_buf, 0, bytemuck::bytes_of(&uniforms));
                     self.renderer
-                        .dispatch(&pipeline, &group, tile.w, tile.h, [8, 8])?;
+                        .dispatch(&pipeline, &group, tile.w, tile.h, [8, 8], None)?;
                 }
                 Ok(())
             })();
@@ -1057,7 +1257,8 @@ impl RenderSession {
                 None
             };
             let state = SessionState {
-                shader_fingerprint: Some(self.pipeline.shader_fingerprint),
+                export: None,
+                shader_fingerprint: Some(self.transport_identity()),
                 environment_fingerprint: self.environment.fingerprint,
                 particle_fingerprint: self.particles.fingerprint,
                 guiding_updates: self.guiding_updates,
@@ -1119,11 +1320,15 @@ impl RenderSession {
         let text = std::fs::read_to_string(dir.join(STATE_FILE))
             .with_context(|| format!("reading {}", dir.join(STATE_FILE).display()))?;
         let state: SessionState = ron::from_str(&text).map_err(|e| anyhow!("state.ron: {e}"))?;
+        anyhow::ensure!(
+            state.export.is_none(),
+            "tiled export checkpoint: resume with ExportSession"
+        );
         // Metadata is only a preview cache hint; resume hashes fresh pixels.
         renderer.invalidate_environment();
         let mut session = Self::new(renderer, &state.scene, &state.cfg)?;
         if state.tiles.iter().any(|tile| tile.done > 0)
-            && state.shader_fingerprint != Some(session.pipeline.shader_fingerprint)
+            && state.shader_fingerprint != Some(session.transport_identity())
         {
             anyhow::bail!(
                 "this checkpoint was rendered with a different or legacy lighting engine; open its scene and start a new render (the saved files have not been changed)"
@@ -1242,6 +1447,7 @@ impl RenderSession {
             self.environment
                 .resource_fingerprint(self.pipeline.fingerprint),
         );
+        let key = crate::phenomena::resource_key(&self.scene, key);
         if self.scene.canvas.flame.is_some() {
             use std::hash::{Hash, Hasher};
             let mut h = std::collections::hash_map::DefaultHasher::new();
@@ -1298,19 +1504,13 @@ impl RenderSession {
         } else {
             None
         };
-        self.renderer.ctx.queue.write_buffer(
-            &self.params_buf,
-            0,
-            bytemuck::cast_slice(&self.pipeline.layout.pack(&g)),
-        );
+        self.params_buf
+            .write(&self.renderer.ctx.queue, &self.pipeline.layout.pack(&g))?;
         if let (Some(layout), Some(texture)) =
             (&self.pipeline.texture_layout, &scene.material.texture)
         {
-            self.renderer.ctx.queue.write_buffer(
-                &self.texture_params_buf,
-                0,
-                bytemuck::cast_slice(&layout.pack(&texture.graph)),
-            );
+            self.texture_params_buf
+                .write(&self.renderer.ctx.queue, &layout.pack(&texture.graph))?;
         }
         Ok(())
     }
@@ -1318,12 +1518,31 @@ impl RenderSession {
     /// Keeps the image size and config, swaps the scene, and restarts from zero.
     pub fn reset(&mut self, scene: &Scene) -> Result<()> {
         scene.validate().context("scene validation")?;
+        if scene.phenomena.is_some() || self.scene.phenomena.is_some() {
+            let replacement = Self::new(self.renderer.clone(), scene, &self.cfg)?;
+            *self = replacement;
+            return Ok(());
+        }
         let mut scene = scene.clone();
         scene.resolve_asset_paths(Path::new("."))?;
         let scene = &scene;
         let environment = self.renderer.environment_for(scene)?;
         let particles = self.renderer.particles_for(scene)?;
-        let bind_group = if !Arc::ptr_eq(&self.environment, &environment)
+        let topology_changed = crate::graph_wgsl::scene_fingerprint(scene)
+            != crate::graph_wgsl::scene_fingerprint(&self.scene);
+        if topology_changed {
+            self.pipeline = self.renderer.pipeline_for_scene(scene)?;
+            self.params_buf = self
+                .renderer
+                .graph_params_buffer(&self.pipeline.layout.pack(&scene.fractal.to_graph()))?;
+            let values = match (&self.pipeline.texture_layout, &scene.material.texture) {
+                (Some(layout), Some(texture)) => layout.pack(&texture.graph),
+                _ => vec![0.0; 4],
+            };
+            self.texture_params_buf = self.renderer.graph_params_buffer(&values)?;
+        }
+        let bind_group = if topology_changed
+            || !Arc::ptr_eq(&self.environment, &environment)
             || !Arc::ptr_eq(&self.particles, &particles)
         {
             Some(self.renderer.with_scopes(|| {
@@ -1369,11 +1588,19 @@ impl RenderSession {
                             },
                             wgpu::BindGroupEntry {
                                 binding: 4,
-                                resource: self.params_buf.as_entire_binding(),
+                                resource: self.params_buf.binding(),
                             },
                             wgpu::BindGroupEntry {
                                 binding: 5,
-                                resource: self.texture_params_buf.as_entire_binding(),
+                                resource: self.texture_params_buf.binding(),
+                            },
+                            wgpu::BindGroupEntry {
+                                binding: 16,
+                                resource: self.params_buf.overflow_binding(),
+                            },
+                            wgpu::BindGroupEntry {
+                                binding: 17,
+                                resource: self.texture_params_buf.overflow_binding(),
                             },
                             wgpu::BindGroupEntry {
                                 binding: 6,

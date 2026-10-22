@@ -1,0 +1,345 @@
+[
+  {
+    "name": "01-julia-azur",
+    "family": "Julia",
+    "julia": [
+      -0.74543,
+      0.11301
+    ],
+    "center": [
+      -0.15,
+      0.05
+    ],
+    "zoom": 2.8,
+    "iterations": 192,
+    "stripes": 17,
+    "frequency": 20,
+    "weights": [
+      1,
+      0.03,
+      0.12,
+      0
+    ],
+    "palette": "nacre"
+  },
+  {
+    "name": "02-julia-soie",
+    "family": "Julia",
+    "julia": [
+      -0.8,
+      0.156
+    ],
+    "center": [
+      0.08,
+      0.02
+    ],
+    "zoom": 5,
+    "angle": 23,
+    "iterations": 192,
+    "stripes": 8,
+    "frequency": 13,
+    "weights": [
+      1,
+      0.08,
+      0.18,
+      0
+    ]
+  },
+  {
+    "name": "03-mandelbrot-volutes",
+    "family": "Mandelbrot",
+    "center": [
+      -0.7435,
+      0.1314
+    ],
+    "zoom": 240,
+    "iterations": 256,
+    "stripes": 17,
+    "frequency": 21,
+    "weights": [
+      1,
+      0.08,
+      0.1,
+      0
+    ]
+  },
+  {
+    "name": "04-mandelbrot-or",
+    "family": "Mandelbrot",
+    "center": [
+      -0.76,
+      0.1
+    ],
+    "zoom": 24,
+    "iterations": 192,
+    "stripes": 13,
+    "frequency": 21,
+    "weights": [
+      1,
+      0.05,
+      0.15,
+      0
+    ],
+    "palette": "cuivre"
+  },
+  {
+    "name": "05-burning-ship-soie",
+    "family": "BurningShip",
+    "center": [
+      -1.76,
+      -0.035
+    ],
+    "zoom": 120,
+    "iterations": 192,
+    "stripes": 11,
+    "frequency": 17,
+    "weights": [
+      1,
+      0.12,
+      0.07,
+      0
+    ],
+    "palette": "nacre"
+  },
+  {
+    "name": "06-burning-ship-cuivre",
+    "family": "BurningShip",
+    "center": [
+      -1.75,
+      -0.02
+    ],
+    "zoom": 36,
+    "iterations": 192,
+    "stripes": 8,
+    "frequency": 13,
+    "weights": [
+      1,
+      0.15,
+      0.12,
+      0
+    ],
+    "palette": "cuivre"
+  },
+  {
+    "name": "07-newton-petales",
+    "family": "Newton",
+    "power": 3,
+    "zoom": 1.4,
+    "iterations": 96,
+    "stripes": 24,
+    "trap_radius": 0.33,
+    "frequency": 8,
+    "weights": [
+      0.12,
+      0.28,
+      0.6,
+      0.05
+    ]
+  },
+  {
+    "name": "08-newton-spirales",
+    "family": "Newton",
+    "power": 3,
+    "zoom": 1.2,
+    "angle": 23,
+    "inversion": 0.75,
+    "relaxation": 0.9,
+    "twist": 17,
+    "iterations": 128,
+    "stripes": 13,
+    "trap_radius": 0.8,
+    "frequency": 8,
+    "weights": [
+      0.15,
+      0.32,
+      0.52,
+      0.05
+    ],
+    "palette": "cuivre"
+  },
+  {
+    "name": "09-nova-velours",
+    "family": "Nova",
+    "julia": [
+      -0.16,
+      0.18
+    ],
+    "power": 3,
+    "zoom": 2.4,
+    "relaxation": 0.95,
+    "twist": 6,
+    "iterations": 128,
+    "stripes": 17,
+    "trap_radius": 0.75,
+    "frequency": 8,
+    "weights": [
+      0.1,
+      0.16,
+      0.64,
+      0.1
+    ]
+  },
+  {
+    "name": "10-nova-tissage",
+    "family": "Nova",
+    "julia": [
+      0.21,
+      -0.05
+    ],
+    "power": 4,
+    "center": [
+      0.12,
+      -0.05
+    ],
+    "zoom": 1.1,
+    "inversion": 0.55,
+    "relaxation": 0.83,
+    "twist": 24,
+    "iterations": 192,
+    "stripes": 21,
+    "frequency": 8,
+    "weights": [
+      0.14,
+      0.21,
+      0.59,
+      0.06
+    ],
+    "palette": "nacre"
+  },
+  {
+    "name": "11-phoenix-argent",
+    "family": "Phoenix",
+    "julia": [
+      0.56667,
+      0
+    ],
+    "memory": -0.5,
+    "zoom": 2.8,
+    "iterations": 192,
+    "stripes": 13,
+    "frequency": 13,
+    "weights": [
+      1,
+      0.12,
+      0.13,
+      0
+    ],
+    "palette": "nacre"
+  },
+  {
+    "name": "12-phoenix-dragon",
+    "family": "Phoenix",
+    "julia": [
+      -0.2,
+      0.65
+    ],
+    "memory": -0.35,
+    "center": [
+      -0.15,
+      0.04
+    ],
+    "zoom": 1.6,
+    "inversion": 0.55,
+    "twist": 8,
+    "iterations": 128,
+    "stripes": 21,
+    "frequency": 11,
+    "weights": [
+      0.6,
+      0.15,
+      0.2,
+      0.05
+    ]
+  },
+  {
+    "name": "13-nova-moire",
+    "family": "Nova",
+    "julia": [
+      0.2,
+      0.4
+    ],
+    "power": 3,
+    "zoom": 1.2,
+    "inversion": 0.8,
+    "relaxation": 0.75,
+    "twist": 17,
+    "iterations": 192,
+    "stripes": 34,
+    "frequency": 8,
+    "weights": [
+      0.18,
+      0.27,
+      0.5,
+      0.05
+    ]
+  },
+  {
+    "name": "14-julia-spirale",
+    "family": "Julia",
+    "julia": [
+      -0.7,
+      0.26
+    ],
+    "zoom": 2,
+    "inversion": 0.75,
+    "twist": 9,
+    "iterations": 192,
+    "stripes": 21,
+    "frequency": 13,
+    "weights": [
+      0.65,
+      0.1,
+      0.2,
+      0.05
+    ]
+  },
+  {
+    "name": "15-newton-corolle",
+    "family": "Newton",
+    "power": 5,
+    "center": [
+      0.1,
+      0
+    ],
+    "zoom": 1.2,
+    "inversion": 0.8,
+    "relaxation": 0.85,
+    "twist": 24,
+    "iterations": 160,
+    "stripes": 13,
+    "frequency": 7,
+    "weights": [
+      0.1,
+      0.24,
+      0.56,
+      0.1
+    ],
+    "palette": "cuivre"
+  },
+  {
+    "name": "16-nova-nacre",
+    "family": "Nova",
+    "julia": [
+      0.12,
+      0.07
+    ],
+    "power": 3,
+    "center": [
+      0.05,
+      0.02
+    ],
+    "zoom": 3.1,
+    "relaxation": 0.9,
+    "twist": -18,
+    "iterations": 192,
+    "stripes": 27,
+    "frequency": 11,
+    "weights": [
+      0.1,
+      0.27,
+      0.56,
+      0.07
+    ],
+    "palette": "nacre"
+  }
+]

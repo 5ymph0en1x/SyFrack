@@ -1,0 +1,163 @@
+(
+    dimension: TwoD,
+    canvas: (
+        center:(-0.08,0.05), zoom:1.25, rotation:8.0,
+        flame:Some((transforms:[(weight:0.9,affine:(0.63835893,-0.43057854,-0.27,0.43057854,0.63835893,0.1),terms:[(amount:0.98,variation:Curl(c1:0.36,c2:-0.14)),(amount:0.02,variation:Swirl)],post:(1.0,-0.0,0.0,0.0,1.0,0.0),color:0.13,color_speed:0.65),(weight:0.62,affine:(0.7230233,0.42759479,0.65,-0.42759479,0.7230233,-0.28),terms:[(amount:0.94,variation:Curl(c1:-0.288,c2:0.065)),(amount:0.06,variation:Spherical)],post:(1.0,-0.0,0.0,0.0,1.0,0.0),color:0.69,color_speed:0.48),(weight:0.27,affine:(-0.53693575,-0.31,-0.62,0.31,-0.53693575,-0.14),terms:[(amount:0.96,variation:Julian(power:2,distance:1.0)),(amount:0.04,variation:Swirl)],post:(0.92050485,-0.39073113,-0.3,0.39073113,0.92050485,0.18),color:0.85,color_speed:0.24),(weight:0.14,affine:(0.41529047,0.31294381,0.12,-0.31294381,0.41529047,0.7),terms:[(amount:0.94,variation:Linear),(amount:0.06,variation:Disc)],post:(1.0,-0.0,0.0,0.0,1.0,0.0),color:0.42,color_speed:0.7)],final_transform:Some((weight:1,affine:(1.0,-0.0,0.0,0.0,1.0,0.0),terms:[(amount:1,variation:Curl(c1:0.08,c2:-0.03))],post:(1.0,-0.0,0.0,0.0,1.0,0.0),color:0.5,color_speed:0.5)),
+            palette:(stops:[(0.001,0.002,0.005),(0.008,0.025,0.07),(0.025,0.2,0.35),(0.32,0.62,0.7),(0.035,0.045,0.065),(0.3,0.08,0.009),(0.95,0.42,0.055),(1.0,0.87,0.55),(0.65,0.79,0.91)],positions:[],cyclic:false,frequency:1.0,phase:0.0,gamma:0.7,interpolation:Smooth),
+            supersampling:2,points_per_sample:8,brightness:0.9,density_log:28.0,filter_radius:0.55,background:(0.0005,0.001,0.002))),
+    ),
+    seed: 92027,
+    fractal: Graph((
+        nodes: [
+            (
+                id: 0,
+                kind: Input,
+                name: "Entrée",
+                pos: (0.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 1,
+                kind: Trap(
+                    slot: 0,
+                    measure: Norm,
+                    scale: 1.0,
+                    mode: Minimum,
+                ),
+                name: "Piège",
+                pos: (240.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 2,
+                kind: Sphere(
+                    radius: 1.0,
+                ),
+                name: "Sphère",
+                pos: (480.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 3,
+                kind: Plane(
+                    normal: (0.0, 1.0, 0.0),
+                    offset: -1.0,
+                ),
+                name: "Plan",
+                pos: (480.0, 96.0),
+                enabled: true,
+            ),
+            (
+                id: 4,
+                kind: Union,
+                name: "Union",
+                pos: (720.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 5,
+                kind: Output,
+                name: "Sortie",
+                pos: (960.0, 0.0),
+                enabled: true,
+            ),
+        ],
+        links: [
+            (
+                from: (0, 0),
+                to: (1, 0),
+            ),
+            (
+                from: (1, 0),
+                to: (2, 0),
+            ),
+            (
+                from: (1, 0),
+                to: (3, 0),
+            ),
+            (
+                from: (2, 0),
+                to: (4, 0),
+            ),
+            (
+                from: (3, 0),
+                to: (4, 1),
+            ),
+            (
+                from: (4, 0),
+                to: (5, 0),
+            ),
+        ],
+        safety: 1.0,
+        bounding_radius_hint: 100.0,
+    )),
+    camera: (
+        mode: Orbit(
+            point: (0.0, 0.0, 0.0),
+            distance: 5.0,
+            azimuth: 30.0,
+            elevation: 12.0,
+            roll: 0.0,
+        ),
+        focal_mm: 28.0,
+        f_number: 0.0,
+        focus_distance: 5.0,
+    ),
+    lights: [],
+    material: (
+        albedo: (0.7, 0.65, 0.6),
+        roughness: 0.4,
+        metallic: 0.0,
+        specular: 0.04,
+        coloring: r#None,
+        texture: None,
+        surface: None,
+        finishes: [],
+    ),
+    atmosphere: (
+        fog_density: 0.0,
+        fog_color: (1.0, 1.0, 1.0),
+        fog_height: 0.0,
+        fog_falloff: 1.0,
+        anisotropy: 0.0,
+        cavity_darkness: 0.0,
+        seascape: None,
+        ground: None,
+        portal: None,
+    ),
+    look: (
+        exposure_ev: -0.15,
+        auto_exposure: None,
+        temperature: 6500.0,
+        tint: 0.0,
+        shadows: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        midtones: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        highlights: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        tonemap: Agx(
+            slope: 1.08,
+            power: 1.1,
+            offset: 0.0,
+        ),
+        saturation: 1.08,
+        vibrance: 0.0,
+        neon_softness: 0.0,
+        vignette: Some((
+            radius: 0.85,
+            softness: 0.8,
+            intensity: 0.32,
+            elliptical: true,
+        )),
+        grain: None,
+        output: Srgb,
+        dither: true,
+    ),
+)

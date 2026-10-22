@@ -14,6 +14,7 @@ pub(super) enum FileAction {
     Open,
     SaveAs,
     Hdri(Option<usize>),
+    Image(Id),
     Folder(Id),
 }
 
@@ -31,6 +32,16 @@ fn accepts(action: FileAction, path: &Path) -> bool {
     path.extension().is_some_and(|ext| match action {
         FileAction::Folder(_) => false,
         FileAction::Hdri(_) => ext.eq_ignore_ascii_case("hdr") || ext.eq_ignore_ascii_case("exr"),
+        FileAction::Image(_) => {
+            ["png", "jpg", "jpeg", "bmp", "tif", "tiff"]
+                .iter()
+                .any(|v| ext.eq_ignore_ascii_case(v))
+                || path.file_name().is_some_and(|s| {
+                    s.to_string_lossy()
+                        .to_lowercase()
+                        .ends_with(".mosaic-project.ron")
+                })
+        }
         _ => ext.eq_ignore_ascii_case("ron"),
     })
 }
@@ -215,6 +226,9 @@ impl FileDialog {
         }
         if !accepts(self.action, &path) {
             return Err(match self.action {
+                FileAction::Image(_) => {
+                    syfrack_i18n::tr!("Choisir une image PNG, JPEG, BMP ou TIFF")
+                }
                 FileAction::Hdri(_) => {
                     syfrack_i18n::tr!("Un panorama HDRI utilise l’extension .hdr ou .exr")
                 }
@@ -233,6 +247,10 @@ impl FileDialog {
             return false;
         };
         let done = match self.action {
+            FileAction::Image(result_id) => {
+                ctx.data_mut(|d| d.insert_temp(result_id, path.clone()));
+                true
+            }
             FileAction::Folder(result_id) => {
                 ctx.data_mut(|d| d.insert_temp(result_id, path.clone()));
                 true
@@ -290,6 +308,22 @@ pub(super) fn open_folder_dialog(ui: &egui::Ui, state: &AppState, initial: &Path
     let initial = std::path::absolute(initial).unwrap_or_else(|_| dialog.root.clone());
     if let Some(existing) = initial.ancestors().find(|p| p.is_dir()) {
         dialog.navigate(existing.to_path_buf(), false);
+    }
+    ui.data_mut(|d| {
+        d.remove::<PathBuf>(result_id);
+        d.insert_temp(dialog_id(), dialog);
+    });
+}
+
+pub(super) fn open_image_dialog(ui: &egui::Ui, state: &AppState, initial: &Path, result_id: Id) {
+    let mut dialog = FileDialog::new(state, FileAction::Image(result_id));
+    let directory = if initial.is_file() {
+        initial.parent().unwrap_or(initial)
+    } else {
+        initial
+    };
+    if directory.is_dir() {
+        dialog.navigate(directory.to_path_buf(), false);
     }
     ui.data_mut(|d| {
         d.remove::<PathBuf>(result_id);
@@ -505,6 +539,10 @@ pub(super) fn file_dialog(ui: &mut egui::Ui, state: &mut AppState) {
         }
     }
     let (title, verb) = match dialog.action {
+        FileAction::Image(_) => (
+            syfrack_i18n::tr!("Choisir une image"),
+            syfrack_i18n::tr!("Utiliser"),
+        ),
         FileAction::Open => (
             syfrack_i18n::tr!("Ouvrir un projet"),
             syfrack_i18n::tr!("Ouvrir"),
@@ -528,7 +566,7 @@ pub(super) fn file_dialog(ui: &mut egui::Ui, state: &mut AppState) {
     let max = ui.ctx().content_rect().size();
     crate::ui::floating::Window::new(title)
         .id(dialog_id())
-        .modal(matches!(dialog.action, FileAction::Folder(_)))
+        .modal(matches!(dialog.action, FileAction::Folder(_) | FileAction::Image(_)))
         .open(&mut open)
         .collapsible(false)
         .default_width(780.0)
@@ -664,7 +702,9 @@ pub(super) fn file_dialog(ui: &mut egui::Ui, state: &mut AppState) {
                                             } else {
                                                 format!(
                                                     "{} · {}",
-                                                    if matches!(dialog.action, FileAction::Hdri(_))
+                                                    if matches!(dialog.action, FileAction::Image(_)) {
+                                                        syfrack_i18n::tr!("Image")
+                                                    } else if matches!(dialog.action, FileAction::Hdri(_))
                                                     {
                                                         "HDRI"
                                                     } else {
@@ -681,6 +721,8 @@ pub(super) fn file_dialog(ui: &mut egui::Ui, state: &mut AppState) {
                                 if count == 0 && dialog.pending.is_none() {
                                     ui.label(if matches!(dialog.action, FileAction::Folder(_)) {
                                         syfrack_i18n::tr!("Aucun sous-dossier · vous pouvez choisir ce dossier.")
+                                    } else if matches!(dialog.action, FileAction::Image(_)) {
+                                        syfrack_i18n::tr!("Aucune image correspondante dans ce dossier")
                                     } else if matches!(dialog.action, FileAction::Hdri(_)) {
                                         syfrack_i18n::tr!("Aucun dossier ou panorama .hdr / .exr correspondant")
                                     } else {
@@ -708,7 +750,9 @@ pub(super) fn file_dialog(ui: &mut egui::Ui, state: &mut AppState) {
                         let field = ui.add(
                             egui::TextEdit::singleline(&mut dialog.filename)
                                 .margin(egui::vec2(8.0, 7.0))
-                                .hint_text(if matches!(dialog.action, FileAction::Hdri(_)) {
+                                .hint_text(if matches!(dialog.action, FileAction::Image(_)) {
+                                    syfrack_i18n::tr!("Choisir une image PNG, JPEG, BMP ou TIFF")
+                                } else if matches!(dialog.action, FileAction::Hdri(_)) {
                                     syfrack_i18n::tr!("Sélectionner un panorama .hdr ou .exr")
                                 } else {
                                     syfrack_i18n::tr!("Sélectionner une scène .ron")
@@ -724,6 +768,8 @@ pub(super) fn file_dialog(ui: &mut egui::Ui, state: &mut AppState) {
                 ui.label(
                     RichText::new(if matches!(dialog.action, FileAction::Folder(_)) {
                         syfrack_i18n::tr!("Double-cliquez pour entrer dans un dossier, puis confirmez votre choix.")
+                    } else if matches!(dialog.action, FileAction::Image(_)) {
+                        syfrack_i18n::tr!("Images sRGB · PNG / JPEG / BMP / TIFF · orientation EXIF conservée")
                     } else if matches!(dialog.action, FileAction::Hdri(_)) {
                         syfrack_i18n::tr!("Panoramas linéaires · .hdr / .exr · projection équirectangulaire")
                     } else {
@@ -760,7 +806,10 @@ pub(super) fn file_dialog(ui: &mut egui::Ui, state: &mut AppState) {
         match dialog.resolve() {
             Ok(target) => {
                 dialog.target = Some(target);
-                if dialog.action == FileAction::Open && state.has_unsaved_workspaces() {
+                if (dialog.action == FileAction::Open && state.has_unsaved_workspaces())
+                    || (matches!(dialog.action, FileAction::Image(_))
+                        && super::mosaic::has_unsaved_work(ui.ctx()))
+                {
                     dialog.confirming = true;
                 } else if dialog.action == FileAction::SaveAs
                     && dialog.target.as_ref().is_some_and(|p| p.exists())

@@ -1,0 +1,79 @@
+[
+  {
+    "name": "soie-de-feu-neon-doux",
+    "family": "Julia",
+    "julia": [
+      -0.8,
+      0.156
+    ],
+    "center": [
+      0.08,
+      0.02
+    ],
+    "zoom": 5,
+    "angle": 23,
+    "iterations": 192,
+    "stripes": 8,
+    "frequency": 13,
+    "weights": [
+      1,
+      0.08,
+      0.18,
+      0
+    ],
+    "palette": "cyberpunk",
+    "source": "02-julia-soie",
+    "dimension": "TwoD",
+    "tone_curve": "Direct",
+    "neon_softness": 0.6,
+    "palette_srgb_hex": [
+      "#020411",
+      "#3813F5",
+      "#00D9FF",
+      "#D8FCFF",
+      "#F5FF00",
+      "#FF4510",
+      "#FF005B",
+      "#EF00FF",
+      "#4C00EA"
+    ]
+  },
+  {
+    "name": "nacre-boreale-neon-doux",
+    "family": "Julia",
+    "julia": [
+      -0.74543,
+      0.11301
+    ],
+    "center": [
+      -0.15,
+      0.05
+    ],
+    "zoom": 2.8,
+    "iterations": 192,
+    "stripes": 17,
+    "frequency": 13,
+    "weights": [
+      0.8,
+      0.15,
+      0.18,
+      0
+    ],
+    "palette": "aurore",
+    "source": "20-julia-glace",
+    "dimension": "TwoD",
+    "tone_curve": "Direct",
+    "neon_softness": 0.6,
+    "palette_srgb_hex": [
+      "#020516",
+      "#1600A8",
+      "#003CFF",
+      "#00CAFF",
+      "#00FFCA",
+      "#F0FFF6",
+      "#90FF00",
+      "#00A881",
+      "#1900DD"
+    ]
+  }
+]

@@ -27,7 +27,7 @@ fn export_guides(@builtin(global_invocation_id) gid: vec3u) {
     if (any(gid.xy >= u.tile_size)) { return; }
     let px = u.tile_origin + gid.xy;
     if (any(px >= u.image_size)) { return; }
-    let i = px.y*u.image_size.x+px.x;
+    let i = output_index(px);
     let depth = bitcast<f32>(depth_buf[i]);
     let normal = aux[i].xyz;
     accum[i] = vec4f(0.0,0.0,0.0,1.0);

@@ -1,0 +1,134 @@
+[
+  {
+    "name": "02-julia-soie",
+    "family": "Julia",
+    "julia": [
+      -0.8,
+      0.156
+    ],
+    "center": [
+      0.08,
+      0.02
+    ],
+    "zoom": 5,
+    "angle": 23,
+    "iterations": 192,
+    "stripes": 8,
+    "frequency": 13,
+    "weights": [
+      1,
+      0.08,
+      0.18,
+      0
+    ]
+  },
+  {
+    "name": "17-julia-sillage",
+    "family": "Julia",
+    "julia": [
+      -0.7,
+      0.26
+    ],
+    "zoom": 2,
+    "inversion": 0.75,
+    "twist": 9,
+    "offset": [
+      2.4,
+      -0.4,
+      0
+    ],
+    "iterations": 192,
+    "stripes": 13,
+    "frequency": 13,
+    "weights": [
+      0.9,
+      0.08,
+      0.12,
+      0
+    ]
+  },
+  {
+    "name": "18-nova-baroque",
+    "family": "Nova",
+    "julia": [
+      0.2,
+      0.4
+    ],
+    "power": 3,
+    "center": [
+      0.1,
+      0
+    ],
+    "zoom": 1.2,
+    "inversion": 0.8,
+    "relaxation": 0.75,
+    "twist": 17,
+    "offset": [
+      2.4,
+      -0.3,
+      0
+    ],
+    "iterations": 144,
+    "stripes": 8,
+    "bailout": 64,
+    "frequency": 5,
+    "weights": [
+      0.2,
+      0.4,
+      0.4,
+      0
+    ]
+  },
+  {
+    "name": "19-newton-couture",
+    "family": "Newton",
+    "power": 5,
+    "center": [
+      0.1,
+      0
+    ],
+    "zoom": 1.2,
+    "inversion": 0.8,
+    "relaxation": 0.85,
+    "twist": 24,
+    "offset": [
+      2.4,
+      0.2,
+      0
+    ],
+    "iterations": 144,
+    "stripes": 5,
+    "bailout": 64,
+    "frequency": 4,
+    "weights": [
+      0.2,
+      0.45,
+      0.35,
+      0
+    ],
+    "palette": "cuivre"
+  },
+  {
+    "name": "20-julia-glace",
+    "family": "Julia",
+    "julia": [
+      -0.74543,
+      0.11301
+    ],
+    "center": [
+      -0.15,
+      0.05
+    ],
+    "zoom": 2.8,
+    "iterations": 192,
+    "stripes": 17,
+    "frequency": 13,
+    "weights": [
+      0.8,
+      0.15,
+      0.18,
+      0
+    ],
+    "palette": "nacre"
+  }
+]

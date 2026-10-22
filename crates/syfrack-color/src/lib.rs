@@ -8,6 +8,7 @@ pub mod grade;
 pub mod grain;
 pub mod neon;
 pub mod saturation;
+pub mod source;
 pub mod tonemap;
 pub mod vignette;
 pub mod wgsl;

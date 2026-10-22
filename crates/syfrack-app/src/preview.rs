@@ -1,9 +1,11 @@
 use std::time::{Duration, Instant};
 
+use std::sync::mpsc;
 use std::sync::Arc;
 
 use anyhow::Result;
 use syfrack_core::{Graph, HdrImage, NodeId, Scene};
+use syfrack_render::control::ControlSession;
 use syfrack_render::environment::scene_resource_fingerprint;
 use syfrack_render::graph_wgsl::fingerprint;
 use syfrack_render::{
@@ -240,7 +242,28 @@ pub fn banner_after_build(current: Option<&str>, inactive: Option<&str>) -> Bann
 /// new one in the background while the old one keeps rendering, then swaps.
 /// Inactive (no session) while the scene does not pass the full validation,
 /// an incomplete form graph for instance; a later valid scene reactivates it.
+enum PreparedFieldView {
+    Control(ControlSession),
+    Native(RenderSession),
+}
+struct FieldPreparation {
+    specialized: bool,
+    control: syfrack_render::phenomena::PreparationControl,
+    rx: mpsc::Receiver<Result<PreparedFieldView, String>>,
+    scene: Scene,
+    size: (u32, u32),
+    started: Instant,
+}
 pub struct Preview {
+    field_preparation: Option<FieldPreparation>,
+    field_wanted: Option<Scene>,
+    fields_paused: Arc<std::sync::atomic::AtomicBool>,
+    control_look: syfrack_core::Look,
+    control_enabled: bool,
+    control: Option<ControlSession>,
+    specialized: bool,
+    /// One running native request, at most one current version waiting for it.
+    specialization_wanted: Option<Scene>,
     renderer: Renderer,
     session: Option<RenderSession>,
     /// Why there is no session.
@@ -259,15 +282,181 @@ pub struct Preview {
     last_compile_ms: Option<u32>,
     auto_ev: f32,
     last_auto: Instant,
+    last_auto_dispatches: u32,
     /// Re-measure at the next eligible tick (after a rebuild).
     auto_stale: bool,
 }
 
+impl Drop for Preview {
+    fn drop(&mut self) {
+        if let Some(p) = &self.field_preparation {
+            p.control
+                .cancelled
+                .store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+    }
+}
+
 impl Preview {
+    fn start_fields(&mut self, scene: Scene) {
+        let renderer = self.renderer.clone();
+        let size = self.ladder.size();
+        let worker_scene = scene.clone();
+        let specialized = self.specialized;
+        let control_mode = self.control_enabled && !specialized;
+        let control = syfrack_render::phenomena::PreparationControl {
+            paused: self.fields_paused.clone(),
+            ..Default::default()
+        };
+        let worker_control = control.clone();
+        let (tx, rx) = mpsc::channel();
+        std::thread::Builder::new()
+            .name("natural-field preparation".into())
+            .spawn(move || {
+                let prepared = (|| -> Result<PreparedFieldView> {
+                    renderer.prepare_phenomena_controlled(&worker_scene, &worker_control)?;
+                    worker_control.checkpoint()?;
+                    if control_mode {
+                        Ok(PreparedFieldView::Control(ControlSession::new(
+                            renderer,
+                            &worker_scene,
+                            size,
+                        )?))
+                    } else {
+                        Ok(PreparedFieldView::Native(Self::build(
+                            &renderer,
+                            &worker_scene,
+                            size,
+                        )?))
+                    }
+                })()
+                .map_err(|e| format!("{e:#}"));
+                let _ = tx.send(prepared);
+            })
+            .expect("spawn bounded field preparation worker");
+        self.field_preparation = Some(FieldPreparation {
+            specialized,
+            control,
+            rx,
+            scene,
+            size,
+            started: Instant::now(),
+        });
+    }
+    fn set_field_scene(&mut self, scene: &Scene) -> Result<()> {
+        if let Some(error) = inactive_reason_for(scene) {
+            if let Some(p) = &self.field_preparation {
+                p.control
+                    .cancelled
+                    .store(true, std::sync::atomic::Ordering::Relaxed);
+            }
+            self.inactive = Some(error);
+            self.field_wanted = None;
+            return Ok(());
+        }
+        let mut grading_only = self.scene.clone();
+        grading_only.look = scene.look.clone();
+        let wants_control = self.control_enabled && !self.specialized;
+        if self.field_preparation.is_none()
+            && (self.control.is_some() || self.session.is_some())
+            && wants_control == self.control.is_some()
+            && grading_only == *scene
+        {
+            self.auto_stale |= self.scene.look.auto_exposure != scene.look.auto_exposure;
+            self.scene.look = scene.look.clone();
+            return Ok(());
+        }
+        if let Some(pending) = &self.field_preparation {
+            if pending.scene != *scene {
+                pending
+                    .control
+                    .cancelled
+                    .store(true, std::sync::atomic::Ordering::Relaxed);
+            }
+        }
+        self.inactive = None;
+        self.pending = None;
+        self.specialization_wanted = None;
+        self.ladder.on_change();
+        self.field_wanted = Some(scene.clone());
+        if self.field_preparation.is_none() {
+            self.start_fields(scene.clone());
+        }
+        Ok(())
+    }
+    fn poll_fields(&mut self) -> Option<Result<Duration, String>> {
+        let pending = self.field_preparation.as_ref()?;
+        let result = match pending.rx.try_recv() {
+            Ok(r) => r,
+            Err(mpsc::TryRecvError::Empty) => return None,
+            Err(mpsc::TryRecvError::Disconnected) => {
+                Err("natural-field preparation worker stopped".into())
+            }
+        };
+        let pending = self.field_preparation.take().unwrap();
+        let wanted = self.field_wanted.take()?;
+        if wanted != pending.scene
+            || pending.size != self.ladder.size()
+            || pending.specialized != self.specialized
+        {
+            self.field_wanted = Some(wanted.clone());
+            self.start_fields(wanted);
+            return None;
+        }
+        let elapsed = pending.started.elapsed();
+        match result {
+            Ok(PreparedFieldView::Control(control)) => {
+                self.control = Some(control);
+                self.session = None;
+                self.specialized = false;
+            }
+            Ok(PreparedFieldView::Native(session)) => {
+                self.session = Some(session);
+                self.control = None;
+                self.specialized = pending.specialized;
+            }
+            Err(error) => {
+                self.inactive = Some(error.clone());
+                return Some(Err(error));
+            }
+        }
+        self.scene = wanted;
+        self.inactive = None;
+        self.auto_stale = true;
+        Some(Ok(elapsed))
+    }
+    pub fn pause_fields(&self, paused: bool) {
+        self.fields_paused
+            .store(paused, std::sync::atomic::Ordering::Relaxed);
+    }
+    pub fn preparing_fields(&self) -> bool {
+        self.field_preparation.is_some()
+    }
     pub fn new(renderer: Renderer, scene: &Scene, full: (u32, u32)) -> Result<Self> {
+        Self::new_with_control(renderer, scene, full, false)
+    }
+
+    /// Studio defaults to the fixed control engine in 3D. The native tracer
+    /// is requested explicitly; 2D keeps its existing interactive renderer.
+    pub fn new_control(renderer: Renderer, scene: &Scene, full: (u32, u32)) -> Result<Self> {
+        Self::new_with_control(renderer, scene, full, true)
+    }
+
+    fn new_with_control(
+        renderer: Renderer,
+        scene: &Scene,
+        full: (u32, u32),
+        enabled: bool,
+    ) -> Result<Self> {
+        let resolved = scene.render_scene().unwrap_or_else(|_| scene.clone());
+        let scene = &resolved;
         let ladder = PreviewLadder::new(full);
         let inactive = inactive_reason_for(scene);
-        let asynchronous = inactive.is_none()
+        let control_mode = enabled;
+        let field_async = inactive.is_none() && scene.phenomena.is_some();
+        let asynchronous = !field_async
+            && inactive.is_none()
+            && !control_mode
             && scene
                 .lights
                 .iter()
@@ -275,11 +464,29 @@ impl Preview {
         let pending =
             asynchronous.then(|| (renderer.request_scene(scene), scene.clone(), Instant::now()));
         let session = match inactive {
-            None if asynchronous => None,
-            None => Some(Self::build(&renderer, scene, ladder.size())?),
+            None if asynchronous || field_async => None,
+            None if !control_mode => Some(Self::build(&renderer, scene, ladder.size())?),
+            None => None,
             Some(_) => None,
         };
-        Ok(Self {
+        let mut result = Self {
+            field_preparation: None,
+            field_wanted: None,
+            fields_paused: Arc::default(),
+            control_look: {
+                let mut look = syfrack_core::clay_scene(scene).look;
+                look.auto_exposure = None;
+                look.exposure_ev = 0.0;
+                look
+            },
+            control_enabled: enabled,
+            control: if control_mode && inactive.is_none() && !field_async {
+                Some(ControlSession::new(renderer.clone(), scene, ladder.size())?)
+            } else {
+                None
+            },
+            specialized: false,
+            specialization_wanted: None,
             renderer,
             session,
             inactive,
@@ -291,11 +498,25 @@ impl Preview {
             last_compile_ms: None,
             auto_ev: 0.0,
             last_auto: Instant::now(),
+            last_auto_dispatches: 0,
             auto_stale: true,
-        })
+        };
+        if field_async {
+            result.set_field_scene(scene)?;
+        }
+        Ok(result)
     }
 
     fn build(renderer: &Renderer, scene: &Scene, size: (u32, u32)) -> Result<RenderSession> {
+        Self::build_compiled(renderer, scene, size, None)
+    }
+
+    fn build_compiled(
+        renderer: &Renderer,
+        scene: &Scene,
+        size: (u32, u32),
+        pipeline: Option<Arc<CompiledPipeline>>,
+    ) -> Result<RenderSession> {
         let mut cfg = RenderConfig::new(size.0, size.1, u32::MAX / 2);
         cfg.samples_per_dispatch = 1;
         if scene.canvas.flame.is_some() {
@@ -303,7 +524,10 @@ impl Preview {
         }
         cfg.tile_size = 128;
         cfg.max_bounces = 3;
-        RenderSession::new(renderer.clone(), scene, &cfg)
+        match pipeline {
+            Some(pipeline) => RenderSession::from_pipeline(renderer.clone(), scene, &cfg, pipeline),
+            None => RenderSession::new(renderer.clone(), scene, &cfg),
+        }
     }
 
     /// Why the preview shows nothing, while the scene cannot be rendered.
@@ -317,6 +541,24 @@ impl Preview {
     /// keeps rendering, if any) until `poll_compile` adopts it. A topology
     /// that failed to compile is not requested again.
     pub fn set_scene(&mut self, scene: &Scene) -> Result<()> {
+        let resolved = scene.render_scene().unwrap_or_else(|_| scene.clone());
+        let scene = &resolved;
+        if scene.phenomena.is_some()
+            || self.scene.phenomena.is_some()
+            || self.field_preparation.is_some()
+        {
+            return self.set_field_scene(scene);
+        }
+        if self.control_enabled {
+            return self.set_control_scene(scene);
+        }
+        if self.control_enabled && self.scene.dimension != scene.dimension {
+            // A pending 3D request must never capture a later 2D workshop.
+            self.pending = None;
+        }
+        self.control = None;
+        self.specialized = false;
+        self.specialization_wanted = None;
         // Grading is a display operation. Keep the converged fractal while it changes.
         let mut grading_only = self.scene.clone();
         grading_only.look = scene.look.clone();
@@ -390,6 +632,9 @@ impl Preview {
 
     /// Whether `scene` should wait for the pointer release (`defer_topology`).
     pub fn defers(&self, scene: &Scene, pointer_down: bool) -> bool {
+        if self.control_enabled {
+            return false;
+        }
         pointer_down
             && defer_topology(
                 true,
@@ -405,6 +650,12 @@ impl Preview {
     /// preview stays inactive with the error), `None` while it runs or when
     /// there is none.
     pub fn poll_compile(&mut self) -> Option<Result<Duration, String>> {
+        if self.field_preparation.is_some() {
+            return self.poll_fields();
+        }
+        if self.control_enabled {
+            return self.poll_specialization();
+        }
         let (ticket, wanted, _) = self.pending.as_ref()?;
         let fp = ticket.fingerprint;
         let pipeline = match Renderer::poll(ticket) {
@@ -477,12 +728,205 @@ impl Preview {
 
     /// A compilation is under way: the image still shows the old topology.
     pub fn compiling(&self) -> bool {
-        self.pending.is_some()
+        self.pending.is_some() || self.field_preparation.is_some()
     }
 
     /// How long the last background compilation took, in ms.
     pub fn last_compile_ms(&self) -> Option<u32> {
         self.last_compile_ms
+    }
+
+    fn set_control_scene(&mut self, scene: &Scene) -> Result<()> {
+        let reason = inactive_reason_for(scene);
+        if let Some(reason) = reason {
+            // Retain the last valid image, explicitly marked stale by the UI.
+            self.scene = scene.clone();
+            self.inactive = Some(reason);
+            self.specialization_wanted = None;
+            return Ok(());
+        }
+        let key = scene_resource_fingerprint(scene);
+        let compatible = self
+            .session
+            .as_ref()
+            .is_some_and(|s| s.resource_fingerprint() == key)
+            && self.renderer.environment_ready(scene);
+        if self.specialized && compatible {
+            self.inactive = None;
+            return self.restart(scene.clone(), None);
+        }
+        if self
+            .specialization_wanted
+            .as_ref()
+            .is_some_and(|s| scene_resource_fingerprint(s) == key)
+        {
+            self.specialization_wanted = Some(scene.clone());
+        } else {
+            self.specialization_wanted = None;
+        }
+        let mut ladder = self.ladder.clone();
+        ladder.on_change();
+        let same_geometry =
+            self.scene.fractal == scene.fractal && self.scene.camera == scene.camera;
+        if self
+            .control
+            .as_ref()
+            .is_some_and(|s| s.requested_size() != ladder.size())
+        {
+            self.control = Some(ControlSession::new(
+                self.renderer.clone(),
+                scene,
+                ladder.size(),
+            )?);
+        } else if let Some(control) = &mut self.control {
+            if !same_geometry {
+                control.set_scene(scene)?;
+            }
+        } else {
+            self.control = Some(ControlSession::new(
+                self.renderer.clone(),
+                scene,
+                ladder.size(),
+            )?);
+        }
+        self.scene = scene.clone();
+        self.inactive = None;
+        self.specialized = false;
+        self.session = None;
+        self.failing = false;
+        self.ladder = ladder;
+        Ok(())
+    }
+
+    /// Explicit opt-in. A running driver compilation is allowed to finish;
+    /// further requests are coalesced rather than spawning competing workers.
+    pub fn request_specialization(&mut self) {
+        if !self.can_specialize() {
+            return;
+        }
+        self.specialization_wanted = Some(self.scene.clone());
+        self.start_specialization();
+    }
+
+    fn start_specialization(&mut self) {
+        if self.pending.is_none() {
+            if let Some(scene) = &self.specialization_wanted {
+                self.pending = Some((
+                    self.renderer.request_scene(scene),
+                    scene.clone(),
+                    Instant::now(),
+                ));
+            }
+        }
+    }
+
+    fn poll_specialization(&mut self) -> Option<Result<Duration, String>> {
+        let (ticket, _, since) = self.pending.as_ref()?;
+        let key = ticket.fingerprint;
+        let result = match Renderer::poll(ticket) {
+            CompileStatus::Pending => return None,
+            CompileStatus::Ready(pipeline) => Ok((since.elapsed(), pipeline)),
+            CompileStatus::Failed(e) => Err(e),
+        };
+        self.pending = None;
+        let wanted = self
+            .specialization_wanted
+            .as_ref()
+            .is_some_and(|s| scene_resource_fingerprint(s) == key)
+            && self.inactive.is_none()
+            && scene_resource_fingerprint(&self.scene) == key;
+        if !wanted {
+            self.start_specialization();
+            return None;
+        }
+        if result.is_ok() && !self.renderer.environment_ready(&self.scene) {
+            // A library thumbnail may have replaced the bounded resource cache.
+            // Warm it off the UI thread before attempting session adoption.
+            self.start_specialization();
+            return None;
+        }
+        self.specialization_wanted = None;
+        let (elapsed, pipeline) = match result {
+            Ok(ready) => ready,
+            Err(e) => return Some(Err(e)),
+        };
+        let session = match Self::build_compiled(
+            &self.renderer,
+            &self.scene,
+            self.ladder.size(),
+            Some(pipeline),
+        ) {
+            Ok(s) => s,
+            Err(e) => return Some(Err(format!("{e:#}"))),
+        };
+        self.session = Some(session);
+        self.control = None;
+        self.specialized = true;
+        self.auto_stale = true;
+        self.last_compile_ms = Some(elapsed.as_millis().min(u32::MAX as u128) as u32);
+        Some(Ok(elapsed))
+    }
+
+    pub fn use_control(&mut self) -> Result<()> {
+        self.specialized = false;
+        if self.scene.phenomena.is_some() {
+            let scene = self
+                .field_wanted
+                .clone()
+                .unwrap_or_else(|| self.scene.clone());
+            return self.set_field_scene(&scene);
+        }
+        self.specialization_wanted = None;
+        if self.scene.dimension == syfrack_core::Dimension::ThreeD && self.inactive.is_none() {
+            let mut ladder = self.ladder.clone();
+            ladder.on_change();
+            self.control = Some(ControlSession::new(
+                self.renderer.clone(),
+                &self.scene,
+                ladder.size(),
+            )?);
+            self.ladder = ladder;
+            self.session = None;
+            self.specialized = false;
+        }
+        Ok(())
+    }
+    pub fn is_control(&self) -> bool {
+        self.control.is_some()
+    }
+    pub fn display_look(&self) -> &syfrack_core::Look {
+        if self.is_control() && self.scene.dimension == syfrack_core::Dimension::ThreeD {
+            &self.control_look
+        } else {
+            &self.scene.look
+        }
+    }
+    pub fn is_specialized(&self) -> bool {
+        self.specialized
+    }
+    pub fn can_specialize(&self) -> bool {
+        self.control_enabled && self.field_preparation.is_none() && self.inactive.is_none()
+    }
+    pub fn specialization_requested(&self) -> bool {
+        self.specialization_wanted.is_some()
+    }
+    pub fn active(&self) -> bool {
+        self.control.is_some() || self.session.is_some()
+    }
+    pub fn accumulation_buffer(&self) -> Option<&wgpu::Buffer> {
+        self.control
+            .as_ref()
+            .map(ControlSession::accumulation_buffer)
+            .or_else(|| {
+                self.session
+                    .as_ref()
+                    .map(RenderSession::accumulation_buffer)
+            })
+    }
+    pub fn control_progress(&self) -> Option<(u32, u32)> {
+        self.control
+            .as_ref()
+            .map(|s| (s.completed_pixels(), s.size().0 * s.size().1))
     }
 
     /// Restarts the session on `scene` (on `pipeline` when given) at the
@@ -516,6 +960,26 @@ impl Preview {
         if full == (0, 0) {
             return Ok(());
         }
+        if self.scene.phenomena.is_some() || self.field_preparation.is_some() {
+            self.ladder.resize(full);
+            let scene = self
+                .field_wanted
+                .clone()
+                .unwrap_or_else(|| self.scene.clone());
+            return self.set_field_scene(&scene);
+        }
+        if self.control.is_some() {
+            if self.inactive.is_some() {
+                self.ladder.resize(full);
+                return Ok(());
+            }
+            let mut ladder = self.ladder.clone();
+            ladder.resize(full);
+            let control = ControlSession::new(self.renderer.clone(), &self.scene, ladder.size())?;
+            self.control = Some(control);
+            self.ladder = ladder;
+            return Ok(());
+        }
         if self.session.is_none() {
             self.ladder.resize(full);
             return Ok(());
@@ -540,11 +1004,21 @@ impl Preview {
     /// One slice of work. Promotes the ladder when the quarter stage converged.
     /// Nothing to do while inactive.
     pub fn tick(&mut self, budget: Duration) -> Result<()> {
+        if self.field_preparation.is_some() {
+            return Ok(());
+        }
+        if self.control_enabled && self.inactive.is_some() {
+            return Ok(());
+        }
+        if let Some(control) = &mut self.control {
+            return control.tick();
+        }
         let Some(session) = &mut self.session else {
             return Ok(());
         };
         session.step(budget)?;
-        let spp = session.progress().samples_min;
+        let progress = session.progress();
+        let spp = progress.samples_min;
         let mut promoted = self.ladder.clone();
         if self.pending.is_none() && promoted.on_progress(spp) {
             self.session = Some(Self::build(&self.renderer, &self.scene, promoted.size())?);
@@ -556,11 +1030,14 @@ impl Preview {
             // The full readback also fetches depth and aux buffers; the engine
             // has no colour-only one yet. Rate-limited to once per second.
             if spp >= AUTO_MIN_SPP
-                && (self.auto_stale || self.last_auto.elapsed() >= Duration::from_secs(1))
+                && (self.auto_stale
+                    || (progress.dispatches != self.last_auto_dispatches
+                        && self.last_auto.elapsed() >= Duration::from_secs(1)))
             {
                 let out = session.readback()?;
                 self.auto_ev = preview_auto_ev(&out.color, target);
                 self.last_auto = Instant::now();
+                self.last_auto_dispatches = progress.dispatches;
                 self.auto_stale = false;
             }
         }
@@ -574,6 +1051,12 @@ impl Preview {
 
     /// Fewest samples of any tile; 0 while inactive.
     pub fn samples_min(&self) -> u32 {
+        if self.control_enabled && self.inactive.is_some() {
+            return 0;
+        }
+        if let Some(control) = &self.control {
+            return u32::from(control.complete());
+        }
         self.session
             .as_ref()
             .map_or(0, |s| s.progress().samples_min)
@@ -581,6 +1064,9 @@ impl Preview {
 
     /// Size of the preview image (the ladder's size while inactive).
     pub fn size(&self) -> (u32, u32) {
+        if let Some(control) = &self.control {
+            return control.size();
+        }
         self.session
             .as_ref()
             .map_or_else(|| self.ladder.size(), |s| s.image_size())
@@ -591,6 +1077,9 @@ impl Preview {
     }
 
     pub fn exposure_gain(&self) -> f32 {
+        if self.is_control() {
+            return 1.0;
+        }
         let auto = if self.scene.look.auto_exposure.is_some() {
             self.auto_ev
         } else {
@@ -608,6 +1097,9 @@ impl Preview {
     /// The surface under (u, v) in [0, 1]^2, from a readback of the current
     /// session; none while inactive.
     pub fn pick(&self, u: f32, v: f32) -> Result<Option<Pick>> {
+        if let Some(control) = &self.control {
+            return Ok(control.pick(u, v)?.and_then(|(d, a)| surface_pick(d, a)));
+        }
         let Some(session) = &self.session else {
             return Ok(None);
         };
@@ -622,6 +1114,9 @@ impl Preview {
     /// in fog, a scattering point. Scales the free-camera speed. None while
     /// inactive.
     pub fn depth(&self, u: f32, v: f32) -> Result<Option<f32>> {
+        if let Some(control) = &self.control {
+            return Ok(control.pick(u, v)?.map(|(d, _)| d));
+        }
         let Some(session) = &self.session else {
             return Ok(None);
         };

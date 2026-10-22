@@ -654,10 +654,12 @@ pub fn ramp_editor(ui: &mut Ui, ramp: &mut Ramp) -> bool {
         );
     }
     ui.horizontal_wrapped(|ui| {
-        for (i, c) in ramp.stops.iter_mut().enumerate() {
-            ui.push_id(("ramp-stop", i), |ui| {
-                changed |= ui.color_edit_button_rgb(c).changed();
-            });
+        for c in &mut ramp.stops {
+            let mut edited = *c;
+            if ui.color_edit_button_rgb(&mut edited).changed() {
+                *c = edited;
+                changed = true;
+            }
         }
     });
     ui.small(syfrack_i18n::tr!("Cliquer pour ajouter une couleur · glisser pour la placer · sortir de la bande pour la retirer."));
@@ -669,7 +671,7 @@ pub fn ramp_editor(ui: &mut Ui, ramp: &mut Ramp) -> bool {
         ramp.positions.clear();
         changed = true;
     }
-    ui.horizontal(|ui| {
+    ui.horizontal_wrapped(|ui| {
         if ui
             .checkbox(&mut ramp.cyclic, syfrack_i18n::tr!("Palette cyclique"))
             .changed()

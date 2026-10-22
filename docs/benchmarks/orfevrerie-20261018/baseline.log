@@ -1,0 +1,46 @@
+Baseline repetition 1
+gpu: Quadro K3100M (Vulkan)
+     26 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  5.1s
+     52 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  6.1s
+     68 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  7.6s
+     84 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  9.7s
+    100 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  11.2s
+    116 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  13.3s
+    132 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  15.3s
+    148 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  16.8s
+    164 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  18.9s
+    180 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  19.9s
+    198 dispatches  spp     0..8     / 8  tiles 336  max dispatch 138 ms  21.4s
+    206 dispatches  spp     8..8     / 8  tiles 336  max dispatch 138 ms  21.8s
+done: 384x216 spp 8..8 in 21.8s
+wrote target/orfevrerie-baseline-1.{exr,png,ron}
+Baseline repetition 2
+gpu: Quadro K3100M (Vulkan)
+     26 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  5.1s
+     52 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  6.1s
+     68 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  7.6s
+     84 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  9.6s
+    100 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  11.1s
+    116 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  13.2s
+    132 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  15.2s
+    148 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  16.7s
+    164 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  18.8s
+    180 dispatches  spp     0..8     / 8  tiles 336  max dispatch 144 ms  19.8s
+    206 dispatches  spp     8..8     / 8  tiles 336  max dispatch 144 ms  21.8s
+done: 384x216 spp 8..8 in 21.8s
+wrote target/orfevrerie-baseline-2.{exr,png,ron}
+Baseline repetition 3
+gpu: Quadro K3100M (Vulkan)
+     26 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  5.1s
+     52 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  6.1s
+     68 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  7.6s
+     84 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  9.6s
+    100 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  11.7s
+    116 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  13.2s
+    132 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  15.2s
+    148 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  16.8s
+    164 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  18.8s
+    185 dispatches  spp     0..8     / 8  tiles 336  max dispatch 140 ms  20.3s
+    206 dispatches  spp     8..8     / 8  tiles 336  max dispatch 140 ms  21.8s
+done: 384x216 spp 8..8 in 21.9s
+wrote target/orfevrerie-baseline-3.{exr,png,ron}

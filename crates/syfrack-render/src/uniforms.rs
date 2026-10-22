@@ -523,6 +523,82 @@ pub struct GpuFinish {
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
+pub struct GpuPhenomena {
+    pub program: [u32; 4],
+    pub grid: [u32; 4],
+    pub outputs: [u32; 4],
+    pub center: [f32; 4],
+    pub half: [f32; 4],
+    pub gains: [f32; 4],
+    pub film: [f32; 4],
+    pub film_extra: [f32; 4],
+    pub lens_center: [f32; 4],
+    pub lens_axis: [f32; 4],
+    pub lens_config: [f32; 4],
+    pub palette: GpuRamp,
+}
+impl GpuPhenomena {
+    pub fn from_scene(scene: &Scene) -> Self {
+        let Some(p) = &scene.phenomena else {
+            return Self::zeroed();
+        };
+        let mut result = Self::zeroed();
+        result.center = v4(p.domain.center, 1.0);
+        result.half = v4(p.domain.half, 0.0);
+        let ids = [
+            p.bindings.color,
+            p.bindings.emission,
+            p.bindings.density,
+            p.bindings.geometry,
+            p.bindings.displacement,
+            p.bindings.film_thickness,
+        ];
+        for (i, id) in ids.iter().enumerate() {
+            if id.is_some() {
+                result.outputs[0] |= 1 << i;
+            }
+        }
+        result.outputs[1] = match p.bindings.geometry_mode {
+            syfrack_core::scene::phenomena::FieldGeometry::None => 0,
+            syfrack_core::scene::phenomena::FieldGeometry::Union => 1,
+            syfrack_core::scene::phenomena::FieldGeometry::Intersection => 2,
+            syfrack_core::scene::phenomena::FieldGeometry::Replace => 3,
+        };
+        if p.bindings.rgb.is_some() {
+            result.outputs[0] |= 64;
+        }
+        result.outputs[3] = (p.domain.resolution.into_iter().max().unwrap_or(4) * 2).clamp(8, 256);
+        result.gains = [
+            p.bindings.isovalue,
+            p.bindings.displacement_amount,
+            p.bindings.emission_gain,
+            p.bindings.density_gain,
+        ];
+        result.palette = GpuRamp::from_ramp(&p.bindings.palette);
+        if let Some(f) = &p.film {
+            result.film = [f.strength, f.thickness_nm, f.ior, f.substrate_ior];
+            result.film_extra = [
+                f.substrate_extinction,
+                f.thickness_range_nm,
+                f.dispersion_b,
+                0.0,
+            ];
+        }
+        if let Some(d) = &p.dispersion {
+            result.outputs[2] = 1;
+            result.film_extra[3] = d.cauchy_b;
+        }
+        if let Some(l) = &p.lens {
+            result.lens_center = v4(l.center, l.mass);
+            result.lens_axis = v4(l.axis.normalize(), l.spin);
+            result.lens_config = [l.step, l.max_steps as f32, l.escape_radius, 1.0];
+        }
+        result
+    }
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Pod, Zeroable)]
 pub struct Uniforms {
     pub image_size: [u32; 2],
     pub tile_origin: [u32; 2],
@@ -550,6 +626,7 @@ pub struct Uniforms {
     pub finishes: [GpuFinish; 8],
     pub nebula: GpuNebula,
     pub optics: [GpuOptics; 9],
+    pub phenomena: GpuPhenomena,
 }
 
 fn v4(v: Vec3, w: f32) -> [f32; 4] {
@@ -771,6 +848,7 @@ impl Uniforms {
                     m.finishes.get(i - 1).and_then(|f| f.optics.as_ref())
                 })
             }),
+            phenomena: GpuPhenomena::from_scene(scene),
         }
     }
 
@@ -828,7 +906,12 @@ mod tests {
         assert_eq!(offset_of!(Uniforms, nebula), 3024 + (MAX_LIGHTS - 8) * 80);
         assert_eq!(size_of::<GpuOptics>(), 48);
         assert_eq!(offset_of!(Uniforms, optics), 3152 + (MAX_LIGHTS - 8) * 80);
-        assert_eq!(size_of::<Uniforms>(), 3584 + (MAX_LIGHTS - 8) * 80);
+        assert_eq!(size_of::<GpuPhenomena>(), 464);
+        assert_eq!(
+            offset_of!(Uniforms, phenomena),
+            3584 + (MAX_LIGHTS - 8) * 80
+        );
+        assert_eq!(size_of::<Uniforms>(), 4048 + (MAX_LIGHTS - 8) * 80);
         assert!(size_of::<Uniforms>() <= 16384);
     }
 

@@ -48,6 +48,15 @@ pub fn knob(
     integer: bool,
     help: &str,
 ) {
+    // The unified graph owns form parameters; the lowered geometry is a cache.
+    let unified = path.strip_prefix("fractal.nodes[").and_then(|suffix| {
+        state
+            .scene
+            .creation
+            .as_ref()
+            .map(|_| format!("creation.nodes[{suffix}"))
+    });
+    let path = unified.as_deref().unwrap_or(path);
     let Some(info) = state.scene.params().into_iter().find(|p| p.path == path) else {
         return;
     };
@@ -721,7 +730,7 @@ fn colours_2d(ui: &mut Ui, state: &mut AppState) {
     }
 }
 
-fn framing_2d(ui: &mut Ui, state: &mut AppState) {
+pub(super) fn framing_2d(ui: &mut Ui, state: &mut AppState) {
     ui.label(syfrack_i18n::tr!(
         "Glisser l'image pour la déplacer. Molette : zoomer autour du pointeur."
     ));
@@ -778,7 +787,7 @@ fn framing_2d(ui: &mut Ui, state: &mut AppState) {
     }
 }
 
-fn volume(ui: &mut Ui, state: &mut AppState) {
+pub(super) fn volume(ui: &mut Ui, state: &mut AppState) {
     ui.label(RichText::new(syfrack_i18n::tr!("Choisir un volume")).strong());
     ui.horizontal_wrapped(|ui| {
         for (key, label) in [
@@ -1096,6 +1105,32 @@ fn lighting(ui: &mut Ui, state: &mut AppState) {
 }
 
 pub fn show(ui: &mut Ui, state: &mut AppState) {
+    if matches!(state.inspector, Inspector::Scene | Inspector::Texture) {
+        ui.heading(syfrack_i18n::tr!("Graphe de création"));
+        ui.label(syfrack_i18n::tr!(
+            "Motifs, flammes et champs naturels se combinent dans le même graphe."
+        ));
+        if ui.button(syfrack_i18n::tr!("Ouvrir le graphe")).clicked() {
+            state.tab = crate::state::Tab::Forme;
+        }
+        if state.inspector == Inspector::Scene {
+            if state.scene.dimension == Dimension::TwoD {
+                framing_2d(ui, state);
+            } else {
+                panels::camera::show(ui, state);
+            }
+        }
+        return;
+    }
+    if state.scene.dimension == Dimension::TwoD && state.inspector == Inspector::Material {
+        ui.label(syfrack_i18n::tr!(
+            "Les palettes et les mélanges de couleur se règlent sur les nœuds du graphe."
+        ));
+        if ui.button(syfrack_i18n::tr!("Ouvrir le graphe")).clicked() {
+            state.tab = crate::state::Tab::Forme;
+        }
+        return;
+    }
     if state.scene.dimension == Dimension::TwoD {
         match state.inspector {
             Inspector::Scene => motif_2d(ui, state),
@@ -1113,7 +1148,9 @@ pub fn show(ui: &mut Ui, state: &mut AppState) {
     match state.inspector {
         Inspector::Scene => volume(ui, state),
         Inspector::Material => {
-            palette(ui, state);
+            if state.scene.creation.is_none() {
+                palette(ui, state);
+            }
             let mut colour = state.scene.material.albedo;
             if widgets::linear_color(
                 ui,
@@ -1136,8 +1173,15 @@ pub fn show(ui: &mut Ui, state: &mut AppState) {
                 false,
                 syfrack_i18n::tr!("Teinte les reflets avec la couleur de la surface."),
             );
-            egui::CollapsingHeader::new(syfrack_i18n::tr!("Motif de surface"))
-                .show(ui, |ui| texture_3d(ui, state));
+            if state.scene.creation.is_none() {
+                egui::CollapsingHeader::new(syfrack_i18n::tr!("Motif de surface"))
+                    .show(ui, |ui| texture_3d(ui, state));
+            } else if ui
+                .button(syfrack_i18n::tr!("Motifs et couleurs dans le graphe"))
+                .clicked()
+            {
+                state.tab = crate::state::Tab::Forme;
+            }
             if !state.scene.material.finishes.is_empty() {
                 egui::CollapsingHeader::new(syfrack_i18n::tr!("Surfaces de la scène"))
                     .show(ui, |ui| panels::material::show_finishes(ui, state));
@@ -1220,7 +1264,7 @@ pub fn show(ui: &mut Ui, state: &mut AppState) {
     );
 }
 
-fn neon_softness(ui: &mut Ui, state: &mut AppState) {
+pub(super) fn neon_softness(ui: &mut Ui, state: &mut AppState) {
     let mut percent = state.scene.look.neon_softness * 100.0;
     let r=ui.add(egui::Slider::new(&mut percent,0.0..=100.0).integer().suffix(" %").text(syfrack_i18n::tr!("Douceur du néon")))
         .on_hover_text(syfrack_i18n::tr!("0 % : couleurs électriques. 100 % : néons plus doux, pics lumineux atténués. Les noirs et les détails restent nets."));

@@ -61,6 +61,9 @@ fn r_ctx_read(r: &Renderer, buf: &wgpu::Buffer, size: u64) -> Vec<u8> {
 /// and background pixels must equal the environment (1.0).
 fn furnace_scene() -> Scene {
     Scene {
+        creation: None,
+        creation_draft: None,
+        phenomena: None,
         dimension: syfrack_core::Dimension::ThreeD,
         canvas: syfrack_core::Canvas2D::default(),
         seed: 3,
@@ -637,6 +640,9 @@ fn output_is_identical_across_tile_size_and_samples_per_dispatch() {
 #[ignore = "needs GPU"]
 fn sun_irradiance_on_lambertian_plane_matches_albedo_e_over_pi() {
     let scene = Scene {
+        creation: None,
+        creation_draft: None,
+        phenomena: None,
         dimension: syfrack_core::Dimension::ThreeD,
         canvas: syfrack_core::Canvas2D::default(),
         seed: 5,
@@ -987,6 +993,9 @@ fn glossy_sun_highlight_survives_at_the_last_bounce() {
 #[ignore = "needs GPU"]
 fn nee_plane_is_exact_at_small_pixel_cones() {
     let scene = Scene {
+        creation: None,
+        creation_draft: None,
+        phenomena: None,
         dimension: syfrack_core::Dimension::ThreeD,
         canvas: syfrack_core::Canvas2D::default(),
         seed: 5,

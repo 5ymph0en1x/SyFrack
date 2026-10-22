@@ -18,10 +18,13 @@ pub struct CompiledPipeline {
     pub fingerprint: u64,
     /// Stable identity of the assembled transport shader, for checkpoints.
     pub shader_fingerprint: u64,
+    /// Actual module, including immutable CPU specialization, for resume checks.
+    pub(crate) implementation_fingerprint: u64,
     pub wgsl: String,
     pathtrace_module: wgpu::ShaderModule,
     guiding: Mutex<Option<Arc<GuidingPipelines>>>,
-    export_source: String,
+    pub(crate) export_source: String,
+    pub(crate) wavefront: Mutex<Option<Arc<crate::wavefront::Pipelines>>>,
     export_pipeline: Mutex<Option<Arc<wgpu::ComputePipeline>>>,
 }
 
@@ -99,11 +102,28 @@ impl CompiledPipeline {
         nebula: bool,
         optics: bool,
     ) -> anyhow::Result<Self> {
-        let workgroup = match std::env::var("SYFRACK_WORKGROUP").as_deref() {
-            Ok("8x8") | Err(std::env::VarError::NotPresent) => [8, 8],
-            Ok("16x4") => [16, 4],
-            Ok("32x2") => [32, 2],
-            _ => anyhow::bail!("SYFRACK_WORKGROUP must be 8x8, 16x4 or 32x2"),
+        Self::build_specialized(device, layouts, compiled, texture, nebula, optics, None, 0)
+    }
+
+    pub(crate) fn build_specialized(
+        device: &wgpu::Device,
+        layouts: &Layouts,
+        compiled: Compiled,
+        texture: Option<Compiled>,
+        nebula: bool,
+        optics: bool,
+        constants: Option<&crate::shader_source::CpuExportConstants>,
+        nature: u8,
+    ) -> anyhow::Result<Self> {
+        let workgroup = if let Some(constants) = constants {
+            constants.1
+        } else {
+            match std::env::var("SYFRACK_WORKGROUP").as_deref() {
+                Ok("8x8") | Err(std::env::VarError::NotPresent) => [8, 8],
+                Ok("16x4") => [16, 4],
+                Ok("32x2") => [32, 2],
+                _ => anyhow::bail!("SYFRACK_WORKGROUP must be 8x8, 16x4 or 32x2"),
+            }
         };
         // Nested scopes, popped innermost first: a backend (Internal) or
         // out-of-memory failure must fail the build like a validation error,
@@ -131,11 +151,36 @@ impl CompiledPipeline {
             nebula,
             optics,
         );
+        let mut source = source;
+        for (bit, name) in [
+            (1, "NATURE_FIELDS_ENABLED"),
+            (2, "NATURE_FILM_ENABLED"),
+            (4, "KERR_ENABLED"),
+            (8, "DISPERSION_ENABLED"),
+            (32, "NATURE_VOLUME_ENABLED"),
+        ] {
+            source = source.replace(
+                &format!("const {name}: bool = true;"),
+                &format!("const {name}: bool = {};", nature & bit != 0),
+            );
+        }
+        // Projection is known before compilation. Removing the unreachable 3D
+        // transport keeps the shared 2D field kernel small on older drivers.
+        if nature & 16 != 0 {
+            source = source.replace("if ((u.flags & 1u) != 0u)", "if (true)");
+        }
         let shader_fingerprint = crate::shader_source::transport_fingerprint(&source);
+        // Identity tracks the full transport. Substituted values equal the
+        // immutable scene's uniforms, and have a separate, bounded cache.
+        let module_source = constants.map_or_else(|| source.clone(), |c| c.apply(&source));
         let pathtrace_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("pathtrace module"),
-            source: wgpu::ShaderSource::Wgsl(source.clone().into()),
+            source: wgpu::ShaderSource::Wgsl(module_source.clone().into()),
         });
+        let compile_clock = std::time::Instant::now();
+        if std::env::var_os("SYFRACK_TRACE_GPU").is_some() {
+            eprintln!("compiling shared transport features={nature}");
+        }
         let pipeline = pathtrace_pipeline(
             device,
             &layouts.pathtrace,
@@ -149,18 +194,15 @@ impl CompiledPipeline {
             crate::shader_source::de_probe(&compiled.wgsl),
             &layouts.probe,
         );
+        if std::env::var_os("SYFRACK_TRACE_GPU").is_some() {
+            eprintln!("compiled shared transport in {:?}", compile_clock.elapsed());
+        }
         let validation = pollster::block_on(validation.pop());
         let internal = pollster::block_on(internal.pop());
         let oom = pollster::block_on(oom.pop());
         if let Some(err) = validation.or(internal).or(oom) {
             let text = err.to_string();
-            let source = crate::shader_source::pathtrace_with_features(
-                &compiled.wgsl,
-                texture.as_ref().map(|t| t.wgsl.as_str()),
-                nebula,
-                optics,
-            );
-            let node = crate::graph_wgsl::node_of_error(&text, &source);
+            let node = crate::graph_wgsl::node_of_error(&text, &module_source);
             anyhow::bail!(
                 "shader compilation failed{}: {text}",
                 node.map(|n| format!(" near node {n}")).unwrap_or_default()
@@ -176,6 +218,7 @@ impl CompiledPipeline {
             ),
             optics,
         );
+        let fingerprint = crate::graph_wgsl::nature_fingerprint(fingerprint, nature);
         Ok(Self {
             pipeline,
             workgroup,
@@ -184,10 +227,12 @@ impl CompiledPipeline {
             texture_layout: texture.map(|t| t.layout),
             fingerprint,
             shader_fingerprint,
+            implementation_fingerprint: crate::shader_source::transport_fingerprint(&module_source),
             wgsl: compiled.wgsl,
             pathtrace_module,
             guiding: Mutex::new(None),
-            export_source: source,
+            export_source: module_source,
+            wavefront: Mutex::new(None),
             export_pipeline: Mutex::new(None),
         })
     }

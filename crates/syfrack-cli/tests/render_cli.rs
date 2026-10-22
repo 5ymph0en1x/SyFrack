@@ -8,6 +8,37 @@ fn tmp() -> std::path::PathBuf {
 }
 
 #[test]
+fn version_reports_the_cli_package_version_without_a_subcommand() {
+    for flag in ["--version", "-V"] {
+        let output = Command::new(env!("CARGO_BIN_EXE_syfrack"))
+            .args(["--lang", "fr", flag])
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "{flag}");
+        assert_eq!(
+            String::from_utf8_lossy(&output.stdout).trim(),
+            format!("syfrack {}", env!("CARGO_PKG_VERSION"))
+        );
+    }
+}
+
+#[test]
+fn parity_command_requires_a_bounded_nonempty_corpus_before_creating_a_device() {
+    let output = Command::new(env!("CARGO_BIN_EXE_syfrack"))
+        .args(["parity", "--points", "0", "--out", "unused-parity.ron"])
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("16..=1000000"));
+    let help = Command::new(env!("CARGO_BIN_EXE_syfrack"))
+        .args(["parity", "--help"])
+        .output()
+        .unwrap();
+    assert!(help.status.success());
+    assert!(String::from_utf8_lossy(&help.stdout).contains("--report-only"));
+}
+
+#[test]
 fn example_scene_command_writes_a_valid_scene() {
     let out = tmp().join("example.ron");
     let status = Command::new(env!("CARGO_BIN_EXE_syfrack"))
@@ -574,7 +605,7 @@ fn graph_validate_reports_errors_and_compile_writes_wgsl() {
     scene.fractal = Fractal::Graph(g);
     std::fs::write(&bad, scene.to_ron()).unwrap();
     let out = syfrack()
-        .args(["graph", "validate"])
+        .args(["--lang", "fr", "graph", "validate"])
         .arg(&bad)
         .output()
         .unwrap();
@@ -619,12 +650,7 @@ fn graph_upgrade_refuses_a_pre_plan4_scene() {
         .unwrap();
     assert!(!out.status.success());
     let err = String::from_utf8_lossy(&out.stderr);
-    assert!(
-        err.contains(
-            "scène antérieure au plan 4 : utilisez la version précédente pour la convertir"
-        ),
-        "{err}"
-    );
+    assert!(err.contains(syfrack_core::scene::PRE_PLAN4), "{err}");
     assert_eq!(std::fs::read_to_string(&path).unwrap(), old, "untouched");
     assert!(!dir.join("old.ron.bak").exists());
 }

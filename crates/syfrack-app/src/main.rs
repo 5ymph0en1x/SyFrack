@@ -1,16 +1,9 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
-
+use anyhow::Result;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
-
-use anyhow::Result;
-use winit::application::ApplicationHandler;
-use winit::event::WindowEvent;
-use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop};
-use winit::window::{Window, WindowId};
-
 use syfrack_app_lib::display::DisplayPass;
 use syfrack_app_lib::egui_layer::EguiLayer;
 use syfrack_app_lib::input;
@@ -25,7 +18,10 @@ use syfrack_app_lib::ui::{self, Viewport};
 use syfrack_app_lib::window::Gfx;
 use syfrack_core::{clay_scene, CameraMode, Scene};
 use syfrack_render::{GpuContext, Renderer};
-
+use winit::application::ApplicationHandler;
+use winit::event::WindowEvent;
+use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop};
+use winit::window::{Window, WindowId};
 /// Initial preview frame before the central panel reports its real size.
 const INITIAL_FULL: (u32, u32) = (1024, 576);
 /// Full-resolution frame of the preview on the « Forme » tab (16:9).
@@ -38,11 +34,8 @@ const BANNER_TTL: Duration = Duration::from_secs(8);
 const DEPTH_HINT_PERIOD: Duration = Duration::from_millis(250);
 /// Depth hint when the cursor points at the sky: move fast.
 const DEPTH_HINT_MISS: f32 = 50.0;
-/// While a final render runs, the preview steps one frame in this many.
-const PREVIEW_SLOWDOWN: u64 = 4;
 /// Redraw period while nothing can be presented (occluded, minimised).
 const IDLE_PERIOD: Duration = Duration::from_millis(16);
-
 struct Running {
     desktop: syfrack_app_lib::desktop::Desktop,
     last_frame: Instant,
@@ -57,8 +50,8 @@ struct Running {
     full: (u32, u32),
     /// Candidate panel size and when it was first seen.
     pending_resize: Option<((u32, u32), Instant)>,
-    /// A scene change held back until the pointer release (a new topology
-    /// while a ⟳ slider is dragged: one compilation per release).
+    /// A scene change held back until the pointer release or export completion.
+    /// All edits made while suspended are coalesced into the latest scene.
     deferred_change: bool,
     /// A size whose resize failed: not retried until the panel size changes.
     failed_resize: Option<(u32, u32)>,
@@ -83,18 +76,15 @@ struct Running {
     shown_clay: bool,
     /// Library thumbnails being rendered, each on its own thread.
     thumbnails: Vec<JoinHandle<Result<PathBuf>>>,
-    frame_counter: u64,
     /// The window was asked to close over unsaved edits: the modal is up.
     confirm_quit: bool,
     /// The user confirmed: leave after this frame.
     quit_now: bool,
 }
-
 #[derive(Default)]
 struct App {
     running: Option<Running>,
 }
-
 fn create(event_loop: &ActiveEventLoop) -> Result<Running> {
     let attrs = Window::default_attributes()
         .with_title("SyFrack Studio")
@@ -130,8 +120,9 @@ fn create(event_loop: &ActiveEventLoop) -> Result<Running> {
     ));
     let renderer = Renderer::new(gpu)?;
     let display = DisplayPass::new(&gfx.device)?;
-    let preview = Preview::new(renderer.clone(), &scene, INITIAL_FULL)?;
+    let preview = Preview::new_control(renderer.clone(), &scene, INITIAL_FULL)?;
     let mut state = AppState::new(scene, path);
+    state.set_interface(syfrack_app_lib::interface::InterfaceMode::load());
     if let Some(text) = load_error {
         state.banner = Some(Banner::error(text));
     } else if let Some(reason) = preview.inactive_reason() {
@@ -164,12 +155,10 @@ fn create(event_loop: &ActiveEventLoop) -> Result<Running> {
         form: FormPanel::new(),
         shown_clay: false,
         thumbnails: Vec::new(),
-        frame_counter: 0,
         confirm_quit: false,
         quit_now: false,
     })
 }
-
 impl Running {
     /// No render thread may outlive the window.
     fn quit(&mut self, event_loop: &ActiveEventLoop) {
@@ -179,13 +168,13 @@ impl Running {
         }
         event_loop.exit();
     }
-
     /// The scene the preview shows: the clay variant on the « Forme » tab
     /// when its switch asks for it.
     fn wants_clay(&self) -> bool {
-        self.state.tab == Tab::Forme && self.form.clay
+        self.state.tab == Tab::Forme
+            && self.form.clay
+            && self.state.scene.dimension == syfrack_core::Dimension::ThreeD
     }
-
     fn preview_scene(&self, clay: bool) -> Scene {
         if clay {
             clay_scene(&self.state.scene)
@@ -193,7 +182,6 @@ impl Running {
             self.state.scene.clone()
         }
     }
-
     /// Adopts a pipeline compiled in the background, or reports its failure
     /// on the node the message names (the old pipeline keeps rendering).
     fn poll_compile(&mut self) {
@@ -211,10 +199,15 @@ impl Running {
             }
         }
     }
-
     /// Starts the thumbnails the library asked for and reports the finished ones.
     fn run_thumbnails(&mut self) {
-        for (g, png) in self.form.library.thumbnail_jobs.drain(..) {
+        // Leave requests queued until the final render releases the GPU.
+        let jobs = if self.render.is_running() {
+            Vec::new()
+        } else {
+            self.form.library.thumbnail_jobs.drain(..).collect()
+        };
+        for (g, png) in jobs {
             let renderer = self.renderer.clone();
             let job = std::thread::Builder::new()
                 .name("syfrack-library-thumbnail".into())
@@ -244,12 +237,10 @@ impl Running {
             }
         }
     }
-
     fn raise_banner(&mut self, text: String) {
         self.state.banner = Some(Banner::error(text));
         self.banner_at = Instant::now();
     }
-
     /// After a preview build that succeeded: « forme incomplète » while the
     /// preview waits, else the preview's own banners go.
     fn after_build(&mut self) {
@@ -264,7 +255,6 @@ impl Running {
             preview::BannerChange::Raise(text) => self.raise_banner(text),
         }
     }
-
     /// Applies a panel size that has been stable long enough.
     fn settle_resize(&mut self) {
         let now = Instant::now();
@@ -299,7 +289,6 @@ impl Running {
             _ => self.pending_resize = Some((target, now)),
         }
     }
-
     /// Reacts to the viewport: serves pick and depth-hint readbacks from the
     /// session as it was drawn, then rebuilds the preview after any scene edit.
     fn apply_viewport(&mut self, out: ViewportOutput) {
@@ -307,6 +296,12 @@ impl Running {
         // Switching between clay and the real look is a values-only change.
         let changed =
             self.state.take_preview_dirty() | (clay != self.shown_clay) | self.deferred_change;
+        if self.render.is_running() {
+            // Keep the last image and coalesce edits. Rebuild from the latest
+            // scene on resume; even depth/pick readbacks would contend here.
+            self.deferred_change = changed;
+            return;
+        }
         // A freshly rebuilt session has no samples yet: nothing to read back.
         let ready = self.preview.samples_min() >= 1;
         let (w, h) = self.preview.size();
@@ -315,7 +310,8 @@ impl Running {
             match self.preview.pick(u, v) {
                 Ok(Some(pick)) => {
                     let basis = self.state.scene.camera.basis();
-                    let point = input::unproject(&basis, aspect, u, v, pick.depth);
+                    let point =
+                        input::unproject_scene(&self.state.scene, &basis, aspect, u, v, pick.depth);
                     self.depth_hint = pick.depth;
                     self.last_pick = Some((point, pick));
                 }
@@ -349,18 +345,37 @@ impl Running {
                 Ok(()) => self.after_build(),
             }
         }
+        if std::mem::take(&mut self.form.control_requested) {
+            if let Err(e) = self.preview.use_control() {
+                self.raise_banner(format!("preview: {e:#}"));
+            }
+        }
+        if std::mem::take(&mut self.form.specialization_requested) {
+            // This explicit action asks to inspect the actual scene, including
+            // its materials and lights, even from the Forme tab's clay view.
+            self.form.clay = false;
+            let scene = self.preview_scene(false);
+            match self.preview.set_scene(&scene) {
+                Ok(()) => {
+                    self.shown_clay = false;
+                    self.preview.request_specialization();
+                }
+                Err(e) => self.raise_banner(format!("preview: {e:#}")),
+            }
+        }
     }
-
     fn redraw(&mut self) {
         self.last_frame = Instant::now();
-        self.settle_resize();
-        self.frame_counter += 1;
-        self.poll_compile();
-        self.run_thumbnails();
         let render_running = self.render.is_running();
-        // The gallery needs no preview: the GPU goes to a running final render.
-        let preview_due = matches!(self.state.tab, Tab::Atelier | Tab::Forme)
-            && (!render_running || self.frame_counter.is_multiple_of(PREVIEW_SLOWDOWN));
+        self.preview.pause_fields(render_running);
+        // Freeze preview sessions/resources as well as tracing. The existing
+        // display texture remains visible while export owns the GPU.
+        if !render_running {
+            self.settle_resize();
+            self.poll_compile();
+        }
+        self.run_thumbnails();
+        let preview_due = matches!(self.state.tab, Tab::Atelier | Tab::Forme) && !render_running;
         if !self.idle && preview_due {
             if let Err(e) = self.preview.tick(Duration::from_millis(12)) {
                 eprintln!("preview error: {e:#}");
@@ -378,29 +393,43 @@ impl Running {
         if self.state.banner.is_some() && self.banner_at.elapsed() >= BANNER_TTL {
             self.state.banner = None;
         }
-
         let size = self.preview.size();
         let texture =
             self.display
                 .ensure_target(&self.gfx.device, &mut self.egui.renderer_mut(), size);
         let spp = self.preview.samples_min();
-        let active = self.preview.session().is_some();
+        let active = self.preview.active();
         let stage = match self.preview.stage() {
             Stage::Quarter => "quart",
             Stage::Half => "demi",
         };
-        let compiling = if self.preview.compiling() {
+        let compiling = if self.preview.preparing_fields() {
+            syfrack_i18n::tr!(" · préparation des champs…")
+        } else if self.preview.compiling() {
             syfrack_i18n::tr!(" · compilation…")
         } else {
             ""
         };
-        let caption = if !active && self.preview.compiling() {
+        let caption = if active && self.preview.inactive_reason().is_some() {
+            syfrack_i18n::tr!("Graphe incomplet · dernière forme valide").to_owned()
+        } else if self.preview.is_control() {
+            if render_running {
+                syfrack_i18n::tr!("Contrôle GPU · suspendu pendant l’export").to_owned()
+            } else {
+                let (done, total) = self.preview.control_progress().unwrap();
+                syfrack_i18n::tr_format!(
+                    "Contrôle GPU · {percent:.0} %{compiling}",
+                    percent = done as f32 * 100.0 / total.max(1) as f32,
+                    compiling = compiling
+                )
+            }
+        } else if !active && self.preview.compiling() {
             syfrack_i18n::tr!("compilation…").to_string()
         } else if !active {
             syfrack_i18n::text(preview::INCOMPLETE).to_owned()
         } else if render_running {
             syfrack_i18n::tr_format!(
-                "{stage} · {spp} spp{compiling} · rendu en cours · aperçu ralenti",
+                "{stage} · {spp} spp{compiling} · rendu en cours · aperçu suspendu",
                 compiling = compiling,
                 spp = spp,
                 stage = stage
@@ -409,6 +438,10 @@ impl Running {
             format!("{stage} · {spp} spp{compiling}")
         };
         self.form.view = FormView {
+            can_specialize: self.preview.can_specialize(),
+            specializing: self.preview.specialization_requested(),
+            specialized: self.preview.is_specialized(),
+            exporting: render_running,
             texture: active.then_some(texture),
             size,
             caption: caption.clone(),
@@ -424,7 +457,6 @@ impl Running {
             frame_guide: self.render.frame_guide(),
             output: Default::default(),
         };
-
         let device = self.gfx.device.clone();
         let queue = self.gfx.queue.clone();
         let gain = self.preview.exposure_gain();
@@ -443,26 +475,25 @@ impl Running {
             quit_now,
             ..
         } = self;
-        let look = state.scene.look.clone();
+        let look = preview.display_look().clone();
+        let previous_interface = state.interface;
         let result = egui.frame(
             window,
             gfx,
             |encoder| {
+                // Reuse the last developed texture: tone mapping the frozen
+                // accumulation each UI frame would still consume GPU time.
+                if render_running {
+                    return;
+                }
                 // Nothing to show while the preview waits for a complete form.
-                if let Some(session) = preview.session() {
-                    display.encode(
-                        &device,
-                        &queue,
-                        encoder,
-                        session.accumulation_buffer(),
-                        size,
-                        &look,
-                        gain,
-                    );
+                if let Some(accum) = preview.accumulation_buffer() {
+                    display.encode(&device, &queue, encoder, accum, size, &look, gain);
                 }
             },
             |ui| {
                 ui::floating::begin_root(ui.ctx());
+                ui::phenomena::set_renderer(ui.ctx(), renderer, render_running);
                 ui::draw(ui, state, &mut view, gallery, form);
                 render.show(ui, state, renderer);
                 if *confirm_quit {
@@ -478,6 +509,14 @@ impl Running {
                 ui::floating::finish_root(ui.ctx());
             },
         );
+        if self.state.interface != previous_interface {
+            if let Err(error) = self.state.interface.save() {
+                self.state.banner = Some(Banner::error(format!(
+                    "{}: {error}",
+                    syfrack_i18n::tr!("Impossible d’enregistrer le choix d’interface")
+                )));
+            }
+        }
         // The « Forme » tab shows the preview in a 16:9 box: its quarter
         // stage is about the box's size.
         self.available_px = if self.state.tab == Tab::Forme {
@@ -499,7 +538,6 @@ impl Running {
             self.window.request_redraw();
         }
     }
-
     fn redraw_tool(&mut self, id: egui::ViewportId) {
         let Some(mut tool) = self.desktop.windows.remove(&id) else {
             return;
@@ -532,7 +570,6 @@ impl Running {
         self.window.request_redraw();
     }
 }
-
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         if self.running.is_some() {
@@ -550,7 +587,6 @@ impl ApplicationHandler for App {
             }
         }
     }
-
     fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) {
         let Some(r) = &mut self.running else { return };
         if id != r.window.id() {
@@ -586,7 +622,9 @@ impl ApplicationHandler for App {
         let response = r.egui.on_window_event(&r.window, &event);
         match event {
             WindowEvent::CloseRequested => {
-                if r.state.has_unsaved_workspaces() {
+                if r.state.has_unsaved_workspaces()
+                    || ui::mosaic::has_unsaved_work(&r.egui.context())
+                {
                     // Ask first; the modal is drawn by the next frame.
                     r.confirm_quit = true;
                     r.idle = false;
@@ -611,7 +649,6 @@ impl ApplicationHandler for App {
             r.window.request_redraw();
         }
     }
-
     fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
         let Some(r) = &mut self.running else { return };
         // Windows may stop delivering WM_PAINT to a parent completely covered
@@ -647,7 +684,6 @@ impl ApplicationHandler for App {
         }
     }
 }
-
 fn run() -> Result<()> {
     let event_loop = EventLoop::new()?;
     event_loop.set_control_flow(ControlFlow::Poll);
@@ -655,14 +691,12 @@ fn run() -> Result<()> {
     event_loop.run_app(&mut app)?;
     Ok(())
 }
-
 fn main() {
     syfrack_i18n::initialize();
     if let Err(e) = run() {
         startup_error(&format!("SyFrack Studio\n\n{e:#}"));
     }
 }
-
 /// A GUI executable has no console to report a GPU/startup failure into.
 #[cfg(target_os = "windows")]
 fn startup_error(message: &str) {
@@ -682,7 +716,6 @@ fn startup_error(message: &str) {
         MessageBoxW(std::ptr::null_mut(), text.as_ptr(), caption.as_ptr(), 0x10);
     }
 }
-
 #[cfg(not(target_os = "windows"))]
 fn startup_error(message: &str) {
     eprintln!("{message}");

@@ -10,10 +10,10 @@ use std::hash::{Hash, Hasher};
 use syfrack_core::graph::MAX_DEPTH;
 use syfrack_core::{Graph, Measure, NodeId, NodeKind, Scene, SceneError, TrapMode};
 
-/// Scalars in the parameter buffer, including reserved trap scales.
+/// Maximum scalars in a parameter texture, including reserved trap scales.
 pub const PARAM_COUNT: usize = syfrack_core::graph::MAX_SCALARS;
-/// The last four scalars hold the normalisation scale of each trap slot.
-pub const TRAP_SCALE_BASE: usize = PARAM_COUNT - 4;
+/// The first four scalars hold the normalisation scale of each trap slot.
+pub const TRAP_SCALE_BASE: usize = 0;
 
 fn union_leaves(g: &Graph, id: NodeId, out: &mut Vec<NodeId>) {
     let n = g.node(id).unwrap();
@@ -33,13 +33,13 @@ pub struct ParamLayout {
 }
 
 impl ParamLayout {
-    fn add(&mut self, node: NodeId, field: &'static str, count: usize) -> usize {
-        let index = self.len();
+    pub(crate) fn add(&mut self, node: NodeId, field: &'static str, count: usize) -> usize {
+        let index = self.len().max(4);
         self.slots.push((node, field, index, count));
         index
     }
 
-    fn placements(&mut self, node: NodeId, count: usize) -> usize {
+    pub(crate) fn placements(&mut self, node: NodeId, count: usize) -> usize {
         if let Some(index) = self.index_of(node, "placements") {
             return index;
         }
@@ -57,7 +57,8 @@ impl ParamLayout {
             .map(|s| s.2)
     }
 
-    /// Scalars used, trap scales excluded.
+    /// Occupied scalar span, including the four reserved trap scales when
+    /// there are parameters. `pack` also reserves them for an empty layout.
     pub fn len(&self) -> usize {
         self.slots.iter().map(|s| s.2 + s.3).max().unwrap_or(0)
     }
@@ -68,8 +69,8 @@ impl ParamLayout {
 
     /// The current values of `g` in layout order; trap scales at
     /// `TRAP_SCALE_BASE..`, from `Graph::trap_scales` (1.0 for an unwritten slot).
-    pub fn pack(&self, g: &Graph) -> [f32; PARAM_COUNT] {
-        let mut out = [0.0f32; PARAM_COUNT];
+    pub fn pack(&self, g: &Graph) -> Vec<f32> {
+        let mut out = vec![0.0f32; self.len().max(4).div_ceil(4) * 4];
         for (id, field, index, _) in &self.slots {
             let Some(n) = g.node(*id) else { continue };
             use NodeKind::*;
@@ -86,57 +87,17 @@ impl ParamLayout {
                     Instances {
                         placements, half, ..
                     },
-                    "cluster_bounds",
-                ) => placements
-                    .chunks(8)
-                    .flat_map(|chunk| {
-                        let mut lo = glam::Vec3::splat(f32::INFINITY);
-                        let mut hi = glam::Vec3::splat(f32::NEG_INFINITY);
-                        for p in chunk {
-                            let a = p.angles * (std::f32::consts::PI / 180.0);
-                            let r = glam::Quat::from_euler(glam::EulerRot::XYZ, a.x, a.y, a.z);
-                            let h = *half * p.scale;
-                            let e = (r * glam::Vec3::X).abs() * h.x
-                                + (r * glam::Vec3::Y).abs() * h.y
-                                + (r * glam::Vec3::Z).abs() * h.z;
-                            lo = lo.min(p.position - e);
-                            hi = hi.max(p.position + e);
-                        }
-                        let centre = (lo + hi) * 0.5;
-                        let extent = (hi - lo) * 0.5 + glam::Vec3::splat(0.002);
-                        centre
+                    "bvh",
+                ) => syfrack_core::graph::bvh::build(placements, *half)
+                    .iter()
+                    .flat_map(|n| {
+                        n.center
                             .to_array()
                             .into_iter()
-                            .chain(extent.to_array())
-                            .collect::<Vec<_>>()
+                            .chain(n.half.to_array())
+                            .chain([n.escape as f32, n.placement.map_or(-1.0, |i| i as f32)])
                     })
                     .collect(),
-                (
-                    Instances {
-                        placements, half, ..
-                    },
-                    "envelope_center" | "envelope_half",
-                ) => {
-                    let mut lo = glam::Vec3::splat(f32::INFINITY);
-                    let mut hi = glam::Vec3::splat(f32::NEG_INFINITY);
-                    for p in placements {
-                        let a = p.angles * (std::f32::consts::PI / 180.0);
-                        let r = glam::Quat::from_euler(glam::EulerRot::XYZ, a.x, a.y, a.z);
-                        let h = *half * p.scale;
-                        let e = (r * glam::Vec3::X).abs() * h.x
-                            + (r * glam::Vec3::Y).abs() * h.y
-                            + (r * glam::Vec3::Z).abs() * h.z;
-                        lo = lo.min(p.position - e);
-                        hi = hi.max(p.position + e);
-                    }
-                    (if *field == "envelope_center" {
-                        (lo + hi) * 0.5
-                    } else {
-                        (hi - lo) * 0.5 + glam::Vec3::splat(0.002)
-                    })
-                    .to_array()
-                    .to_vec()
-                }
                 (Translate { offset }, "offset") | (MengerFold { offset, .. }, "offset") => {
                     offset.to_array().to_vec()
                 }
@@ -212,12 +173,12 @@ impl ParamLayout {
                 _ => Vec::new(),
             };
             for (j, v) in vals.iter().enumerate() {
-                if index + j < TRAP_SCALE_BASE {
+                if index + j < out.len() {
                     out[index + j] = *v;
                 }
             }
         }
-        out[TRAP_SCALE_BASE..].copy_from_slice(&g.trap_scales());
+        out[TRAP_SCALE_BASE..TRAP_SCALE_BASE + 4].copy_from_slice(&g.trap_scales());
         out
     }
 }
@@ -249,7 +210,7 @@ fn hash_node(g: &Graph, id: NodeId, depth: u32, h: &mut DefaultHasher) {
 /// without scalar values, enabled flag, bodies) and the links between them.
 pub fn fingerprint(g: &Graph) -> u64 {
     let mut h = DefaultHasher::new();
-    "independent placements and bounded evaluation ABI 6".hash(&mut h);
+    "parameter textures and stackless instance BVH ABI 7".hash(&mut h);
     let active = g.active_nodes();
     for id in &active {
         hash_node(g, *id, 0, &mut h);
@@ -269,7 +230,9 @@ pub fn fingerprint(g: &Graph) -> u64 {
 
 /// A scene pipeline depends on both graphs, but never on their scalar values.
 pub fn scene_fingerprint(scene: &Scene) -> u64 {
-    optics_fingerprint(
+    let lowered = scene.creation.as_ref().and_then(|g| g.compile(scene).ok());
+    let scene = lowered.as_ref().unwrap_or(scene);
+    let pipeline = optics_fingerprint(
         nebula_fingerprint(
             pipeline_fingerprint(
                 fingerprint(scene.fractal.graph()),
@@ -282,7 +245,30 @@ pub fn scene_fingerprint(scene: &Scene) -> u64 {
             scene.atmosphere.nebula.is_some(),
         ),
         scene_has_optics(scene),
-    )
+    );
+    nature_fingerprint(pipeline, nature_features(scene))
+}
+
+/// Enabled feature classes specialize exports; numeric field edits keep the pipeline.
+pub fn nature_features(scene: &Scene) -> u8 {
+    u8::from(scene.dimension == syfrack_core::Dimension::TwoD) * 16
+        | scene.phenomena.as_ref().map_or(0, |p| {
+            u8::from(!p.fields.nodes.is_empty())
+                | u8::from(p.film.is_some()) << 1
+                | u8::from(p.lens.is_some()) << 2
+                | u8::from(p.dispersion.is_some()) << 3
+                | u8::from(p.bindings.density.is_some()) << 5
+        })
+}
+pub fn nature_fingerprint(pipeline: u64, features: u8) -> u64 {
+    if features == 0 {
+        return pipeline;
+    }
+    let mut h = DefaultHasher::new();
+    "natural transport classes 1".hash(&mut h);
+    pipeline.hash(&mut h);
+    features.hash(&mut h);
+    h.finish()
 }
 
 pub fn scene_has_optics(scene: &Scene) -> bool {
@@ -503,12 +489,15 @@ impl Emitter<'_> {
             }
             Power { .. } => {
                 let pw = self.gp(id, "power");
+                let cubic = format!("{}_cubic_polar", self.params);
                 self.line(&format!(
-                    "{{ let radius=length({p}); let r=max(radius,1e-12); \
+                    "{{ let radius=length({p}); if ({pw}==3.0 && radius>=1e-12) {{ \
+                     let powered={cubic}({p},radius); {p}=powered.xyz; {dr}*=powered.w; \
+                     }} else {{ let r=max(radius,1e-12); \
                      var theta=acos(clamp({p}.z/r,-1.0,1.0)); if (radius>=1e-12) {{ theta=atan2(length({p}.xy),{p}.z); }} \
                      let phi = atan2({p}.y, {p}.x); {dr} = {dr} * (pow(r, {pw} - 1.0) * {pw}); \
                      let zr = pow(r, {pw}); let st = sin(theta * {pw}); let ct = cos(theta * {pw}); \
-                     let sp = sin(phi * {pw}); let cp = cos(phi * {pw}); {p} = vec3f(st * cp, st * sp, ct) * zr; }}"
+                     let sp = sin(phi * {pw}); let cp = cos(phi * {pw}); {p} = vec3f(st * cp, st * sp, ct) * zr; }} }}"
                 ));
             }
             AddOrigin => self.line(&format!("{p} = {p} + c; {dr} = {dr} + 1.0;")),
@@ -759,16 +748,9 @@ impl Emitter<'_> {
                         self.line(&format!("let d{id} = d{a}; let d{id}_it = d{a}_it; let d{id}_tr = d{a}_tr; let d{id}_mat = d{a}_mat; let d{id}_flags = d{a}_flags;"));
                     } else {
                         let base = self.layout.placements(id, placements.len());
-                        let clusters =
-                            self.layout
-                                .index_of(id, "cluster_bounds")
-                                .unwrap_or_else(|| {
-                                    self.layout.add(
-                                        id,
-                                        "cluster_bounds",
-                                        placements.len().div_ceil(8) * 6,
-                                    )
-                                });
+                        let bvh = self.layout.index_of(id, "bvh").unwrap_or_else(|| {
+                            self.layout.add(id, "bvh", (2 * placements.len() - 1) * 8)
+                        });
                         let half = self.gp3(id, "half");
                         let gp = self.params;
                         // Read loop bounds from the parameter buffer. Some older
@@ -779,23 +761,31 @@ impl Emitter<'_> {
                         self.line(&format!("let {count}=u32({count_param});"));
                         let template = self.input(id, 0)?;
                         self.line(&format!("var best{id} = DeSample(1e30,vec4f(1e30),0u,0u,0u); var chosen{id} = {count};"));
-                        if fast.contains(&id) {
-                            let margin = self.gp(id, "margin");
-                            let centre = self.gp3(id, "envelope_center");
-                            let extent = self.gp3(id, "envelope_half");
-                            if self.bounds_only {
-                                self.line(&format!("best{id}=DeSample(box_distance(c-{centre},{extent}),vec4f(1e30),0u,0u,1u);"));
-                            } else {
-                                self.line(&format!("let envelope{id}=box_distance(c-{centre},{extent}); if (envelope{id}>{margin}) {{ best{id}=DeSample(envelope{id},vec4f(1e30),0u,0u,1u); }} else {{"));
-                                self.line(&format!("for (var j=0u; j<{count}; j++) {{ if (j%8u==0u) {{ let cluster={gp}_cluster_bound(c,{clusters}u+(j/8u)*6u); if (cluster>best{id}.distance) {{ j+=7u; continue; }} if (cluster>{margin}) {{ if (cluster<best{id}.distance || (cluster==best{id}.distance && j<chosen{id})) {{ best{id}=DeSample(cluster,vec4f(1e30),0u,0u,1u); chosen{id}=j; }} j+=7u; continue; }} }} let local={gp}_placement(c,{base}u+j*12u); let bound=box_distance(local.p.xyz*local.s,{half}*local.s); if (bound>best{id}.distance) {{ continue; }} var detail=DeSample(bound,vec4f(1e30),0u,0u,1u); if (bound<={margin}) {{ detail={gp}_instances_{template}_fast(local.p.xyz); detail.distance=max(detail.distance*local.p.w,bound); }} if (detail.distance<best{id}.distance || (detail.distance==best{id}.distance && j<chosen{id})) {{ best{id}=detail; chosen{id}=j; }} }} }}"));
-                            }
+                        let margin = self.gp(id, "margin");
+                        if fast.contains(&id) && self.bounds_only {
+                            self.line(&format!("best{id}=DeSample({gp}_cluster_bound(c,{bvh}u),vec4f(1e30),0u,0u,1u);"));
                         } else {
-                            // Seed with the closest box, then prune only using
-                            // rigorous lower bounds. Overlapping copies remain exact.
-                            self.line(&format!("var closest{id}=0u; var lower{id}=1e30; var nearestCluster{id}=0u; var clusterLower{id}=1e30; for (var k=0u; k<({count}+7u)/8u; k++) {{ let b={gp}_cluster_bound(c,{clusters}u+k*6u); if (b<clusterLower{id}) {{ clusterLower{id}=b; nearestCluster{id}=k; }} }} for (var j=nearestCluster{id}*8u; j<min((nearestCluster{id}+1u)*8u,{count}); j++) {{ let local={gp}_placement(c,{base}u+j*12u); let bound=box_distance(local.p.xyz*local.s,{half}*local.s); if (bound<lower{id}) {{ lower{id}=bound; closest{id}=j; }} }} for (var j=0u; j<{count}; j++) {{ if (j%8u==0u && {gp}_cluster_bound(c,{clusters}u+(j/8u)*6u)>lower{id}) {{ j+=7u; continue; }} let local={gp}_placement(c,{base}u+j*12u); let bound=box_distance(local.p.xyz*local.s,{half}*local.s); if (bound<lower{id} || (bound==lower{id} && j<closest{id})) {{ lower{id}=bound; closest{id}=j; }} }}"));
-                            // Swap the nearest copy into the first iteration so
-                            // the detailed evaluator appears only once in code.
-                            self.line(&format!("for (var rank=0u; rank<{count}; rank++) {{ if (rank>0u && rank%8u==0u && {gp}_cluster_bound(c,{clusters}u+(rank/8u)*6u)>best{id}.distance) {{ rank+=7u; continue; }} var j=rank; if (rank==0u) {{ j=closest{id}; }} else if (rank==closest{id}) {{ j=0u; }} let local={gp}_placement(c,{base}u+j*12u); let bound=box_distance(local.p.xyz*local.s,{half}*local.s); if (bound>best{id}.distance) {{ continue; }} var detail={gp}_instances_{template}_exact(local.p.xyz); detail.distance=max(detail.distance*local.p.w,bound); if (detail.distance<best{id}.distance || (detail.distance==best{id}.distance && j<chosen{id})) {{ best{id}=detail; chosen{id}=j; }} }}"));
+                            if fast.contains(&id) {
+                                // Empty space needs only the root fence, not a
+                                // search for the nearest of thousands of copies.
+                                self.line(&format!("let envelope{id}={gp}_cluster_bound(c,{bvh}u); if (envelope{id}>{margin}) {{ best{id}=DeSample(envelope{id},vec4f(1e30),0u,0u,1u); }} else {{"));
+                            }
+                            // Seed with a near leaf before stackless traversal.
+                            // A fixed left-to-right walk alone can evaluate every
+                            // template when the point is on the far right.
+                            self.line(&format!("var seed{id}=0u; while ({gp}({bvh}u+seed{id}*8u+7u)<0.0) {{ let left=seed{id}+1u; let right=u32({gp}({bvh}u+left*8u+6u)); seed{id}=select(right,left,{gp}_cluster_bound(c,{bvh}u+left*8u)<={gp}_cluster_bound(c,{bvh}u+right*8u)); }}"));
+                            // Signed AABB distances remain lower bounds in
+                            // overlapping interiors. Original IDs resolve ties.
+                            self.line(&format!("var cursor{id}=seed{id}; var seedPass{id}=true; let end{id}=2u*{count}-1u; while (cursor{id}<end{id}) {{ let current=cursor{id}; let first=seedPass{id}; seedPass{id}=false; cursor{id}=select(current+1u,0u,first); let at={bvh}u+current*8u; let bound={gp}_cluster_bound(c,at); if (bound>best{id}.distance) {{ if (!first) {{ cursor{id}=u32({gp}(at+6u)); }} continue; }} let leaf={gp}(at+7u); if (leaf<0.0 || (!first && current==seed{id})) {{ continue; }} let j=u32(leaf); let local={gp}_placement(c,{base}u+j*12u); let fence=box_distance(local.p.xyz*local.s,{half}*local.s); if (fence>best{id}.distance) {{ continue; }}"));
+                            if fast.contains(&id) {
+                                self.line(&format!("var detail=DeSample(fence,vec4f(1e30),0u,0u,1u); if (fence<={margin}) {{ detail={gp}_instances_{template}_fast(local.p.xyz); detail.distance=max(detail.distance*local.p.w,fence); }}"));
+                            } else {
+                                self.line(&format!("var detail={gp}_instances_{template}_exact(local.p.xyz); detail.distance=max(detail.distance*local.p.w,fence);"));
+                            }
+                            self.line(&format!("if (detail.distance<best{id}.distance || (detail.distance==best{id}.distance && j<chosen{id})) {{ best{id}=detail; chosen{id}=j; }} }}"));
+                            if fast.contains(&id) {
+                                self.line("}");
+                            }
                         }
                         self.line(&format!("let d{id}=best{id}.distance; let d{id}_it=best{id}.iterations; let d{id}_tr=best{id}.traps; let d{id}_mat=best{id}.material; let d{id}_flags=best{id}.flags;"));
                     }
@@ -896,7 +886,7 @@ impl Emitter<'_> {
             ));
         }
         let _ = writeln!(self.out, "}}");
-        if self.layout.len() > TRAP_SCALE_BASE {
+        if self.layout.len() > PARAM_COUNT {
             return Err(SceneError::Graph(format!(
                 "plus de {TRAP_SCALE_BASE} scalaires de paramètres"
             )));
@@ -1044,17 +1034,22 @@ fn compile_functions(
         .collect();
     let mut layout = ParamLayout::default();
     let mut source = String::new();
+    if let Some(node) = g.nodes.iter().find(|n| {
+        n.enabled && matches!(n.kind, NodeKind::Power { power } if power != 6.0 && power != 8.0)
+    }) {
+        let helper = include_str!("shaders/cubic_polar.wgsl")
+            .replace("cubic_polar", &format!("{params}_cubic_polar"));
+        let note = comment(node.id, &node.name);
+        for line in helper.lines() {
+            writeln!(source, "{line} {note}").unwrap();
+        }
+    }
     if g.nodes
         .iter()
         .any(|n| n.enabled && matches!(n.kind, NodeKind::Instances { .. }))
     {
         // Inverse affine rows are packed once on the CPU, avoiding per-ray trigonometry.
-        let buffer = if params == "gp" {
-            "graph_params"
-        } else {
-            "texture_params"
-        };
-        writeln!(source,"struct {params}_Placement {{ p: vec4f, s: vec3f }}; fn {params}_placement(p: vec3f, i: u32) -> {params}_Placement {{ let v=vec4f(p,1.0); let row=i/4u; let x={buffer}[row]; let y={buffer}[row+1u]; let z={buffer}[row+2u]; let s=inverseSqrt(vec3f(dot(x.xyz,x.xyz),dot(y.xyz,y.xyz),dot(z.xyz,z.xyz))); return {params}_Placement(vec4f(dot(x,v),dot(y,v),dot(z,v),min(min(s.x,s.y),s.z)),s); }}").unwrap();
+        writeln!(source,"struct {params}_Placement {{ p: vec4f, s: vec3f }}; fn {params}_placement(p: vec3f, i: u32) -> {params}_Placement {{ let v=vec4f(p,1.0); let row=i/4u; let x={params}_row(row); let y={params}_row(row+1u); let z={params}_row(row+2u); let s=inverseSqrt(vec3f(dot(x.xyz,x.xyz),dot(y.xyz,y.xyz),dot(z.xyz,z.xyz))); return {params}_Placement(vec4f(dot(x,v),dot(y,v),dot(z,v),min(min(s.x,s.y),s.z)),s); }}").unwrap();
         writeln!(source,"fn {params}_cluster_bound(p:vec3f,i:u32)->f32 {{ let centre=vec3f({params}(i),{params}(i+1u),{params}(i+2u)); let half=vec3f({params}(i+3u),{params}(i+4u),{params}(i+5u)); return box_distance(p-centre,half); }}").unwrap();
     }
     // Topological order makes nested detail functions available before callers.
@@ -1193,7 +1188,7 @@ mod tests {
         let c = compile(&Graph::new_minimal()).unwrap();
         assert!(c.wgsl.contains("fn de_sample(p: vec3f) -> DeSample"));
         assert!(c.wgsl.contains("// node 1 Sphere"));
-        assert_eq!(c.layout.index_of(1, "radius"), Some(0));
+        assert_eq!(c.layout.index_of(1, "radius"), Some(4));
         assert!(c.wgsl.contains("gp(0u)"));
     }
 
@@ -1220,7 +1215,7 @@ mod tests {
     }
 
     #[test]
-    fn pack_puts_values_in_layout_order_and_trap_scales_at_the_end() {
+    fn pack_puts_values_in_layout_order_and_reserves_trap_scales() {
         let g = Graph::bundled("mandelbox").unwrap();
         let c = compile(&g).unwrap();
         let v = c.layout.pack(&g);
@@ -1263,8 +1258,11 @@ mod tests {
         });
         g.validate().unwrap();
         let c = compile(&g).unwrap();
-        assert!(c.layout.len() > 256 && c.layout.len() < TRAP_SCALE_BASE);
-        assert_eq!(&c.layout.pack(&g)[TRAP_SCALE_BASE..], &g.trap_scales());
+        assert!(c.layout.len() > 256 && c.layout.len() < PARAM_COUNT);
+        assert_eq!(
+            &c.layout.pack(&g)[TRAP_SCALE_BASE..TRAP_SCALE_BASE + 4],
+            &g.trap_scales()
+        );
     }
 
     #[test]
@@ -1334,6 +1332,8 @@ mod tests {
                 phase: 0.0,
             },
             Power { power: 8.0 },
+            Power { power: 3.0 },
+            Power { power: 3.5 },
             AddOrigin,
             Twist { rate: 0.1 },
             Bend { rate: 0.1 },
@@ -1487,7 +1487,7 @@ put"
         // Nested repeat: clamped to the iteration product 3 * 2.
         assert!(c.wgsl.contains("6u),"));
         // Every scalar has a slot below the trap scales, and pack fills them.
-        assert!(c.layout.len() <= TRAP_SCALE_BASE);
+        assert!(c.layout.len() <= PARAM_COUNT);
         let v = c.layout.pack(&g);
         assert_eq!(v[TRAP_SCALE_BASE + 2], 2.0);
         assert_eq!(v[TRAP_SCALE_BASE + 3], 1.0);
@@ -1546,6 +1546,20 @@ put"
             assert!(!texture.wgsl.contains(" gp("));
             assert!(texture.wgsl.contains("texture_gp("));
         }
+        let mut cubic = Graph::bundled("mandelbulb").unwrap();
+        for n in &mut cubic.nodes {
+            if let NodeKind::Power { power } = &mut n.kind {
+                *power = 3.0;
+            }
+        }
+        let form = compile(&cubic).unwrap();
+        let texture = compile_texture(&cubic).unwrap();
+        assert!(form.wgsl.contains("fn gp_cubic_polar("));
+        assert!(texture.wgsl.contains("fn texture_gp_cubic_polar("));
+        validate_wgsl(&crate::shader_source::pathtrace_with_texture(
+            &form.wgsl,
+            Some(&texture.wgsl),
+        ));
     }
 
     #[test]

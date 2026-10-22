@@ -1,11 +1,15 @@
 mod chrome;
+pub mod creation;
 mod file_browser;
 pub mod floating;
 pub mod form_panel;
 pub mod gallery_panel;
 pub mod inspector;
+pub mod mosaic;
 pub mod panels;
+pub mod phenomena;
 pub mod render_panel;
+mod simple;
 pub mod texture_preview;
 pub mod theme;
 pub mod viewport;
@@ -106,26 +110,48 @@ fn shortcuts(ui: &egui::Ui, state: &mut AppState) {
         )
     });
     if undo {
-        state.undo();
+        if state.tab == Tab::Mosaic {
+            mosaic::history(ui.ctx(), false, true);
+        } else {
+            state.undo();
+        }
     }
     if redo || redo_shift {
-        state.redo();
+        if state.tab == Tab::Mosaic {
+            mosaic::history(ui.ctx(), true, true);
+        } else {
+            state.redo();
+        }
     }
     if save {
-        if state.path.is_some() {
+        if state.tab == Tab::Mosaic {
+            mosaic::request_export(ui.ctx());
+        } else if state.path.is_some() {
             state.save();
         } else {
             open_dialog(ui, state, FileAction::SaveAs);
         }
     }
     if open {
-        open_dialog(ui, state, FileAction::Open);
+        if state.tab == Tab::Mosaic {
+            mosaic::choose_image(ui, state);
+        } else {
+            open_dialog(ui, state, FileAction::Open);
+        }
     }
     if ui.input_mut(|i| i.consume_key(shift, Key::S)) {
-        open_dialog(ui, state, FileAction::SaveAs);
+        if state.tab == Tab::Mosaic {
+            mosaic::request_export(ui.ctx());
+        } else {
+            open_dialog(ui, state, FileAction::SaveAs);
+        }
     }
     if ui.input_mut(|i| i.consume_key(Modifiers::COMMAND, Key::Enter)) {
-        ui.data_mut(|d| d.insert_temp(render_panel::toggle_id(), true));
+        if state.tab == Tab::Mosaic {
+            mosaic::request_generate(ui.ctx());
+        } else {
+            ui.data_mut(|d| d.insert_temp(render_panel::toggle_id(), true));
+        }
     }
     if ui.input_mut(|i| i.consume_key(Modifiers::NONE, Key::Tab)) {
         state.image_only = !state.image_only;
@@ -144,6 +170,12 @@ fn help(ui: &egui::Ui) {
     if open {
         crate::ui::floating::Window::new(syfrack_i18n::tr!("Prendre en main le Studio")).open(&mut open).resizable(false)
             .default_width(460.0).max_height((ui.ctx().content_rect().height()-100.0).max(280.0)).vscroll(true).show(ui.ctx(), |ui| {
+                ui.heading(syfrack_i18n::tr!("Interface"));
+                for mode in crate::interface::InterfaceMode::ALL {
+                    ui.label(egui::RichText::new(mode.label()).strong());
+                    ui.label(mode.description());
+                }
+                ui.add_space(8.0);
                 ui.heading(syfrack_i18n::tr!("De la forme à l’image"));
                 for (title, body) in [
                     (syfrack_i18n::tr!("1 · Choisir l'atelier"), syfrack_i18n::tr!("2D dessine une image fractale : motif, couleurs et cadrage. 3D compose un volume avec une matière, des lumières et une caméra. Chaque atelier conserve votre composition quand vous passez à l'autre.")),
@@ -198,10 +230,8 @@ pub fn draw(
         dialogs(ui, state, gallery, form);
         return;
     }
+    mosaic::poll(ui.ctx());
     coalesce_gestures(ui, state);
-    if state.scene.dimension == syfrack_core::Dimension::TwoD && state.tab == Tab::Forme {
-        state.tab = Tab::Atelier;
-    }
     if !floating::blocked(ui.ctx()) {
         shortcuts(ui, state);
     }
@@ -211,6 +241,10 @@ pub fn draw(
     chrome::show(ui, state);
     dialogs(ui, state, gallery, form);
     banner(ui, state);
+    if state.tab == Tab::Mosaic {
+        mosaic::show(ui, state);
+        return;
+    }
     if state.tab == Tab::Forme {
         form.show(ui, state);
         return;
@@ -227,6 +261,7 @@ pub fn draw(
     }
     egui::Panel::bottom("status").show(ui, |ui| {
         ui.horizontal(|ui| {
+            form.preview_controls(ui);
             ui.label(
                 egui::RichText::new(&view.caption)
                     .small()

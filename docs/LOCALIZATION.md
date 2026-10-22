@@ -56,6 +56,10 @@ The Windows preference is `%APPDATA%/SyFrack/language.txt`, containing `en` or
 overrides the preference at startup. Saving a language selection changes only
 this preference, never the project. A write failure is shown in Studio.
 
+Simple/Advanced is a separate presentation preference in
+`%APPDATA%/SyFrack/interface.txt` (`simple` or `advanced`). Missing/invalid values
+use Advanced. This choice also stays outside scene files and undo/redo history.
+
 The CLI keeps English command syntax/help and offers `--lang en|fr` for
 localized graph diagnostics. Forme source exports have a stable English syntax
 independent of the UI language, and legacy French syntax remains readable.

@@ -6,10 +6,12 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use syfrack_color::{develop_and_encode, read_exr, write_exr, write_png};
 use syfrack_core::{clay_scene, thumbnail_scene, FractalTexture, Graph, Look, Scene};
-use syfrack_render::{GpuContext, RenderConfig, RenderSession, Renderer, SessionState};
+use syfrack_render::{ExportMode, ExportSession, GpuContext, RenderConfig, Renderer, SessionState};
+mod mosaic;
+mod nature;
 
 #[derive(Parser)]
-#[command(name = "syfrack", about = "SyFrack fractal renderer")]
+#[command(name = "syfrack", version, about = "SyFrack fractal renderer")]
 struct Cli {
     /// Language for localized scene diagnostics (en or fr).
     #[arg(long, global = true, value_parser = ["en", "fr"], default_value = "en")]
@@ -20,8 +22,59 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Reinterpret an image as an adaptive mosaic of coloured fractals (CPU).
+    Mosaic {
+        #[command(subcommand)]
+        cmd: mosaic::MosaicCommand,
+    },
+    /// Coupled natural fields, frozen simulations, animation and variation branches.
+    Nature {
+        #[command(subcommand)]
+        cmd: nature::NatureCommand,
+    },
     /// Reports the GPU adapter and runs a trivial compute shader.
-    Probe,
+    Probe {
+        /// Probe the software Vulkan CPU adapter without compiling a scene.
+        #[arg(long)]
+        cpu: bool,
+    },
+    /// Measure GPU-only, CPU-only and simultaneous hybrid export throughput.
+    BenchmarkHybrid {
+        scene: PathBuf,
+        #[arg(long, default_value_t = 3, value_parser=clap::value_parser!(u32).range(1..=20))]
+        repeats: u32,
+        #[arg(long)]
+        out: PathBuf,
+        #[arg(long, default_value_t = 128, value_parser=clap::value_parser!(u32).range(8..=4096))]
+        width: u32,
+        #[arg(long, default_value_t = 96, value_parser=clap::value_parser!(u32).range(8..=4096))]
+        height: u32,
+        #[arg(long, default_value_t = 8, value_parser=clap::value_parser!(u32).range(1..=4096))]
+        samples: u32,
+        #[arg(long, default_value_t = 1)]
+        bounces: u32,
+        #[arg(long, default_value_t = 128)]
+        steps: u32,
+        #[arg(long, default_value_t = 32)]
+        tile: u32,
+        #[arg(long, default_value_t = 0.01)]
+        relative_rmse: f64,
+        #[arg(long, default_value_t = 0.0001)]
+        absolute_rmse: f64,
+    },
+    /// Strict bitwise CPU/WGSL audit of all eleven bundled distance graphs.
+    Parity {
+        #[arg(long, default_value_t = 100_000, value_parser = clap::value_parser!(u32).range(16..=1_000_000))]
+        points: u32,
+        #[arg(long)]
+        out: PathBuf,
+        /// Audit a software Vulkan adapter instead of the hardware GPU.
+        #[arg(long)]
+        cpu: bool,
+        /// Save measurements without requiring the strict parity gate to pass.
+        #[arg(long)]
+        report_only: bool,
+    },
     /// Writes a built-in example scene.
     ExampleScene {
         #[arg(long)]
@@ -60,6 +113,9 @@ enum Command {
         guide: bool,
         #[arg(long, default_value_t = 256)]
         tile: u32,
+        /// auto: GPU-only, using wavefront for new 3D exports.
+        #[arg(long, default_value = "auto", value_parser = ["auto", "gpu", "tiled", "wavefront", "hybrid", "cpu"])]
+        backend: String,
         /// GPU dispatch latency target in ms; longer batches suit final exports.
         #[arg(long, default_value_t=800, value_parser=clap::value_parser!(u32).range(50..=800))]
         dispatch_ms: u32,
@@ -84,6 +140,9 @@ enum Command {
         state: PathBuf,
         #[arg(long)]
         out: PathBuf,
+        /// Explicitly switch a tiled checkpoint's backend, accepting native float differences.
+        #[arg(long, value_parser = ["auto", "gpu", "tiled", "wavefront", "hybrid", "cpu"])]
+        backend: Option<String>,
         /// Override scheduling latency without changing saved samples or shading.
         #[arg(long, value_parser=clap::value_parser!(u32).range(50..=800))]
         dispatch_ms: Option<u32>,
@@ -160,7 +219,155 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     syfrack_i18n::set_language(syfrack_i18n::Language::parse(&cli.lang).unwrap());
     match cli.command {
-        Command::Probe => probe(),
+        Command::Mosaic { cmd } => mosaic::run(cmd),
+        Command::Nature { cmd } => nature::run(cmd),
+        Command::Probe { cpu } => probe(cpu),
+        Command::BenchmarkHybrid {
+            scene,
+            repeats,
+            out,
+            width,
+            height,
+            samples,
+            bounces,
+            steps,
+            tile,
+            relative_rmse,
+            absolute_rmse,
+        } => {
+            let tolerance = syfrack_render::hybrid_benchmark::ImageTolerance {
+                relative_rmse,
+                absolute_rmse,
+            };
+            tolerance.validate()?;
+            let scene = Scene::load(&scene)?;
+            let mut cfg = RenderConfig::new(width, height, samples);
+            cfg.max_bounces = bounces;
+            cfg.max_steps = steps;
+            cfg.tile_size = tile;
+            cfg.dispatch_budget_ms = 800;
+            eprintln!(
+                "Warming GPU and CPU pipelines before timing {repeats} interleaved repetitions..."
+            );
+            let report = syfrack_render::hybrid_benchmark::benchmark_repeated_with_phases(
+                &gpu_renderer()?,
+                &scene,
+                &cfg,
+                tolerance,
+                repeats,
+                &mut |m| {
+                    println!(
+                        "run {} {:?}: {:.3} s, {:.0} pixel-samples/s, CPU {} tiles, GPU {} tiles",
+                        m.repetition + 1,
+                        m.backend,
+                        m.seconds,
+                        m.pixel_samples_per_second,
+                        m.workers.cpu_tiles,
+                        m.workers.gpu_tiles
+                    );
+                    if m.backend == syfrack_render::ExportMode::Hybrid {
+                        let t = &m.workers.dispatch_timing;
+                        let interval =
+                            |d: &syfrack_render::hybrid_benchmark::DeviceDispatchTiming| match (
+                                d.first_ms, d.last_ms,
+                            ) {
+                                (Some(first), Some(last)) => format!("{first:.1} .. {last:.1} ms"),
+                                _ => "inactive".into(),
+                            };
+                        println!(
+                            "  CPU/GPU in-flight dispatch overlap (host clock): {:.1} ms; CPU dispatches {}, GPU dispatches {}",
+                            t.overlap_wall_ms, t.cpu.dispatches, t.gpu.dispatches
+                        );
+                        println!(
+                            "  CPU timeline: {}; GPU timeline: {}",
+                            interval(&t.cpu),
+                            interval(&t.gpu)
+                        );
+                    }
+                },
+                &mut |phase| {
+                    use syfrack_render::hybrid_benchmark::BenchmarkPhase;
+                    match phase {
+                        BenchmarkPhase::Warmup(backend) => {
+                            eprintln!("Warm-up {backend:?} only (excluded from timing)...")
+                        }
+                        BenchmarkPhase::Measurement {
+                            backend,
+                            repetition,
+                        } => eprintln!(
+                            "Starting run {} {backend:?}{}...",
+                            repetition + 1,
+                            if backend == syfrack_render::ExportMode::Hybrid {
+                                " (CPU + hardware GPU concurrently)"
+                            } else {
+                                " only (baseline)"
+                            }
+                        ),
+                    }
+                },
+            )?;
+            std::fs::write(
+                &out,
+                ron::ser::to_string_pretty(&report, ron::ser::PrettyConfig::new())?,
+            )?;
+            println!(
+                "Hybrid speedup / GPU: {:.3}x; ideal sum of isolated throughputs: {:.3}x",
+                report.hybrid_speedup_over_gpu, report.ideal_combined_speedup
+            );
+            println!(
+                "HDR RMSE CPU {:.6e}, hybrid {:.6e}; report: {}",
+                report.cpu_difference.rmse,
+                report.hybrid_difference.rmse,
+                out.display()
+            );
+            println!(
+                "CPU-only diagnostic within tolerance: {}; assembled hybrid within tolerance: {}",
+                report.cpu_difference.require(tolerance).is_ok(),
+                report.hybrid_difference.require(tolerance).is_ok()
+            );
+            report.require_concurrent_work()?;
+            report.require_quality()
+        }
+        Command::Parity {
+            points,
+            out,
+            cpu,
+            report_only,
+        } => {
+            let context = Arc::new(if cpu {
+                GpuContext::new_cpu()?
+            } else {
+                GpuContext::new()?
+            });
+            let renderer = Renderer::new(context)?;
+            let report = syfrack_render::parity::audit(&renderer, points as usize, 11, &mut |g| {
+                println!(
+                    "{}: distance {}/{}, traps {:?}, iterations {}, material {}, max ULP {}",
+                    g.graph,
+                    g.distance_mismatches,
+                    g.points,
+                    g.trap_mismatches,
+                    g.iteration_mismatches,
+                    g.material_mismatches,
+                    g.max_distance_ulp
+                );
+            })?;
+            for r in &report.arithmetic {
+                println!(
+                    "math {}: {}/{} bit differences",
+                    r.operation, r.mismatches, r.inputs
+                );
+            }
+            std::fs::write(
+                &out,
+                ron::ser::to_string_pretty(&report, ron::ser::PrettyConfig::new())?,
+            )?;
+            println!("parity report: {}", out.display());
+            if !report_only {
+                report.require_bit_exact()?;
+            }
+            Ok(())
+        }
         Command::ExampleScene { out, kind, texture } => {
             let mut scene = Scene::example_for(&kind.to_ascii_lowercase())?;
             if let Some(name) = texture {
@@ -191,6 +398,7 @@ fn main() -> Result<()> {
             guide,
             tile,
             dispatch_ms,
+            backend,
             time_budget,
             state,
             checkpoint_every,
@@ -235,7 +443,19 @@ fn main() -> Result<()> {
             scene_value.validate()?;
             let checkpoint_every =
                 checkpoint_every.or(state_dir.as_ref().map(|_| Duration::from_secs(60)));
-            let session = RenderSession::new(gpu_renderer()?, &scene_value, &cfg)?;
+            let mode = match backend.as_str() {
+                "gpu" => ExportMode::Gpu,
+                "tiled" => ExportMode::Tiled,
+                "wavefront" => ExportMode::Wavefront,
+                "hybrid" => ExportMode::Hybrid,
+                "cpu" => ExportMode::Cpu,
+                _ => ExportMode::Auto,
+            };
+            let session = if mode == ExportMode::Cpu {
+                ExportSession::cpu(&scene_value, &cfg)?
+            } else {
+                ExportSession::new(gpu_renderer()?, &scene_value, &cfg, mode)?
+            };
             drive(
                 session,
                 &Drive {
@@ -251,6 +471,7 @@ fn main() -> Result<()> {
         Command::Resume {
             state,
             out,
+            backend,
             dispatch_ms,
             checkpoint_every,
             preview_every,
@@ -261,8 +482,22 @@ fn main() -> Result<()> {
             let preview_every = seconds_arg("preview-every", preview_every)?;
             let time_budget = seconds_arg("time-budget", time_budget)?;
             check_out_vs_state(&out, &state)?;
-            let mut session = RenderSession::resume(gpu_renderer()?, &state)
-                .with_context(|| format!("resuming from {}", state.display()))?;
+            let resumed = match backend.as_deref() {
+                Some("cpu") => ExportSession::resume_cpu(&state),
+                Some(name) => ExportSession::resume_with_backend(
+                    gpu_renderer()?,
+                    &state,
+                    match name {
+                        "hybrid" => ExportMode::Hybrid,
+                        "auto" => ExportMode::Auto,
+                        "wavefront" => ExportMode::Wavefront,
+                        _ => ExportMode::Tiled,
+                    },
+                ),
+                None => ExportSession::resume(gpu_renderer()?, &state),
+            };
+            let mut session =
+                resumed.with_context(|| format!("resuming from {}", state.display()))?;
             if let Some(milliseconds) = dispatch_ms {
                 session.set_dispatch_budget_ms(milliseconds)?;
             }
@@ -409,8 +644,12 @@ fn graph_thumbnail(path: &Path, samples: u32) -> Result<()> {
     Ok(())
 }
 
-fn probe() -> Result<()> {
-    let ctx = GpuContext::new()?;
+fn probe(cpu: bool) -> Result<()> {
+    let ctx = if cpu {
+        GpuContext::new_cpu()?
+    } else {
+        GpuContext::new()?
+    };
     println!("adapter : {}", ctx.info.name);
     println!("backend : {:?}", ctx.info.backend);
     let out = ctx.run_probe()?;
@@ -532,7 +771,7 @@ fn check_state_dir_free(dir: &Path) -> Result<()> {
     );
 }
 
-fn write_preview(session: &RenderSession, base: &Path) -> Result<()> {
+fn write_preview(session: &ExportSession, base: &Path) -> Result<()> {
     let out = session.readback()?;
     let scene = session.scene();
     let filtered;
@@ -571,7 +810,7 @@ fn seconds_arg(name: &str, v: Option<f64>) -> Result<Option<Duration>> {
 
 /// Steps the session to completion or until the budget expires, saving
 /// checkpoints and previews on their intervals; then writes the outputs.
-fn drive(mut session: RenderSession, d: &Drive) -> Result<()> {
+fn drive(mut session: ExportSession, d: &Drive) -> Result<()> {
     let start = Instant::now();
     let mut last_checkpoint = Instant::now();
     let mut last_preview = Instant::now();
@@ -602,8 +841,9 @@ fn drive(mut session: RenderSession, d: &Drive) -> Result<()> {
             last_print = Instant::now();
             last_report = p.dispatches;
             eprintln!(
-                "  {:>5} dispatches  spp {:>5}..{:<5} / {}  tiles {}  max dispatch {} ms  {:.1}s",
+                "  {:>5} dispatches  {:5.1}%  spp {:>5}..{:<5} / {}  tiles {}  max dispatch {} ms  {:.1}s",
                 p.dispatches,
+                p.fraction_complete() * 100.0,
                 p.samples_min,
                 p.samples_max,
                 p.target,

@@ -14,20 +14,34 @@ pub struct GpuContext {
 impl GpuContext {
     pub fn new() -> Result<Self> {
         let mut errors = Vec::new();
+        let mut software = None;
         for backends in [
             wgpu::Backends::VULKAN,
             wgpu::Backends::DX12,
             wgpu::Backends::GL,
         ] {
-            match Self::try_backend(backends) {
+            match Self::try_backend(backends, false) {
+                Ok(ctx) if ctx.info.device_type == wgpu::DeviceType::Cpu => {
+                    if software.is_none() {
+                        software = Some(ctx);
+                    }
+                }
                 Ok(ctx) => return Ok(ctx),
                 Err(e) => errors.push(format!("{backends:?}: {e:#}")),
             }
         }
-        Err(anyhow!("no usable GPU backend:\n{}", errors.join("\n")))
+        software.ok_or_else(|| anyhow!("no usable GPU backend:\n{}", errors.join("\n")))
     }
 
-    fn try_backend(backends: wgpu::Backends) -> Result<Self> {
+    /// Execute the same transport on a Vulkan software CPU adapter (lavapipe
+    /// or SwiftShader). WARP is deliberately excluded: its native DX12 driver
+    /// crashed during validation on the target machine, outside Rust unwinding.
+    pub fn new_cpu() -> Result<Self> {
+        Self::try_backend(wgpu::Backends::VULKAN, true)
+            .context("no usable Vulkan CPU adapter (install/register a software ICD)")
+    }
+
+    fn try_backend(backends: wgpu::Backends, cpu: bool) -> Result<Self> {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends,
             ..wgpu::InstanceDescriptor::new_without_display_handle()
@@ -35,11 +49,16 @@ impl GpuContext {
         let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::HighPerformance,
             compatible_surface: None,
-            force_fallback_adapter: false,
+            force_fallback_adapter: cpu,
             apply_limit_buckets: false,
         }))
         .context("request_adapter")?;
         let info = adapter.get_info();
+        anyhow::ensure!(
+            !cpu || info.device_type == wgpu::DeviceType::Cpu,
+            "fallback adapter {} is not a CPU",
+            info.name
+        );
         let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
             label: Some("syfrack"),
             required_features: wgpu::Features::empty(),
@@ -113,7 +132,7 @@ impl GpuContext {
         });
         let mut enc = self.device.create_command_encoder(&Default::default());
         enc.copy_buffer_to_buffer(src, offset, &staging, 0, size);
-        self.queue.submit([enc.finish()]);
+        let submission = self.queue.submit([enc.finish()]);
 
         let slice = staging.slice(..);
         let (tx, rx) = std::sync::mpsc::channel();
@@ -121,9 +140,12 @@ impl GpuContext {
             tx.send(r).ok();
         });
         self.device
-            .poll(wgpu::PollType::wait_indefinitely())
+            .poll(wgpu::PollType::Wait {
+                submission_index: Some(submission),
+                timeout: Some(std::time::Duration::from_secs(30)),
+            })
             .map_err(|e| anyhow!("device poll: {e:?}"))?;
-        rx.recv()
+        rx.recv_timeout(std::time::Duration::from_secs(5))
             .context("map callback dropped")?
             .context("map_async")?;
         let data = slice

@@ -1,0 +1,114 @@
+(
+    dimension: ThreeD,
+    canvas: (
+        center: (0.0, 0.0),
+        zoom: 1.0,
+        rotation: 0.0,
+    ),
+    seed: 7,
+    fractal: Graph((nodes:[
+(id:0, kind:Input, name:"Espace de la cite", pos:(0.0,0.0), enabled:true),
+(id:1, kind:Rotate(angles:(12.0,24.0,-8.0)), name:"Orientation des voutes", pos:(230.0,0.0), enabled:true),
+(id:2, kind:BoxFoldAxes(limit:(1.0,1.0,1.0),x:true,y:true,z:true), name:"Plis des murailles", pos:(460.0,0.0), enabled:true),
+(id:3, kind:SphereFold(min_radius:0.5,fixed_radius:1.0), name:"Courbes des galeries", pos:(690.0,0.0), enabled:true),
+(id:4, kind:Scale(factor:-1.8), name:"Rapport des generations", pos:(920.0,0.0), enabled:true),
+(id:5, kind:AddSeed(multiplier:(1.0,1.0,1.0)), name:"Reinjection locale", pos:(1150.0,0.0), enabled:true),
+(id:6, kind:Trap(slot:0,measure:Norm,scale:2.0), name:"Patine des galeries", pos:(1380.0,0.0), enabled:true),
+(id:7, kind:Iterate(iterations:18,bailout:1000.0,body:[2, 3, 4, 5, 6]), name:"Dix-huit generations", pos:(1610.0,0.0), enabled:true),
+(id:8, kind:NormFence(inset:0.0), name:"Surface de la citadelle", pos:(1840.0,0.0), enabled:true),
+(id:9, kind:Output, name:"Elysium - Cite des marees", pos:(2070.0,0.0), enabled:true)
+],links:[
+(from:(0,0),to:(1,0)),
+(from:(1,0),to:(7,0)),
+(from:(7,0),to:(8,0)),
+(from:(8,0),to:(9,0))
+],safety:0.6,bounding_radius_hint:12.0)),
+    camera:(mode:Free(position:(7.0,3.6,7.0),target:(0.0,0.0,0.0),roll:-12),focal_mm:38,f_number:0.0,focus_distance:10.0),
+    lights:[
+        Environment(zenith:Linear((.006,.014,.03)),horizon:Linear((.04,.065,.085)),ground:Linear((.008,.012,.022)),intensity:.5,rotation:0.0),
+        Area(position:(-5.0,8.0,9.0),normal:(.36,-.58,-.72),size:(6.0,4.0),color:Linear((.60,.82,1.0)),intensity:95.0),
+        Sun(direction:(.6,.32,-.7),color:Linear((1.0,.55,.18)),intensity:2.0,angular_size:2.0),
+    ],
+    material: (
+        albedo: (0.88, 0.92, 0.96),
+        roughness: 0.28,
+        metallic: 0.55,
+        specular: 0.04,
+        coloring: Orbit(
+            channels: (
+                traps: (0.84, 0.0, 0.0, 0.0),
+                iterations: 0.0,
+                normal: 0.0,
+                logarithmic: 1.2,
+            ),
+            ramp: (
+                stops: [
+                    (0.018, 0.028, 0.065),
+                    (0.055, 0.16, 0.28),
+                    (0.32, 0.63, 0.66),
+                    (0.83, 0.91, 0.96),
+                    (0.58, 0.45, 0.32),
+                ],
+                positions: [
+                    0.0,
+                    0.24,
+                    0.48,
+                    0.7,
+                    1.0,
+                ],
+                cyclic: false,
+                frequency: 1.0,
+                phase: 0.0,
+                gamma: 1.0,
+                interpolation: Smooth,
+            ),
+        ),
+        texture: None,
+        surface: None,
+        finishes: [
+        (name:"Argent satine",albedo:(.80,.88,.94),roughness:.22,metallic:.92,specular:.04,emission:(0.0,0.0,0.0),detail:Some((pattern:BrushedMetal,seed:313,scale:24.0,strength:.10,bump:.0002,roughness_delta:.04,tint:(.32,.40,.48)))),
+        (name:"Cuivre pale",albedo:(.80,.42,.16),roughness:.25,metallic:.88,specular:.04,emission:(0.0,0.0,0.0),detail:None)
+    ],
+    ),
+    atmosphere: (
+        fog_density: 0.0,
+        fog_color: (1.0, 1.0, 1.0),
+        fog_height: 0.0,
+        fog_falloff: 1.0,
+        anisotropy: 0.0,
+        cavity_darkness: 0.0,
+        seascape: None,
+        ground: None,
+        portal: None,
+    ),
+    look: (
+        exposure_ev: 0.35,
+        auto_exposure: None,
+        temperature: 6500.0,
+        tint: 0.0,
+        shadows: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        midtones: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        highlights: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        tonemap: Agx(
+            slope: 1.06,
+            power: 1.1,
+            offset: 0.0,
+        ),
+        saturation: 1.03,
+        vibrance: 0.0,
+        neon_softness: 0.0,
+        vignette: None,
+        grain: None,
+        output: Srgb,
+        dither: true,
+    ),
+)

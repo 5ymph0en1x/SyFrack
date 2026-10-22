@@ -7,6 +7,7 @@ pub mod gallery;
 pub mod gizmos;
 pub mod graph_edit;
 pub mod input;
+pub mod interface;
 pub mod library;
 pub mod paths;
 pub mod preview;

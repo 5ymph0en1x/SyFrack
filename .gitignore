@@ -1,6 +1,9 @@
 /target/
 /renders/
 *.exr
+!scenes/environments/neon-night.exr
+!crates/syfrack-render/tests/fixtures/parity/*.exr
+!docs/benchmarks/guiding-cost-2026-10-09/fixtures/*/*.exr
 /dist/
 /target-dist/
 /old/

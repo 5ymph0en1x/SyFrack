@@ -1,0 +1,14 @@
+# Forme 1 · sources nommées ; paramètres après ;
+réglages pas=0.7 rayon=0.625
+
+entrée_0 = départ()
+echelle_de_la_sculpture_90 = agrandir(entrée_0; facteur=4)
+origine_a_l_echelle_91 = ajouter_origine()
+origine_a_l_echelle_92 = ajouter_origine()
+origine_a_l_echelle_93 = ajouter_origine()
+piège_2 = mesurer(; canal=0; échelle=1.5; mesure=norme)
+puissance_polaire_3 = bulbe(; puissance=8)
+ajouter_l_origine_4 = ajouter_origine()
+répéter_1 = répéter(echelle_de_la_sculpture_90; fois=16; seuil=4; étapes=[piège_2, puissance_polaire_3, ajouter_l_origine_4, origine_a_l_echelle_91, origine_a_l_echelle_92, origine_a_l_echelle_93])
+clôture_bulbe_5 = surface_bulbe(répéter_1)
+sortie_6 = montrer(clôture_bulbe_5)

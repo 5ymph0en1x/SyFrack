@@ -1,0 +1,122 @@
+{
+  "title": "L’Éclosion de l’infini — Lucioles",
+  "date": "2026-10-16",
+  "medium": "Image fixe unique, rendu natif SyFrack",
+  "animation": false,
+  "scene": "scenes/studies/eclosion-lucioles-20261016/eclosion-lucioles.ron",
+  "forme_source": "scenes/studies/eclosion-lucioles-20261016/eclosion-lucioles.syf",
+  "generator": "scripts/compose/compose-eclosion.py",
+  "generator_arguments": [
+    "--edition",
+    "lucioles",
+    "--out",
+    "scenes/studies/eclosion-lucioles-20261016/eclosion-lucioles.ron"
+  ],
+  "render_launcher": "scripts/render/render-eclosion.ps1",
+  "render_launcher_arguments": [
+    "-Edition",
+    "lucioles"
+  ],
+  "geometry": {
+    "original_petals_preserved_exactly": 10,
+    "middle_petals": 5,
+    "inner_petals": 5,
+    "rear_petals": 5,
+    "total_petals": 15,
+    "rear_row_z": -1.95,
+    "rear_row_radius": 3.75,
+    "rear_petal_scale": [
+      1.1,
+      1.18,
+      1.0
+    ],
+    "rear_angular_spacing_degrees": 72.0,
+    "rear_angular_phase_degrees": 45.0,
+    "static_fireflies": 18,
+    "firefly_head_radius": 0.024,
+    "fireflies": "Tiny emissive heads with short tapered glints, frozen on three tilted orbits",
+    "graph_nodes": 72,
+    "graph_links": 78
+  },
+  "appearance": {
+    "stone": "Denser jade appearance, reduced base emission and a halo behind the front relief",
+    "opaque_surface_preserved": true,
+    "jade_emission_linear_rgb": [
+      0.004,
+      0.075,
+      0.024
+    ],
+    "inclusion_emission_linear_rgb": [
+      0.055,
+      2.4,
+      0.8
+    ],
+    "jade_roughness": 0.45,
+    "jade_metallic": 0.13,
+    "halo_center": [
+      0,
+      0.85,
+      -0.4
+    ],
+    "halo_half_size": [
+      2.25,
+      2.25,
+      1.1
+    ],
+    "halo_density": 0.3,
+    "halo_emission": 28.0,
+    "halo_steps": 32,
+    "backdrop": "Simple slate blue environment gradient",
+    "environment_zenith_linear_rgb": [
+      0.012,
+      0.026,
+      0.042
+    ],
+    "environment_horizon_linear_rgb": [
+      0.038,
+      0.065,
+      0.086
+    ],
+    "environment_ground_linear_rgb": [
+      0.008,
+      0.014,
+      0.025
+    ],
+    "environment_intensity": 0.24,
+    "external_images_or_meshes": false
+  },
+  "completed_render": {
+    "renderer": "SyFrack, Quadro K3100M, Vulkan",
+    "renderer_sha256": "3B9FFCA87FD6554340957670453C86E785CC639421F9F25640A003D7150AB718",
+    "width": 896,
+    "height": 896,
+    "samples_min": 12,
+    "samples_max": 12,
+    "target_samples": 12,
+    "light_bounces": 1,
+    "tracing_steps": 640,
+    "pixel_tolerance": 0.4,
+    "denoise_png": true,
+    "elapsed_render_seconds": 340.6,
+    "png": "renders/studies/eclosion-lucioles-20261016/eclosion-lucioles-final.png",
+    "exr": "renders/studies/eclosion-lucioles-20261016/eclosion-lucioles-final.exr",
+    "scene_snapshot": "renders/studies/eclosion-lucioles-20261016/eclosion-lucioles-final.ron",
+    "log": "renders/studies/eclosion-lucioles-20261016/eclosion-lucioles-final.render.log"
+  },
+  "verification": {
+    "scene_graph_validation": "passed",
+    "forme_source_rebuild_and_validation": "passed",
+    "original_corolla_placement_comparison": "passed",
+    "rear_row_count": 5,
+    "static_firefly_count": 18,
+    "complete_12_sample_checkpoint": "verified",
+    "png_readability_and_16_bit_rgb_header": "passed",
+    "exr_signature": "passed",
+    "final_image_visual_inspection": "passed",
+    "previous_scene_versions_unchanged": true,
+    "original_scene_sha256": "51ec45e9ac9a758881a409cbc8a0ee53c57386ec93b661c5c9dc9e5745b7446e",
+    "phosphore_scene_sha256": "a3ce72af5bdf101fb4f320d2e34f592166ef305d9467b145c05bce230a434f64",
+    "scene_sha256": "6ef3e75b651c7e27115885c8fead1e6453382848ebe0bceeb08c0428bc0053bf",
+    "png_sha256": "ad032a60bc45b6d73a66728c9f528f9fb2e8a3bf478ed081e9a11c4db8ce3568"
+  }
+}

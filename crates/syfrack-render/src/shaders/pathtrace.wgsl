@@ -59,6 +59,10 @@ fn volume_coordinate(sample_index: u32, dimension: u32, stream: u32) -> f32 {
 // ---------------------------------------------------------------- Distance field
 
 struct Hit {
+    curved: bool,
+    endpoint: vec3f,
+    tangent: vec3f,
+    medium: vec4f,
     hit: bool,
     t: f32,
     steps: u32,
@@ -93,12 +97,12 @@ fn march_segment(ro: vec3f, rd: vec3f, pixel_cone: f32, t_end: f32) -> Hit {
     for (var i = 0u; i < u.max_steps; i++) {
         if (t >= t_end) { return out; }
         out.steps = i + 1u;
-        var s = de_sample(ro + rd * t);
+        var s = scene_sample(ro + rd * t);
         var radius = abs(s.distance) * safety;
         // A bounding box is only a stepping aid. Never accept it as a surface,
         // including the relaxed candidate at the end of the step budget.
         if (s.flags != 0u && radius / max(t, 1e-6) <= hit_cone * 5.0) {
-            s = de_sample_exact(ro + rd * t);
+            s = scene_sample_exact(ro + rd * t);
             radius = abs(s.distance) * safety;
         }
         let sor_fail = omega > 1.0 && (radius + prev_radius) < step_len * 1.0001;
@@ -255,6 +259,7 @@ struct Surface {
     transmission: f32,
     transmission_pdf: f32,
     diffuse_sigma: f32,
+    film_thickness: f32,
 }
 
 fn surface_value(slot: u32, n: vec3f, sample: DeSample) -> f32 {
@@ -352,6 +357,21 @@ fn make_surface(p: vec3f, n: vec3f, v: vec3f, sample: DeSample, footprint: f32) 
     s.n = shading_n;
     s.diffuse = albedo * (1.0 - metallic);
     s.f0 = mix(vec3f(spec), albedo, metallic);
+    s.film_thickness=-1.0;
+    if(u.phenomena.outputs.x!=0u){
+        let field=nature_field(p);
+        if((field.inside && (u.phenomena.outputs.x&1u)!=0u)||(u.phenomena.outputs.x&64u)!=0u){
+            // Reflectance is bounded; field emission and 2D radiance retain HDR.
+            albedo=clamp(field.color,vec3f(0.0),vec3f(1.0));
+            s.diffuse=albedo*(1.0-metallic);s.f0=mix(vec3f(spec),albedo,metallic);
+        }
+        if(field.inside && (u.phenomena.outputs.x&2u)!=0u){emission+=field.color*field.a.y*u.phenomena.gains.z;}
+    }
+    if(NATURE_FILM_ENABLED&&u.phenomena.film.x>0.0){
+        let field=nature_field(p);
+        let thickness=max(0.0,u.phenomena.film.y+field.b.y*u.phenomena.film_extra.y);
+        s.film_thickness=thickness;
+    }
     s.alpha = rough * rough;
     s.emission = emission;
     s.water = 0.0;
@@ -365,6 +385,11 @@ fn make_surface(p: vec3f, n: vec3f, v: vec3f, sample: DeSample, footprint: f32) 
     return s;
 }
 
+fn surface_fresnel(s:Surface,cosine:f32)->vec3f{
+    let base=fresnel(s.f0,cosine);
+    if(!NATURE_FILM_ENABLED||s.film_thickness<0.0){return base;}
+    return mix(base,film_rgb(cosine,s.film_thickness),u.phenomena.film.x);
+}
 // BRDF value without the cosine term. v points to the eye, l to the light.
 fn brdf_eval(s: Surface, v: vec3f, l: vec3f) -> vec3f {
     let nl = dot(s.n, l);
@@ -376,7 +401,7 @@ fn brdf_eval(s: Surface, v: vec3f, l: vec3f) -> vec3f {
     let nh = max(dot(s.n, h), 0.0);
     let vh = max(dot(v, h), 0.0);
     let a2 = s.alpha * s.alpha;
-    var f = fresnel(s.f0, vh);
+    var f = surface_fresnel(s, vh);
     if (s.water > 0.0) { f = vec3f(ocean_fresnel(vh, s.eta)); }
     let spec = ggx_d(nh, a2) * smith_g1(nv, a2) * smith_g1(nl, a2) * f / max(4.0 * nv * nl, 1e-4);
     var diffuse_factor=1.0;
@@ -409,7 +434,7 @@ fn sun_pdf(cos_max: f32) -> f32 {
 }
 
 fn spec_probability(s: Surface, nv: f32) -> f32 {
-    let f_avg = fresnel(s.f0, nv);
+    let f_avg = surface_fresnel(s, nv);
     return clamp(luminance(f_avg) / max(luminance(f_avg) + luminance(s.diffuse), 1e-4), 0.05, 0.95);
 }
 
@@ -787,7 +812,8 @@ fn radiance(px: vec2u, rng: ptr<function, u32>, first_depth: ptr<function, f32>,
     // a broader footprint and should not resolve subpixel relief or parallax.
     var texture_width = 0.0;
     var texture_spread = pixel_cone * 0.5;
-    var throughput = vec3f(1.0);
+    var throughput = vec3f(1.0);var wavelength=550.0;
+    if(DISPERSION_ENABLED&&u.phenomena.outputs.z!=0u){let channel=spectral_channel(px,point_index);wavelength=array<f32,3>(610.0,550.0,460.0)[channel];throughput=vec3f(0.0);throughput[channel]=3.0;}
     var L = vec3f(0.0);
     // Exact additive path partition. Primary in-scattering and paths whose
     // first real vertex is in the fog belong to the volume. Paths first hitting
@@ -805,7 +831,7 @@ fn radiance(px: vec2u, rng: ptr<function, u32>, first_depth: ptr<function, f32>,
     var solid_medium = false;
     var medium_slot = 0u;
     if (OPTICS_ENABLED) {
-        let initial = de_sample_exact(ray.o);
+        let initial = scene_sample_exact(ray.o);
         let optics = material_optics(initial.material);
         solid_medium = initial.distance < 0.0 && optics.absorption.w > 0.0
             && optics.surface.y > 0.0 && optics.surface.w == 0.0;
@@ -815,6 +841,19 @@ fn radiance(px: vec2u, rng: ptr<function, u32>, first_depth: ptr<function, f32>,
     for (var bounce = 0u; bounce <= u.max_bounces;) {
         var h = trace_scene(ray.o, ray.d, pixel_cone, ray_extent());
         h = optical_refine_hit(ray.o,ray.d,h);
+        if(h.curved){
+            let emitted=throughput*h.medium.xyz;L+=emitted;if(bounce==0u){primary_volume+=emitted;}
+            throughput*=h.medium.w;
+            ray=Ray(h.endpoint-h.tangent*h.t,h.tangent);
+            // Curved continuation has no Euclidean next-event PDF competitor.
+            prev_from_bsdf=false;prev_pdf=0.0;
+        }
+        if(!h.curved&&(u.phenomena.outputs.x&4u)!=0u){
+            let medium=nature_volume(ray.o,ray.d,h.t);
+            let emitted=throughput*medium.xyz;
+            L+=emitted;if(bounce==0u){primary_volume+=emitted;}
+            throughput*=medium.w;
+        }
         if (OPTICS_ENABLED && solid_medium) {
             let medium = material_optics(medium_slot);
             var distance = h.t;
@@ -1048,7 +1087,7 @@ fn radiance(px: vec2u, rng: ptr<function, u32>, first_depth: ptr<function, f32>,
         if (remote) { offset = 0.012; }
         if (optical && optics.surface.y > 0.0 && rand(rng) < optics.surface.y) {
             if (bounce == u.max_bounces) { break; }
-            let sampled = optical_bounce(optics,n,ray.d,s.alpha,entering,rng);
+            let sampled = optical_bounce(optics,n,ray.d,s.alpha,entering,s.film_thickness,wavelength,rng);
             if (!sampled.valid) { break; }
             throughput *= sampled.weight;
             // Refraction uses a much smaller bias than opaque relief, so
@@ -1078,7 +1117,7 @@ fn radiance(px: vec2u, rng: ptr<function, u32>, first_depth: ptr<function, f32>,
 
         if (remote) {
             L += throughput * otherworld_direct(p_off, s, n, v, pixel_cone, rng);
-        } else {
+        } else if(!kerr_enabled()) {
             L += throughput * direct_light(p_off, s, n, v, p_spec, area_total, pixel_cone, in_fog, bounce == u.max_bounces, cell, strength, rng);
             L += throughput * portal_direct(p_off, s, n, v, p_spec, pixel_cone,
                 bounce == u.max_bounces, cell, strength, in_fog, rng);
@@ -1172,14 +1211,15 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     if (px.x >= u.image_size.x || px.y >= u.image_size.y) {
         return;
     }
-    let idx = px.y * u.image_size.x + px.x;
+    let global_idx = px.y * u.image_size.x + px.x;
+    let idx = output_index(px);
     var first_depth = -1.0;
     var first_aux = vec4f(0.0, 0.0, 0.0, -1.0);
     for (var s = 0u; s < u.sample_count; s++) {
         var rng = rng_init(px, u.sample_start + s, u.seed);
         var d = -1.0;
         var a = vec4f(0.0, 0.0, 0.0, -1.0);
-        let training_slot = guide_record_slot(idx, u.sample_start + s);
+        let training_slot = guide_record_slot(global_idx, u.sample_start + s);
         var r: vec3f;
         var volume = vec3f(0.0);
         var direct_volume = vec3f(0.0);
@@ -1191,6 +1231,11 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
             let c = u.camera.origin.z; let sn = u.camera.origin.w;
             let q = u.camera.origin.xy + vec2f(c*p.x-sn*p.y,sn*p.x+c*p.y);
             r = texture_color(texture_value(vec3f(q,0.0)));
+            if((u.phenomena.outputs.x&65u)!=0u){
+                let field=nature_field(vec3f(q,0.0));
+                r=select(vec3f(0.0),field.color,field.inside||(u.phenomena.outputs.x&64u)!=0u);
+                if((u.phenomena.outputs.x&2u)!=0u){r+=field.color*field.a.y*u.phenomena.gains.z;}
+            }
             d = 1.0; a = vec4f(0.0,0.0,1.0,0.0);
         } else {
             r = radiance(px, &rng, &d, &a, training_slot, &volume, &direct_volume, u.sample_start+s);

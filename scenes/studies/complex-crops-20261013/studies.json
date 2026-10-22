@@ -1,0 +1,51 @@
+[
+  {
+    "name": "21-nova-brocart",
+    "family": "Nova",
+    "julia": [
+      0.2,
+      0.4
+    ],
+    "power": 3,
+    "center": [
+      -0.642120809,
+      -0.131538869
+    ],
+    "zoom": 40,
+    "relaxation": 0.75,
+    "twist": 17,
+    "iterations": 192,
+    "stripes": 13,
+    "bailout": 64,
+    "frequency": 8,
+    "weights": [
+      0.18,
+      0.27,
+      0.5,
+      0
+    ]
+  },
+  {
+    "name": "22-newton-filigrane",
+    "family": "Newton",
+    "power": 5,
+    "center": [
+      -0.693828078,
+      -0.20502988
+    ],
+    "zoom": 30,
+    "relaxation": 0.85,
+    "twist": 24,
+    "iterations": 192,
+    "stripes": 13,
+    "bailout": 64,
+    "frequency": 8,
+    "weights": [
+      0.15,
+      0.3,
+      0.5,
+      0
+    ],
+    "palette": "cuivre"
+  }
+]

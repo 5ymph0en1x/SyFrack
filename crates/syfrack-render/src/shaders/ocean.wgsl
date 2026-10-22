@@ -54,22 +54,42 @@ fn ocean_noise(p: vec2f, seed: u32) -> vec3f {
     return vec3f(mix(b-a,e-d,t.y)*dt.x,mix(d-a,e-b,t.x)*dt.y,mix(mix(a,b,t.x),mix(d,e,t.x),t.y));
 }
 
+// xy = resolved capillary slope, z = unresolved mean-square slope.
+// Filtering a normal must not turn distant, rippled water into a perfect
+// mirror. Move the discarded slope variance into the reflection lobe instead.
+// This is an isotropic GGX approximation, not an exact BRDF convolution.
+fn ocean_micro_slope(p: vec2f, footprint: f32) -> vec3f {
+    var result = vec3f(0.0);
+    if (u.seascape.ocean_wave.y <= 0.0 || u.seascape.ocean_detail.z <= 0.0) {
+        return result;
+    }
+    var k = 1.0 / max(u.seascape.ocean_wave.z * 0.065, 0.08);
+    var a = u.seascape.ocean_detail.z * 0.48;
+    for (var i = 0u; i < 5u; i++) {
+        let angle = u.seascape.ocean_detail.x + 0.75 + f32(i) * 1.937;
+        let d = vec2f(cos(angle), sin(angle));
+        let e = vec2f(-d.y,d.x);
+        let q = vec2f(dot(p,d)*k,dot(p,e)*k*0.63)
+            + vec2f(u.seascape.ocean_detail.y*0.11,17.17*f32(i));
+        let visible = exp(-pow(max(footprint,0.0)*k*2.0,2.0));
+        if (visible > 1e-5) {
+            let field = ocean_noise(q,u.seed+701u+i*137u);
+            result.x += (d.x*field.x+e.x*field.y*0.63)*a*visible;
+            result.y += (d.y*field.x+e.y*field.y*0.63)*a*visible;
+        }
+        // Per-axis E[(dn/dx)^2] of quintic value noise with independent
+        // uniform corners: integral(t'^2)*integral(t^2+(1-t)^2)/6 = 905/4851.
+        let variance = (905.0/4851.0)*(1.0+0.63*0.63)*a*a;
+        result.z += variance*(1.0-visible*visible);
+        k *= 2.37;
+        a *= 0.56;
+    }
+    return result;
+}
+
 fn ocean_normal(p: vec2f, footprint: f32, micro: bool) -> vec3f {
     var gradient = ocean_wave(p).yz;
-    if (micro && u.seascape.ocean_wave.y > 0.0) {
-        var k = 1.0 / max(u.seascape.ocean_wave.z * 0.09, 0.12);
-        var a = u.seascape.ocean_detail.z * 0.32;
-        for (var i = 0u; i < 3u; i++) {
-            let angle = u.seascape.ocean_detail.x + 0.75 + f32(i) * 1.937;
-            let d = vec2f(cos(angle), sin(angle));
-            let e = vec2f(-d.y,d.x);
-            let q=vec2f(dot(p,d)*k,dot(p,e)*k*0.63)+vec2f(u.seascape.ocean_detail.y*0.11,17.17*f32(i));
-            let microfield=ocean_noise(q,u.seed+701u+i*137u);
-            gradient += (d*microfield.x+e*microfield.y*0.63)*a*exp(-pow(footprint*k*2.0,2.0));
-            k *= 2.37;
-            a *= 0.52;
-        }
-    }
+    if (micro) { gradient += ocean_micro_slope(p,footprint).xy; }
     return safe_normalize(vec3f(-gradient.x, 1.0, -gradient.y));
 }
 
@@ -185,6 +205,7 @@ fn ocean_foam(p: vec3f, footprint: f32) -> f32 {
 
 fn ocean_surface(p: vec3f, n: vec3f, v: vec3f, footprint: f32, kind: u32, underwater: bool) -> Surface {
     var s: Surface;
+    s.film_thickness=-1.0;
     s.n = n;
     s.diffuse = u.seascape.ocean_bed.xyz;
     s.f0 = vec3f(0.04);
@@ -197,14 +218,21 @@ fn ocean_surface(p: vec3f, n: vec3f, v: vec3f, footprint: f32, kind: u32, underw
     if (kind == OCEAN_INTERFACE) {
         let foam = ocean_foam(p, footprint);
         let facing = select(1.0, -1.0, underwater);
-        s.n = ocean_normal(p.xz, footprint, true) * facing;
+        // Approximate the elongated footprint at grazing incidence. Geometry,
+        // visibility and interface intersections continue to use full waves.
+        let projected_footprint = footprint / max(abs(dot(n,v)),0.15);
+        let micro = ocean_micro_slope(p.xz,projected_footprint);
+        let base = n*facing;
+        let slope = -base.xz/max(base.y,1e-4)+micro.xy;
+        s.n = safe_normalize(vec3f(-slope.x,1.0,-slope.y))*facing;
         s.diffuse = u.seascape.ocean_foam.xyz * foam;
         s.eta = select(1.0 / u.seascape.ocean_optics.w, u.seascape.ocean_optics.w, underwater);
         let f0 = pow((u.seascape.ocean_optics.w - 1.0) / (u.seascape.ocean_optics.w + 1.0), 2.0);
         s.f0 = vec3f(f0);
         let wind_patch=ocean_noise(p.xz*0.19,u.seed+809u).z;
         let roughness = mix(u.seascape.ocean_detail.w*(0.82+0.4*wind_patch), 0.6, foam);
-        s.alpha = roughness * roughness;
+        // Each isotropic axis receives half the missing 2D slope variance.
+        s.alpha = sqrt(pow(roughness,4.0)+0.5*micro.z*(1.0-foam));
         s.water = 1.0;
         s.transmission = (1.0 - foam) * (1.0 - ocean_fresnel(dot(n, v), s.eta));
         if (s.transmission > 0.0) { s.transmission_pdf = clamp(s.transmission, 0.05, 0.95); }

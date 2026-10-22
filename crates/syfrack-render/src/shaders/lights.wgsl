@@ -208,7 +208,7 @@ fn trace_geometry_lights(ro: vec3f, rd: vec3f, pixel_cone: f32, t_end: f32) -> H
     return h;
 }
 
-fn trace_scene(ro: vec3f, rd: vec3f, pixel_cone: f32, t_end: f32) -> Hit {
+fn trace_scene_straight(ro: vec3f, rd: vec3f, pixel_cone: f32, t_end: f32) -> Hit {
     if (in_otherworld(ro)) { return otherworld_trace(ro, rd, pixel_cone, t_end); }
     let water = ocean_intersection(ro, rd, t_end);
     var h = trace_geometry_lights(ro, rd, pixel_cone, water.t);
@@ -218,6 +218,33 @@ fn trace_scene(ro: vec3f, rd: vec3f, pixel_cone: f32, t_end: f32) -> Hit {
         h.ocean_kind = water.kind;
     }
     return h;
+}
+
+fn trace_scene(ro:vec3f,rd:vec3f,pixel_cone:f32,t_end:f32)->Hit {
+    if(!kerr_enabled()){return trace_scene_straight(ro,rd,pixel_cone,t_end);}
+    var state=kerr_launch(ro,rd);var out:Hit;out.curved=true;out.light_index=NO_LIGHT;
+    out.medium=vec4f(0.0,0.0,0.0,1.0);out.endpoint=ro;out.tangent=rd;
+    out.sample=DeSample(T_MAX,vec4f(1.0),0u,0u,0u);
+    for(var i=0u;i<u32(u.phenomena.lens_config.y);i++){
+        out.steps=i+1u;let p=state.x.xyz;let radius=kerr_radius(p);
+        if(radius<=kerr_horizon()*1.001){out.exhausted=true;return out;}
+        let derivative=kerr_rhs(state);out.tangent=normalize(derivative.x.xyz);out.endpoint=p;
+        if(out.t>=t_end||(radius>=u.phenomena.lens_config.z&&dot(p-u.phenomena.lens_center.xyz,out.tangent)>0.0)){return out;}
+        var sample=scene_sample(p);let epsilon=max(1e-5,out.t*pixel_cone*u.fractal.p0.x);
+        if(sample.flags!=0u&&abs(sample.distance)*u.fractal.p0.w<=epsilon*5.0){sample=scene_sample_exact(p);}
+        if(sample.flags==0u&&abs(sample.distance)*u.fractal.p0.w<=epsilon){out.hit=true;out.sample=sample;return out;}
+        let dt=kerr_step_size(state,min(abs(sample.distance)*u.fractal.p0.w,t_end-out.t));
+        let next=kerr_advance(state,dt);let chord=next.x.xyz-p;let length_chord=length(chord);
+        if(!(length_chord>0.0&&length_chord<1e10)){out.exhausted=true;return out;}
+        let direction=chord/length_chord;var end=length_chord;
+        if(u.atmosphere.ground.x>0.0){let t=ground_intersection(p,direction,pixel_cone,end);if(t>1e-5&&t<end){end=t;out.ground=true;}}
+        for(var j=0u;j<u.light_count;j++){if(!is_emitter(u.lights[j])){continue;}let t=emitter_intersection(p,direction,u.lights[j]);if(t<end){end=t;out.ground=false;out.light_index=j;}}
+        let endpoint=p+direction*end;let medium=nature_chord(p,endpoint);
+        out.medium=vec4f(out.medium.xyz+out.medium.w*medium.xyz,out.medium.w*medium.w);out.t+=end;
+        if(out.ground||out.light_index!=NO_LIGHT){out.hit=true;out.endpoint=endpoint;out.tangent=direction;if(out.ground){out.sample.material=u32(u.atmosphere.ground.z);}return out;}
+        state=next;
+    }
+    out.exhausted=true;return out;
 }
 
 // Keep the sampled emitter out of its own shadow segment, allowing for f32
@@ -230,7 +257,10 @@ fn scene_visible(ro: vec3f, rd: vec3f, pixel_cone: f32, t_end: f32) -> bool {
     return scene_visibility_weight(ro,rd,pixel_cone,t_end)>0.0;
 }
 
-fn scene_visibility_weight(ro: vec3f, rd: vec3f, pixel_cone: f32, t_end: f32) -> f32 {
+fn scene_visibility_weight(ro:vec3f,rd:vec3f,pixel_cone:f32,t_end:f32)->f32{
+    return geometry_visibility_weight(ro,rd,pixel_cone,t_end)*nature_volume(ro,rd,t_end).w;
+}
+fn geometry_visibility_weight(ro: vec3f, rd: vec3f, pixel_cone: f32, t_end: f32) -> f32 {
     if (OPTICS_ENABLED) {
         var origin = ro; var remaining = t_end; var visibility = 1.0;
         for (var i=0u;i<32u;i++) {

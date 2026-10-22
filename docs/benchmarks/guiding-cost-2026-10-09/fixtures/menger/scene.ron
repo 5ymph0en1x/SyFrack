@@ -1,0 +1,147 @@
+(
+    seed: 7,
+    fractal: Graph((
+        nodes: [
+            (
+                id: 0,
+                kind: Input,
+                name: "Entrée",
+                pos: (0.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 1,
+                kind: Iterate(
+                    iterations: 5,
+                    bailout: 1000000.0,
+                    body: [
+                        2,
+                        3,
+                    ],
+                ),
+                name: "Répéter",
+                pos: (240.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 2,
+                kind: MengerFold(
+                    scale: 3.0,
+                    offset: (1.0, 1.0, 1.0),
+                ),
+                name: "Pli Menger",
+                pos: (240.0, 96.0),
+                enabled: true,
+            ),
+            (
+                id: 3,
+                kind: Trap(
+                    slot: 0,
+                    measure: Norm,
+                    scale: 4.0,
+                ),
+                name: "Piège",
+                pos: (240.0, 192.0),
+                enabled: true,
+            ),
+            (
+                id: 4,
+                kind: Box(
+                    half: (1.0, 1.0, 1.0),
+                ),
+                name: "Boîte",
+                pos: (480.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 5,
+                kind: Output,
+                name: "Sortie",
+                pos: (720.0, 0.0),
+                enabled: true,
+            ),
+        ],
+        links: [
+            (
+                from: (0, 0),
+                to: (1, 0),
+            ),
+            (
+                from: (1, 0),
+                to: (4, 0),
+            ),
+            (
+                from: (4, 0),
+                to: (5, 0),
+            ),
+        ],
+        safety: 0.9,
+        bounding_radius_hint: 4.464102,
+    )),
+    camera: (
+        mode: Orbit(
+            point: (0.0, 0.0, 0.0),
+            distance: 5.0,
+            azimuth: 40.0,
+            elevation: 30.0,
+            roll: 0.0,
+        ),
+        focal_mm: 40.0,
+        f_number: 0.0,
+        focus_distance: 2.6,
+    ),
+    lights: [
+        Hdri(
+            path: "studio.exr",
+            intensity: 1.0,
+            rotation: 0.0,
+        ),
+    ],
+    material: (
+        albedo: (0.8, 0.65, 0.4),
+        roughness: 0.6,
+        metallic: 0.0,
+        specular: 0.04,
+        coloring: r#None,
+        texture: None,
+        surface: None,
+    ),
+    atmosphere: (
+        fog_density: 0.0,
+        fog_color: (1.0, 1.0, 1.0),
+        fog_height: 0.0,
+        fog_falloff: 1.0,
+        anisotropy: 0.0,
+        cavity_darkness: 0.0,
+        seascape: None,
+    ),
+    look: (
+        exposure_ev: 0.0,
+        auto_exposure: None,
+        temperature: 6500.0,
+        tint: 0.0,
+        shadows: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        midtones: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        highlights: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        tonemap: Agx(
+            slope: 1.0,
+            power: 1.0,
+            offset: 0.0,
+        ),
+        saturation: 1.0,
+        vibrance: 0.0,
+        vignette: None,
+        grain: None,
+        output: Srgb,
+        dither: true,
+    ),
+)

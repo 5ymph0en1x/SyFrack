@@ -12,6 +12,7 @@ import tempfile
 import tomllib
 import zipfile
 from pathlib import Path, PurePosixPath
+from source_layout import documentation_files
 
 ROOT = Path(__file__).resolve().parents[2]
 TARGET = 'x86_64-pc-windows-msvc'
@@ -26,7 +27,7 @@ def sha(data):
 def validate_tag(tag, root=ROOT):
     match = VERSION_TAG.fullmatch(tag)
     if not match:
-        raise ValueError('Use a version tag such as v0.1.0 or v0.2.0-beta.1.')
+        raise ValueError('Use a version tag such as v0.2.0 or v0.2.0-beta.1.')
     version = tomllib.loads((root / 'Cargo.toml').read_text(encoding='utf8'))['workspace']['package']['version']
     if match[1] != version:
         raise ValueError(f'Tag {tag} must match workspace.package.version ({version}).')
@@ -132,10 +133,10 @@ def build(tag, revision, target_dir, output, root=ROOT):
             if path.is_file() and '__pycache__' not in path.parts:
                 # The source export contains curated content only. Include all its assets.
                 files[path.relative_to(root).as_posix()] = path.read_bytes()
-    for name in ['USER_GUIDE.md', 'BUILDING.md', 'LOCALIZATION.md', 'PUBLISHING.md']:
-        files[f'docs/{name}'] = (root / 'docs' / name).read_bytes()
-    files['docs/images/studio-2d-en.png'] = (root / 'docs/images/studio-2d-en.png').read_bytes()
+    for name, path in documentation_files(root).items():
+        files[name] = path.read_bytes()
     files['scripts/install-oidn.py'] = (root / 'scripts/install-oidn.py').read_bytes()
+    files['scripts/with-vulkan-cpu.ps1'] = (root / 'scripts/with-vulkan-cpu.ps1').read_bytes()
     metadata = json.loads(subprocess.check_output([
         'cargo', 'metadata', '--offline', '--locked', '--format-version', '1',
         '--filter-platform', TARGET, '--manifest-path', str(root / 'Cargo.toml'),
@@ -154,6 +155,7 @@ def build(tag, revision, target_dir, output, root=ROOT):
 2. Double-click syfrack-studio.exe. No Rust or Python installation is needed.
 3. Change language under View > Language > English / Francais.
 4. Keep scenes/, graphs/ and assets/ beside the executables.
+5. Choose Interface > Simple / Advanced; the interface choice is saved locally.
 
 The CLI is syfrack.exe. From this folder in PowerShell:
   .\\syfrack.exe --help

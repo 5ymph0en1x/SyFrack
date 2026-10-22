@@ -29,7 +29,7 @@ jobs:
         run: cargo check --locked --workspace --all-targets
       - name: CPU and headless UI tests
         run: cargo test --locked --workspace --lib
-      - name: Scene and graph integration tests
-        run: cargo test --locked -p syfrack-core --tests
+      - name: Scene, graph and CLI integration tests
+        run: cargo test --locked -p syfrack-core -p syfrack-cli --tests
       - name: Build Studio and CLI
         run: cargo build --locked --workspace --bins

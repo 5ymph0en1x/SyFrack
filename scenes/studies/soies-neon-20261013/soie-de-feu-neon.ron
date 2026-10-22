@@ -1,0 +1,33 @@
+// soie-de-feu-neon · original native SyFrack complex study
+// VOLUTES CHROMATIQUES - native recursive orbit texture, no bitmap assets.
+(
+dimension:TwoD,canvas:(center:(-.30,.08),zoom:1.0,rotation:0.0),seed:13102026,fractal:Graph((nodes:[
+(id:0, kind:Input, name:"Espace de la cite", pos:(0.0,0.0), enabled:true),
+(id:1, kind:Plane(normal:(0.0,0.0,1.0),offset:0.0), name:"Support de la gravure fractale", pos:(230.0,0.0), enabled:true),
+(id:2, kind:Output, name:"Volutes chromatiques", pos:(460.0,0.0), enabled:true)
+],links:[
+(from:(0,0),to:(1,0)),
+(from:(1,0),to:(2,0))
+],safety:0.78,bounding_radius_hint:6.0)),
+camera:(mode:Free(position:(0.0,0.0,6.0),target:(-.30,.08,0.0),roll:0.0),focal_mm:36.0,f_number:0.0,focus_distance:6.0),
+lights:[
+Area(position:(-2.0,3.0,5.0),normal:(.32,-.48,-.81),size:(5.0,5.0),color:Linear((1.0,.95,.86)),intensity:3.0),
+Environment(zenith:Linear((.80,.86,1.0)),horizon:Linear((.80,.86,1.0)),ground:Linear((.80,.86,1.0)),intensity:.45,rotation:0.0)],
+material:(albedo:(.95,.95,.95),roughness:.55,metallic:.35,specular:.04,coloring:None,
+texture:Some((graph:(nodes:[
+(id:0, kind:Input, name:"Espace de la cite", pos:(0.0,0.0), enabled:true),
+(id:1, kind:Sphere(radius:1.0), name:"Source de texture inactive en mode complexe", pos:(230.0,0.0), enabled:true),
+(id:2, kind:Output, name:"Elysium - Cite des marees", pos:(460.0,0.0), enabled:true)
+],links:[
+(from:(0,0),to:(1,0)),
+(from:(1,0),to:(2,0))
+],safety:0.78,bounding_radius_hint:4.0),planar:Some((family:Julia,power:2,iterations:192,julia:(-0.8,0.156),center:(0.08,0.02),zoom:5,angle:23,inversion:0,twist:0,relaxation:1,memory:-0.5,bailout:16,trap_radius:0.5,stripes:8)),
+channel:Orbit(channels:(traps:(1.0,0.08,0.18,0.0),iterations:0.0,normal:0.0,logarithmic:0.0)),
+scale:.65,offset:(0.0,0.0,0.0),rotation:(0.0,0.0,0.0),octaves:1,contrast:1.0,
+ramp:(stops:[(0.000607053967097675,0.00121410793419535,0.005605391624202723),(0.03954623527673284,0.006512090792594475,0.9130986517934192),(0.0,0.6938717612919899,1.0),(0.6866853124353135,0.9734452903984125,1.0),(0.9130986517934192,1.0,0.0),(1.0,0.0595112381629812,0.005181516702338386),(1.0,0.0,0.10461648409110419),(0.8631572134541023,0.0,1.0),(0.07227185068231748,0.0,0.8227857543962835)],cyclic:true,frequency:13,phase:.17,gamma:1.0,interpolation:Smooth),
+strength:1.0,roughness:0.0,bump:.018,parallax:0.0,parallax_steps:8,fan:None,mask:None)),surface:None,finishes:[]),
+atmosphere:(fog_density:0.0,fog_color:(1.0,1.0,1.0),fog_height:0.0,fog_falloff:1.0,anisotropy:0.0,cavity_darkness:0.0,seascape:None),
+look:(exposure_ev:0.0,auto_exposure:None,temperature:6500.0,tint:0.0,
+shadows:(offset:(0.0,0.0,0.0),gain:0.0),midtones:(offset:(0.0,0.0,0.0),gain:0.0),highlights:(offset:(0.0,0.0,0.0),gain:0.0),
+tonemap:Direct,saturation:1.0,vibrance:0.0,vignette:None,grain:None,output:Srgb,dither:true)
+)

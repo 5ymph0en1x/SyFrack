@@ -1,0 +1,33 @@
+// 13-nova-moire · original native SyFrack complex study
+// VOLUTES CHROMATIQUES - native recursive orbit texture, no bitmap assets.
+(
+seed:13102026,fractal:Graph((nodes:[
+(id:0, kind:Input, name:"Espace de la cite", pos:(0.0,0.0), enabled:true),
+(id:1, kind:Plane(normal:(0.0,0.0,1.0),offset:0.0), name:"Support de la gravure fractale", pos:(230.0,0.0), enabled:true),
+(id:2, kind:Output, name:"Volutes chromatiques", pos:(460.0,0.0), enabled:true)
+],links:[
+(from:(0,0),to:(1,0)),
+(from:(1,0),to:(2,0))
+],safety:0.78,bounding_radius_hint:6.0)),
+camera:(mode:Free(position:(0.0,0.0,6.0),target:(-.30,.08,0.0),roll:0.0),focal_mm:36.0,f_number:0.0,focus_distance:6.0),
+lights:[
+Area(position:(-2.0,3.0,5.0),normal:(.32,-.48,-.81),size:(5.0,5.0),color:Linear((1.0,.95,.86)),intensity:3.0),
+Environment(zenith:Linear((.80,.86,1.0)),horizon:Linear((.80,.86,1.0)),ground:Linear((.80,.86,1.0)),intensity:.45,rotation:0.0)],
+material:(albedo:(.95,.95,.95),roughness:.55,metallic:.35,specular:.04,coloring:None,
+texture:Some((graph:(nodes:[
+(id:0, kind:Input, name:"Espace de la cite", pos:(0.0,0.0), enabled:true),
+(id:1, kind:Sphere(radius:1.0), name:"Source de texture inactive en mode complexe", pos:(230.0,0.0), enabled:true),
+(id:2, kind:Output, name:"Elysium - Cite des marees", pos:(460.0,0.0), enabled:true)
+],links:[
+(from:(0,0),to:(1,0)),
+(from:(1,0),to:(2,0))
+],safety:0.78,bounding_radius_hint:4.0),planar:Some((family:Nova,power:3,iterations:192,julia:(0.2,0.4),center:(0.0,0.0),zoom:1.2,angle:0,inversion:0.8,twist:17,relaxation:0.75,memory:-0.5,bailout:16,trap_radius:0.5,stripes:34)),
+channel:Orbit(channels:(traps:(0.18,0.27,0.5,0.05),iterations:0.0,normal:0.0,logarithmic:0.0)),
+scale:.65,offset:(0.0,0.0,0.0),rotation:(0.0,0.0,0.0),octaves:1,contrast:1.0,
+ramp:(stops:[(0.006,0.012,0.024),(0.004,0.04,0.23),(0.005,0.28,0.34),(0.012,0.62,0.66),(0.86,0.74,0.47),(0.78,0.34,0.08),(0.7,0.03,0.01),(0.78,0.09,0.05),(0.33,0.007,0.06),(0.018,0.009,0.03)],cyclic:true,frequency:8,phase:.17,gamma:1.0,interpolation:Smooth),
+strength:1.0,roughness:0.0,bump:.018,parallax:0.0,parallax_steps:8,fan:None,mask:None)),surface:None,finishes:[]),
+atmosphere:(fog_density:0.0,fog_color:(1.0,1.0,1.0),fog_height:0.0,fog_falloff:1.0,anisotropy:0.0,cavity_darkness:0.0,seascape:None),
+look:(exposure_ev:-.1,auto_exposure:None,temperature:6500.0,tint:0.0,
+shadows:(offset:(0.0,0.0,0.0),gain:0.0),midtones:(offset:(0.0,0.0,0.0),gain:0.0),highlights:(offset:(0.0,0.0,0.0),gain:0.0),
+tonemap:Agx(slope:1.0,power:1.06,offset:0.0),saturation:1.3,vibrance:.08,vignette:None,grain:None,output:Srgb,dither:true)
+)

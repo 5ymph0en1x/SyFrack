@@ -1,0 +1,177 @@
+(
+    seed: 7,
+    fractal: Graph((
+        nodes: [
+            (
+                id: 0,
+                kind: Input,
+                name: "Entrée",
+                pos: (0.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 1,
+                kind: Box(
+                    half: (1.05, 1.05, 1.05),
+                ),
+                name: "Boîte",
+                pos: (120.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 2,
+                kind: Box(
+                    half: (1.0, 1.0, 1.0),
+                ),
+                name: "Boîte",
+                pos: (240.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 3,
+                kind: Subtraction,
+                name: "Soustraction",
+                pos: (360.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 4,
+                kind: Translate(
+                    offset: (-1.0, -0.65, 0.0),
+                ),
+                name: "Translation",
+                pos: (480.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 5,
+                kind: Box(
+                    half: (0.2, 0.15, 0.2),
+                ),
+                name: "Boîte",
+                pos: (600.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 6,
+                kind: Subtraction,
+                name: "Soustraction",
+                pos: (720.0, 0.0),
+                enabled: true,
+            ),
+            (
+                id: 7,
+                kind: Output,
+                name: "Sortie",
+                pos: (840.0, 0.0),
+                enabled: true,
+            ),
+        ],
+        links: [
+            (
+                from: (0, 0),
+                to: (1, 0),
+            ),
+            (
+                from: (0, 0),
+                to: (2, 0),
+            ),
+            (
+                from: (1, 0),
+                to: (3, 0),
+            ),
+            (
+                from: (2, 0),
+                to: (3, 1),
+            ),
+            (
+                from: (0, 0),
+                to: (4, 0),
+            ),
+            (
+                from: (4, 0),
+                to: (5, 0),
+            ),
+            (
+                from: (3, 0),
+                to: (6, 0),
+            ),
+            (
+                from: (5, 0),
+                to: (6, 1),
+            ),
+            (
+                from: (6, 0),
+                to: (7, 0),
+            ),
+        ],
+        safety: 1.0,
+        bounding_radius_hint: 3.0,
+    )),
+    camera: (
+        mode: Free(
+            position: (0.0, -0.1, 0.8),
+            target: (-0.4, -0.65, -0.6),
+            roll: 0.0,
+        ),
+        focal_mm: 28.0,
+        f_number: 0.0,
+        focus_distance: 5.0,
+    ),
+    lights: [
+        Area(
+            position: (1.3, 0.65, 0.0),
+            normal: (-1.0, 0.0, 0.0),
+            size: (0.25, 0.25),
+            color: Linear((1.0, 1.0, 1.0)),
+            intensity: 100.0,
+        ),
+    ],
+    material: (
+        albedo: (0.8, 0.65, 0.4),
+        roughness: 0.6,
+        metallic: 0.0,
+        specular: 0.0,
+        coloring: r#None,
+        texture: None,
+        surface: None,
+    ),
+    atmosphere: (
+        fog_density: 0.0,
+        fog_color: (1.0, 1.0, 1.0),
+        fog_height: 0.0,
+        fog_falloff: 1.0,
+        anisotropy: 0.0,
+        cavity_darkness: 0.0,
+        seascape: None,
+    ),
+    look: (
+        exposure_ev: 0.0,
+        auto_exposure: None,
+        temperature: 6500.0,
+        tint: 0.0,
+        shadows: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        midtones: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        highlights: (
+            offset: (0.0, 0.0, 0.0),
+            gain: 0.0,
+        ),
+        tonemap: Agx(
+            slope: 1.0,
+            power: 1.0,
+            offset: 0.0,
+        ),
+        saturation: 1.0,
+        vibrance: 0.0,
+        vignette: None,
+        grain: None,
+        output: Srgb,
+        dither: true,
+    ),
+)

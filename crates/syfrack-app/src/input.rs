@@ -127,6 +127,22 @@ pub fn unproject(basis: &CameraBasis, aspect: f32, u: f32, v: f32, depth: f32) -
     basis.origin + ray_dir(basis, aspect, u, v) * depth
 }
 
+pub fn unproject_scene(
+    scene: &syfrack_core::Scene,
+    basis: &CameraBasis,
+    aspect: f32,
+    u: f32,
+    v: f32,
+    depth: f32,
+) -> Vec3 {
+    if let Some(lens) = scene.phenomena.as_ref().and_then(|p| p.lens.as_ref()) {
+        if let Some(point) = lens.point_at_arc(basis.origin, ray_dir(basis, aspect, u, v), depth) {
+            return point;
+        }
+    }
+    unproject(basis, aspect, u, v, depth)
+}
+
 pub fn project(basis: &CameraBasis, aspect: f32, p: Vec3) -> Option<(f32, f32)> {
     let d = p - basis.origin;
     let z = d.dot(basis.forward);

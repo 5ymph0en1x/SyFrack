@@ -521,6 +521,15 @@ fn has_trap(graph: &Graph, slot: u32) -> bool {
 }
 
 pub fn show_texture(ui: &mut egui::Ui, state: &mut AppState) {
+    if state.scene.creation.is_some() || state.scene.creation_draft.is_some() {
+        ui.label(syfrack_i18n::tr!(
+            "Les palettes et les mélanges de couleur se règlent sur les nœuds du graphe."
+        ));
+        if ui.button(syfrack_i18n::tr!("Ouvrir le graphe")).clicked() {
+            state.tab = crate::state::Tab::Forme;
+        }
+        return;
+    }
     let on = state.scene.material.texture.is_some();
     if let Some(on) = toggle(ui, syfrack_i18n::tr!("Texture fractale"), on) {
         state.edit(|s| s.material.texture = on.then(FractalTexture::default));

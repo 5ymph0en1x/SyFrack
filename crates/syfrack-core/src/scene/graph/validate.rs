@@ -215,7 +215,7 @@ impl Graph {
             .iter()
             .map(|n| match &n.kind {
                 NodeKind::Instances { placements, .. } => {
-                    3 * placements.len() + 10 + placements.len().div_ceil(8) * 6
+                    3 * placements.len() + 10 + (2 * placements.len() - 1) * 8
                 }
                 NodeKind::Iterate { .. } => 1,
                 _ => 0,
@@ -340,8 +340,8 @@ impl Graph {
         }
         // A cycle is reported before duplicate ports: a loop usually feeds a port twice.
         self.check_acyclic()?;
-        // Instanced templates can contain other copies, but must stay within
-        // the same bounded evaluation budget as recursive forms.
+        // BVH-pruned instance expansion has its own budget, independent of
+        // fractal iteration counts. Nesting depth remains bounded.
         fn copies(g: &Graph, id: NodeId, cache: &mut HashMap<NodeId, (u32, u32)>) -> (u32, u32) {
             if let Some(&v) = cache.get(&id) {
                 return v;
@@ -367,8 +367,8 @@ impl Graph {
         let mut budgets = HashMap::new();
         for n in &self.nodes {
             let (depth, product) = copies(self, n.id, &mut budgets);
-            if depth > MAX_DEPTH || product > MAX_ITER_PRODUCT {
-                return Err(node_err(n.id,syfrack_i18n::tr_format!("Copies imbriquées : maximum {MAX_DEPTH} niveaux et {MAX_ITER_PRODUCT} placements par branche", MAX_DEPTH = MAX_DEPTH, MAX_ITER_PRODUCT = MAX_ITER_PRODUCT)));
+            if depth > MAX_DEPTH || product > super::MAX_INSTANCE_PRODUCT {
+                return Err(node_err(n.id,syfrack_i18n::tr_format!("Copies imbriquées : maximum {MAX_DEPTH} niveaux et {MAX_ITER_PRODUCT} placements par branche", MAX_DEPTH = MAX_DEPTH, MAX_ITER_PRODUCT = super::MAX_INSTANCE_PRODUCT)));
             }
         }
         let mut seen_to = HashSet::new();

@@ -66,6 +66,14 @@ impl TileGrid {
         self.tiles.iter().map(|t| t.done).max().unwrap_or(0)
     }
 
+    /// Exact completed work, including clipped edge and merged adaptive tiles.
+    pub fn pixel_samples_done(&self) -> u64 {
+        self.tiles
+            .iter()
+            .map(|t| u64::from(t.w) * u64::from(t.h) * u64::from(t.done))
+            .sum()
+    }
+
     pub fn at_pass_boundary(&self) -> bool {
         self.min_done() == self.max_done()
     }
@@ -289,6 +297,19 @@ mod tests {
         assert!(!g.merge_fast(&vec![0.1; 7], 64, 0.2));
         assert!(g.halve());
         check_coverage(&g);
+    }
+
+    #[test]
+    fn work_progress_weights_clipped_edge_tiles_by_their_pixel_area() {
+        let mut grid = TileGrid::new(10, 9, 8);
+        grid.tiles[0].done = 5; // 8x8 pixels * 5 samples.
+        grid.tiles[3].done = 10; // 2x1 pixels * 10 samples.
+        assert_eq!(grid.min_done(), 0);
+        assert_eq!(grid.pixel_samples_done(), 340);
+        for tile in &mut grid.tiles {
+            tile.done = 10;
+        }
+        assert_eq!(grid.pixel_samples_done(), 900);
     }
 
     #[test]

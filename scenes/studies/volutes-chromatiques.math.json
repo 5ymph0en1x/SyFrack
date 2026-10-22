@@ -1,0 +1,14 @@
+{
+  "title": "Volutes chromatiques",
+  "iterations": 13,
+  "palette_stops": 16,
+  "cyclic_frequency": 9,
+  "geometry": "plane with native recursive fractal texture and filtered shading relief",
+  "orbit_channels": [
+    "minimum norm",
+    "last logarithmic norm",
+    "last XY angle",
+    "minimum plane distance"
+  ],
+  "reference": "visual inspiration from the user's attached fractal; original formula unknown"
+}

@@ -1,6 +1,7 @@
 pub mod atmosphere;
 pub mod camera;
 pub mod clay;
+pub mod creation;
 pub mod flame;
 pub mod fractal;
 pub mod graph;
@@ -10,6 +11,7 @@ pub mod material;
 pub mod nebula;
 pub mod optics;
 pub mod palette;
+pub mod phenomena;
 pub mod planar;
 pub mod seascape;
 pub mod texture;
@@ -18,6 +20,7 @@ pub mod workspace;
 pub use atmosphere::{Atmosphere, Dunes, GroundPlane, PortalWorld};
 pub use camera::{Camera, CameraBasis, CameraMode};
 pub use clay::{clay_scene, thumbnail_scene};
+pub use creation::{CreationGraph, CreationKind, CreationNode, SocketType};
 pub use flame::{Flame, FlameTerm, FlameTransform, FlameVariation};
 pub use fractal::{DeSample, Fractal};
 pub use graph::{Graph, Link, Measure, Node, NodeId, NodeKind, Placement, PortType, TrapMode};
@@ -29,6 +32,7 @@ pub use material::{
 };
 pub use nebula::{Nebula, Particles};
 pub use optics::Optics;
+pub use phenomena::Phenomena;
 pub use planar::{PlanarFamily, PlanarFractal};
 pub use seascape::{OceanSurface, Seascape};
 pub use texture::{FanMapping, FractalTexture, TextureChannel, TextureMask};
@@ -83,20 +87,99 @@ pub fn is_pre_plan4(text: &str) -> bool {
             .any(|v| flat.contains(&format!("coloring:{v}(")))
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Scene {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub creation: Option<CreationGraph>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub creation_draft: Option<CreationGraph>,
     #[serde(default)]
     pub dimension: Dimension,
     #[serde(default)]
     pub canvas: Canvas2D,
     pub seed: u64,
+    #[serde(default = "default_form")]
     pub fractal: Fractal,
     pub camera: Camera,
     pub lights: Vec<Light>,
     pub material: Material,
     pub atmosphere: Atmosphere,
     pub look: Look,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub phenomena: Option<Phenomena>,
+}
+
+fn default_form() -> Fractal {
+    Fractal::Graph(Graph::bundled("sphere").expect("bundled sphere"))
+}
+
+// Canonical documents contain one graph. Lowered field/geometry IR is a runtime
+// cache, not a second editable source serialized alongside it.
+impl Serialize for Scene {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        #[derive(Serialize)]
+        struct Saved<'a> {
+            #[serde(skip_serializing_if = "Option::is_none")]
+            creation: Option<&'a CreationGraph>,
+            #[serde(skip_serializing_if = "Option::is_none")]
+            creation_draft: Option<&'a CreationGraph>,
+            dimension: Dimension,
+            canvas: &'a Canvas2D,
+            seed: u64,
+            #[serde(
+                skip_serializing_if = "Option::is_none",
+                serialize_with = "serialize_legacy_form"
+            )]
+            fractal: Option<&'a Fractal>,
+            camera: &'a Camera,
+            lights: &'a [Light],
+            material: &'a Material,
+            atmosphere: &'a Atmosphere,
+            look: &'a Look,
+            #[serde(skip_serializing_if = "Option::is_none")]
+            phenomena: Option<&'a Phenomena>,
+        }
+        let canonical = self.creation.is_some();
+        let mut material = self.material.clone();
+        if canonical
+            && self
+                .creation
+                .as_ref()
+                .unwrap()
+                .nodes
+                .iter()
+                .any(|n| matches!(n.kind, CreationKind::Texture(_)))
+        {
+            material.texture = None;
+        }
+        Saved {
+            creation: self.creation.as_ref(),
+            creation_draft: self.creation_draft.as_ref(),
+            dimension: self.dimension,
+            canvas: &self.canvas,
+            seed: self.seed,
+            fractal: (!canonical).then_some(&self.fractal),
+            camera: &self.camera,
+            lights: &self.lights,
+            material: &material,
+            atmosphere: &self.atmosphere,
+            look: &self.look,
+            phenomena: if canonical {
+                None
+            } else {
+                self.phenomena.as_ref()
+            },
+        }
+        .serialize(serializer)
+    }
+}
+fn serialize_legacy_form<S: serde::Serializer>(
+    form: &Option<&Fractal>,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
+    form.expect("an omitted form is skipped by serde")
+        .serialize(serializer)
 }
 
 impl Scene {
@@ -140,6 +223,8 @@ impl Scene {
     /// A sphere resting on a ground plane, lit by a warm sun and a blue sky.
     pub fn example() -> Self {
         Self {
+            creation: None,
+            creation_draft: None,
             dimension: Dimension::ThreeD,
             canvas: Canvas2D::default(),
             seed: 7,
@@ -184,17 +269,23 @@ impl Scene {
             },
             atmosphere: Atmosphere::none(),
             look: Look::neutral(),
+            phenomena: None,
         }
     }
 
     pub fn from_ron(text: &str) -> Result<Self, SceneError> {
-        ron::from_str(text).map_err(|e| {
+        let scene: Self = ron::from_str(text).map_err(|e| {
             if is_pre_plan4(text) {
                 SceneError::Parse(format!("{PRE_PLAN4} ({e})"))
             } else {
                 SceneError::Parse(e.to_string())
             }
-        })
+        })?;
+        if scene.creation.is_some() {
+            scene.render_scene()
+        } else {
+            Ok(scene)
+        }
     }
 
     pub fn to_ron(&self) -> String {
@@ -316,6 +407,12 @@ impl Params for Scene {
         self.material.visit_params(&join(prefix, "material"), f);
         self.atmosphere.visit_params(&join(prefix, "atmosphere"), f);
         self.look.visit_params(&join(prefix, "look"), f);
+        if let Some(g) = &mut self.creation {
+            g.visit_params(&join(prefix, "creation"), f);
+        }
+        if let Some(phenomena) = &mut self.phenomena {
+            phenomena.visit_params(&join(prefix, "phenomena"), f);
+        }
     }
 }
 
@@ -336,6 +433,10 @@ impl Scene {
 
     /// Checks light count and every parameter against its valid range.
     pub fn validate(&self) -> Result<(), SceneError> {
+        if let Some(g) = &self.creation {
+            g.compile(self)?;
+            return Ok(());
+        }
         self.fractal.graph().validate()?;
         self.validate_rest()
     }
@@ -343,11 +444,45 @@ impl Scene {
     /// The same checks with the form graph allowed to be incomplete
     /// (unwired ports): what an editor may open and save.
     pub fn validate_editable(&self) -> Result<(), SceneError> {
+        if let Some(g) = &self.creation {
+            g.types()?;
+            g.compile(self)?;
+            return Ok(());
+        }
         self.fractal.graph().validate_structure()?;
         self.validate_rest()
     }
 
     fn validate_rest(&self) -> Result<(), SceneError> {
+        if let Some(phenomena) = &self.phenomena {
+            phenomena.validate()?;
+            if phenomena.lens.as_ref().is_some_and(|l| l.mass > 0.0) {
+                if self.dimension != Dimension::ThreeD
+                    || self.atmosphere.fog_density > 0.0
+                    || self.atmosphere.nebula.is_some()
+                    || self.atmosphere.portal.is_some()
+                    || self.atmosphere.seascape.is_some()
+                {
+                    return Err(SceneError::Graph("Kerr rays require 3D geometry and natural-field volumes; disable the Euclidean fog, ocean, nebula and portal transports".into()));
+                }
+                if self
+                    .material
+                    .optics
+                    .iter()
+                    .chain(
+                        self.material
+                            .finishes
+                            .iter()
+                            .filter_map(|f| f.optics.as_ref()),
+                    )
+                    .any(|o| o.subsurface > 0.0)
+                {
+                    return Err(SceneError::Graph(
+                        "subsurface free-flight is not supported on Kerr rays".into(),
+                    ));
+                }
+            }
+        }
         if let Some(flame) = &self.canvas.flame {
             flame.validate()?;
             if self.dimension != Dimension::TwoD {
@@ -356,6 +491,10 @@ impl Scene {
         }
         if self.dimension == Dimension::TwoD
             && self.canvas.flame.is_none()
+            && !self
+                .phenomena
+                .as_ref()
+                .is_some_and(|p| p.bindings.color.is_some() || p.bindings.rgb.is_some())
             && self
                 .material
                 .texture
@@ -423,6 +562,38 @@ impl Scene {
 
     /// Sets one parameter by path, refusing values outside its valid range.
     pub fn set_param(&mut self, path: &str, value: f32) -> Result<(), SceneError> {
+        if let Some(g) = &self.creation {
+            let mapped = if let Some(rest) = path.strip_prefix("fractal.nodes[") {
+                Some(format!("creation.nodes[{rest}"))
+            } else if path == "fractal.safety" {
+                Some("creation.safety".into())
+            } else if path == "fractal.bounding_radius_hint" {
+                Some("creation.bounding_radius".into())
+            } else if let Some(rest) = path.strip_prefix("canvas.flame.") {
+                g.nodes
+                    .iter()
+                    .find(|n| matches!(n.kind, CreationKind::Flame(_)))
+                    .map(|n| format!("creation.nodes[{}].flame.{rest}", n.id))
+            } else if let Some(rest) = path.strip_prefix("material.texture.") {
+                let out = g
+                    .nodes
+                    .iter()
+                    .find(|n| matches!(n.kind, CreationKind::Output))
+                    .map(|n| n.id);
+                let selected = out.and_then(|id| g.input(id, 7)).map(|a| a.0).or_else(|| {
+                    g.nodes
+                        .iter()
+                        .find(|n| matches!(n.kind, CreationKind::Texture(_)))
+                        .map(|n| n.id)
+                });
+                selected.map(|id| format!("creation.nodes[{id}].texture.{rest}"))
+            } else {
+                None
+            };
+            if let Some(mapped) = mapped {
+                return self.set_param(&mapped, value);
+            }
+        }
         let mut found: Option<Bounds> = None;
         self.visit_params("", &mut |p, v, bounds| {
             if p == path {

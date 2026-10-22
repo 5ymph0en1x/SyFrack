@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing version tag to build (for example v0.1.0)'
+        description: 'Existing version tag to build (for example v0.2.0)'
         required: true
         type: string
 
@@ -64,8 +64,8 @@ jobs:
         run: cargo fmt --all -- --check
       - name: CPU and headless UI tests with the release profile
         run: cargo test --locked --release --target $env:RELEASE_TARGET --workspace --lib
-      - name: Scene and graph integration tests
-        run: cargo test --locked --release --target $env:RELEASE_TARGET -p syfrack-core --tests
+      - name: Scene, graph and CLI integration tests
+        run: cargo test --locked --release --target $env:RELEASE_TARGET -p syfrack-core -p syfrack-cli --tests
       - name: Build optimized Studio and CLI with the static C runtime
         run: cargo build --locked --release --target $env:RELEASE_TARGET --workspace --bins
       - name: Package and verify the portable archive
